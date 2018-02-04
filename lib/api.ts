@@ -1,30 +1,10 @@
-import { Token } from '@toba/oauth';
-import { Flickr } from './types';
-//import config from '../config';
-//import log from '../logger';
 import { is } from '@toba/utility';
-//import cache from '../cache/api';
-import fetch from 'node-fetch';
-import { OAuth } from 'oauth';
-//import { globalAgent } from 'https';
-import { url, extra, method, host } from './constants';
-
-globalAgent.maxSockets = 200;
+import { Flickr } from './types';
 
 /**
  * Number of retries keyed to API method.
  */
 const retries: { [key: string]: number } = {};
-
-const oauth = new OAuth(
-   url.REQUEST_TOKEN,
-   url.ACCESS_TOKEN,
-   config.flickr.auth.apiKey,
-   config.flickr.auth.secret,
-   '1.0A',
-   config.flickr.auth.callback,
-   'HMAC-SHA1'
-);
 
 const defaultCallOptions: Flickr.Options<Flickr.Response> = {
    // method to retrieve value from JSON response
@@ -42,7 +22,7 @@ const defaultCallOptions: Flickr.Options<Flickr.Response> = {
 /**
  * Load response from cache or call API
  */
-function call<T>(
+export function call<T>(
    method: string,
    idType: string,
    id: string,
@@ -73,7 +53,7 @@ function call<T>(
  *
  * See http://www.flickr.com/services/api/response.json.html
  */
-function callAPI<T>(
+export function callAPI<T>(
    method: string,
    idType: string,
    id: string,
@@ -141,7 +121,7 @@ function callAPI<T>(
 /**
  * Parse Flickr response and handle different kinds of error conditions
  */
-function parse(body: string, key: string): Flickr.Response {
+export function parse(body: string, key: string): Flickr.Response {
    const fail = { retry: true, stat: 'fail' };
    let json = null;
 
@@ -183,7 +163,7 @@ function parse(body: string, key: string): Flickr.Response {
 /**
  * Retry service call if bad response and less than max retries
  */
-function retry(fn: Function, key: string): boolean {
+export function retry(fn: Function, key: string): boolean {
    let count = 1;
 
    if (retries[key]) {
@@ -210,7 +190,7 @@ function retry(fn: Function, key: string): boolean {
 /**
  * Clear retry count and log success.
  */
-function clearRetries(key: string) {
+export function clearRetries(key: string) {
    if (retries[key] && retries[key] > 0) {
       log.info('Call to %s succeeded', key);
       retries[key] = 0;
@@ -220,7 +200,7 @@ function clearRetries(key: string) {
 /**
  * Setup standard parameters.
  */
-function parameterize(
+export function parameterize(
    method: string,
    idType?: string,
    id?: string,
@@ -243,145 +223,3 @@ function parameterize(
    }
    return qs;
 }
-
-export default {
-   /**
-    * Return cache keys to support invalidation
-    */
-   cache: {
-      keysForPost: [method.set.INFO, method.set.PHOTOS],
-      keysForPhoto: [method.photo.SIZES],
-      keysForLibrary: [method.COLLECTIONS, method.photo.TAGS]
-   },
-
-   auth: {
-      isEmpty() {
-         return is.empty(config.flickr.auth.token.access);
-      },
-      url() {
-         return config.flickr.auth.callback;
-      },
-      getRequestToken(): Promise<string> {
-         const token = config.flickr.auth.token;
-         return new Promise<string>((resolve, reject) => {
-            oauth.getOAuthRequestToken((error, t, secret) => {
-               if (is.value(error)) {
-                  reject(error);
-               } else {
-                  // token and secret are both needed for the next call but token is
-                  // echoed back from the authorize service
-                  token.request = t;
-                  token.secret = secret;
-                  resolve(util.format('{0}?oauth_token={1}', url.AUTHORIZE, t));
-               }
-            });
-         });
-      },
-
-      getAccessToken(requestToken: string, verifier: string): Promise<Token> {
-         const token = config.flickr.auth.token;
-         return new Promise((resolve, reject) => {
-            oauth.getOAuthAccessToken(
-               requestToken,
-               token.secret,
-               verifier,
-               (error, accessToken, accessTokenSecret) => {
-                  token.secret = null;
-                  if (is.value(error)) {
-                     reject(error);
-                  } else {
-                     resolve({
-                        access: accessToken,
-                        secret: accessTokenSecret,
-                        accessExpiration: null
-                     } as Token);
-                  }
-               }
-            );
-         });
-      }
-   },
-
-   getCollections: () =>
-      call<Flickr.Collection[]>(
-         method.COLLECTIONS,
-         type.USER,
-         config.flickr.userID,
-         {
-            value: r => r.collections.collection,
-            allowCache: true
-         }
-      ),
-
-   getSetInfo: (id: string) =>
-      call<Flickr.SetInfo>(method.set.INFO, type.SET, id, {
-         value: r => r.photoset as Flickr.SetInfo,
-         allowCache: true
-      }),
-
-   getPhotoSizes: (id: string) =>
-      call<Flickr.Size[]>(method.photo.SIZES, type.PHOTO, id, {
-         value: r => r.sizes.size
-      }),
-
-   getPhotoContext: (id: string) =>
-      call<Flickr.MemberSet[]>(method.photo.SETS, type.PHOTO, id, {
-         value: r => r.set
-      }),
-
-   getExif: (id: number) =>
-      call<Flickr.Exif[]>(method.photo.EXIF, type.PHOTO, id.toString(), {
-         value: r => r.photo.exif,
-         allowCache: true
-      }),
-
-   getSetPhotos: (id: string) =>
-      call<Flickr.SetPhotos>(method.set.PHOTOS, type.SET, id, {
-         args: {
-            extras: [
-               extra.DESCRIPTION,
-               extra.TAGS,
-               extra.DATE_TAKEN,
-               extra.LOCATION,
-               extra.PATH_ALIAS
-            ]
-               .concat(config.flickr.photoSize.post)
-               .join()
-         },
-         value: r => r.photoset as Flickr.SetPhotos,
-         allowCache: true
-      }),
-
-   /**
-    * The documentation says signing is not required but results differ even with entirely
-    * public photos -- perhaps a Flickr bug
-    *
-    * https://www.flickr.com/services/api/flickr.photos.search.html
-    */
-   photoSearch: (tags: string | string[]) =>
-      call<Flickr.PhotoSummary[]>(
-         method.photo.SEARCH,
-         type.USER,
-         config.flickr.userID,
-         {
-            args: {
-               extras: config.flickr.photoSize.search.join(),
-               tags: is.array(tags) ? tags.join() : tags,
-               sort: 'relevance',
-               per_page: 500 // maximum
-            },
-            value: r => r.photos.photo as Flickr.PhotoSummary[],
-            sign: true
-         }
-      ),
-
-   /**
-    * Photo tags for user
-    */
-   getAllPhotoTags: () =>
-      call<Flickr.Tag[]>(method.photo.TAGS, type.USER, config.flickr.userID, {
-         value: r => r.who.tags.tag,
-         sign: true,
-         allowCache: true
-      })
-} as Provider.Flickr;
