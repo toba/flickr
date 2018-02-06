@@ -1,5 +1,7 @@
 import { is } from '@toba/utility';
+import { log } from '@toba/logger';
 import { Flickr } from './types';
+import { cache } from './cache';
 
 /**
  * Number of retries keyed to API method.
@@ -32,17 +34,12 @@ export function call<T>(
    // generate fallback API call
    const noCache = () => callAPI<T>(method, idType, id, options);
 
-   return config.cache.json && options.allowCache
+   return options.allowCache
       ? cache
-           .getItem<T>(method, id)
+           .get<T>(method, id)
            .then(item => (is.value(item) ? item : noCache()))
            .catch((err: Error) => {
-              log.error(
-                 'Error getting Flickr %s:%s from cache: %j',
-                 method,
-                 id,
-                 err
-              );
+              log.error(err, { method, id });
               return noCache();
            })
       : noCache();
@@ -79,14 +76,14 @@ export function callAPI<T>(
                const parsed = options.value(res);
                resolve(parsed);
                // cache result
-               if (config.cache.json && options.allowCache) {
+               if (options.allowCache) {
                   cache.add(method, id, parsed);
                }
             } else {
                tryAgain = res.retry;
             }
          } else {
-            log.error('Calling %s resulted in %j', methodUrl, err);
+            log.error(err, { url: methodUrl });
             tryAgain = true;
          }
          if (!tryAgain || (tryAgain && !retry(attempt, key))) {
@@ -133,22 +130,17 @@ export function parse(body: string, key: string): Flickr.Response {
       json = JSON.parse(body);
 
       if (json === null) {
-         log.error('Call to %s returned null', key);
+         log.error(`Call to ${key} returned null`);
          json = fail;
       } else if (json.stat == 'fail') {
-         log.error(
-            '%s when calling %s [code %d]',
-            json.message,
-            key,
-            json.code
-         );
+         log.error(json.message, { key, code: json.code });
          // do not retry if the item is simply not found
          if (json.message.includes('not found')) {
             json.retry = false;
          }
       }
    } catch (ex) {
-      log.error('Parsing call to %s resulted in %s', key, ex.toString());
+      log.error(ex, { key });
 
       if (/<html>/.test(body)) {
          // Flickr returned an HTML response instead of JSON -- likely an error message
