@@ -8,7 +8,12 @@
    },
    "main": "",
    "files": [
-      "index.ts"
+      "index.ts",
+      "lib/api.ts",
+      "lib/cache.ts",
+      "lib/client.ts",
+      "lib/constants.ts",
+      "lib/types.ts"
    ],
    "author": {
       "name": "Jason Abbott"
@@ -32,19 +37,12 @@
          "<rootDir>/node_modules/(?!@toba)"
       ],
       "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-      "moduleFileExtensions": [
-         "ts",
-         "tsx",
-         "js",
-         "jsx",
-         "json",
-         "node"
-      ]
+      "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
    },
    "devDependencies": {
-      "@toba/lint": "^1.2.0",
+      "@toba/lint": "^1.3.3",
       "@toba/test": "^1.0.0",
-      "prettier": "^1.9.2",
+      "prettier": "^1.10.2",
       "typescript": "^2.7.0"
    },
    "prettier": {
@@ -58,5 +56,11 @@
    "bugs": {
       "url": "https://github.com/toba/flickr/issues"
    },
-   "dependencies": {}
+   "dependencies": {
+      "@toba/logger": "^1.0.0",
+      "@toba/oauth": "^1.0.0",
+      "@toba/utility": "^1.6.0",
+      "node-fetch": "^2.0.0",
+      "oauth": "^0.9.15"
+   }
 }

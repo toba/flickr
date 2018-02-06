@@ -1,12 +1,15 @@
 export namespace Flickr {
-   enum Boolean { 'false', 'true' }
+   enum Boolean {
+      'false',
+      'true'
+   }
 
    export interface Options<T> {
-      value(r: Response): T,
-      sign?: boolean,
-      allowCache?: boolean,
-      error?: string,
-      args?: { [key: string]: string | number | boolean }
+      value(r: Response): T;
+      sign?: boolean;
+      allowCache?: boolean;
+      error?: string;
+      args?: { [key: string]: string | number | boolean };
    }
 
    export interface FeatureSet {
@@ -37,96 +40,96 @@ export namespace Flickr {
       Restricted = 3
    }
 
-   interface API {
-      api_key: string,
-      format: string,
-      nojsoncallback: boolean,
-      method: string,
-      extras: string,
-      tags: string[],
-      sort: string,
-      per_page: number,
-      photo_id: string
+   export interface API {
+      api_key: string;
+      format: string;
+      nojsoncallback: boolean;
+      method: string;
+      extras: string;
+      tags: string[];
+      sort: string;
+      per_page: number;
+      photo_id: string;
    }
 
    export interface Collection {
-      id: string,
-      title: string,
-      description: string,
-      iconlarge: string,
-      iconsmall: string,
-      collection: Collection[],
-      set: SetSummary[],
+      id: string;
+      title: string;
+      description: string;
+      iconlarge: string;
+      iconsmall: string;
+      collection: Collection[];
+      set: SetSummary[];
    }
 
    export interface Content {
-      _content: string
+      _content: string;
    }
 
    export interface EditAbility {
-      cancomment: Boolean,
-      canaddmeta: Boolean
+      cancomment: Boolean;
+      canaddmeta: Boolean;
    }
 
    export interface Exif {
-      tagspace: string,
-      tagspaceid: number,
-      tag: string,
-      label: string,
-      raw: Content
+      tagspace: string;
+      tagspaceid: number;
+      tag: string;
+      label: string;
+      raw: Content;
    }
 
    interface FarmLocation {
-      id: string,
-      secret: string,
-      server: string,
-      farm: number,
+      id: string;
+      secret: string;
+      server: string;
+      farm: number;
    }
 
    export interface Location {
-      latitude: number,
-      longitude: number,
-      accuracy: number,
-      context: number,
-      county: Place,
-      region: Place,
-      country: Place
+      latitude: number;
+      longitude: number;
+      accuracy: number;
+      context: number;
+      county: Place;
+      region: Place;
+      country: Place;
    }
 
    interface LocationPermission {
-      ispublic: Boolean,
-      iscontent: Boolean,
-      isfriend: Boolean,
-      isfamily: Boolean
+      ispublic: Boolean;
+      iscontent: Boolean;
+      isfriend: Boolean;
+      isfamily: Boolean;
    }
 
-   interface MemberSet extends FarmLocation {
-      title: string,
-      primary: string,
-      view_count: number,
-      comment_count: number,
-      count_photo: number,
-      count_video: number
+   export interface MemberSet extends FarmLocation {
+      title: string;
+      primary: string;
+      view_count: number;
+      comment_count: number;
+      count_photo: number;
+      count_video: number;
    }
 
    interface Owner {
-      nsid: string,
-      username: string,
-      location: string,
-      iconserver: string,
-      iconfarm: number
+      nsid: string;
+      username: string;
+      location: string;
+      iconserver: string;
+      iconfarm: number;
    }
 
    interface Permission {
-      permcomment: Boolean,
-      permmetadata: Boolean
+      permcomment: Boolean;
+      permmetadata: Boolean;
    }
 
    interface PhotoDates {
-      posted: string,
-      taken: string,
-      takengranularity: number,
-      lastupdate: string
+      posted: string;
+      taken: string;
+      takengranularity: number;
+      lastupdate: string;
    }
 
    export interface PhotoInfo extends FarmLocation {
@@ -150,13 +153,13 @@ export namespace Flickr {
       exif: Exif[];
       tags: {
          tag: TagSummary;
-      }
+      };
       location: Location;
       geoperms: LocationPermission;
       media: string;
       urls: {
          url: URL[];
-      }
+      };
    }
 
    // https://www.flickr.com/services/api/flickr.photos.getExif.html
@@ -164,25 +167,25 @@ export namespace Flickr {
    //    photo: Flickr.PhotoSummary;
    // }
 
-   interface PhotoMembership {
+   export interface PhotoMembership {
       set: MemberSet[];
    }
 
-   interface SetPhotos {
-      photoset: SetInfo,
-      photo: PhotoSummary[],
-      page: number,
-      per_page: string,
-      perpage: string,
-      pages: number,
-      primary: string,
-      owner: string,
-      ownername: string,
-      title: string,
-      total: number
+   export interface SetPhotos {
+      photoset: SetInfo;
+      photo: PhotoSummary[];
+      page: number;
+      per_page: string;
+      perpage: string;
+      pages: number;
+      primary: string;
+      owner: string;
+      ownername: string;
+      title: string;
+      total: number;
    }
 
-   interface PhotoSummary extends Place {
+   export interface PhotoSummary extends Place {
       id: string;
       secret: string;
       server: string;
@@ -231,11 +234,11 @@ export namespace Flickr {
    }
 
    interface Place {
-      place_id: string,
-      woeid: string
+      place_id: string;
+      woeid: string;
    }
 
-   interface Response {
+   export interface Response {
       photoset?: SetPhotos | SetInfo;
       set?: MemberSet[];
       collections?: Tree;
@@ -251,70 +254,70 @@ export namespace Flickr {
       message: string;
       photos: {
          photo: SearchResult | PhotoSummary[];
-      }
+      };
       who: {
          tags: {
             tag: Tag[];
-         }
-      }
+         };
+      };
    }
 
    interface SearchResult {
-      page: number,
-      pages: number,
-      perpage: number,
-      total: number
+      page: number;
+      pages: number;
+      perpage: number;
+      total: number;
    }
 
-   interface SetInfo {
-      title: Content,
-      description: Content,
-      id: string,
-      owner: string,
-      username: string,
-      primary: string,
-      secret: string,
-      server: string,
-      farm: number,
-      photos: number,
-      count_views: number,
-      count_comments: number,
-      count_photos: number,
-      count_vidoes: number,
-      can_comment: Boolean,
-      date_create: number,
-      date_update: number
+   export interface SetInfo {
+      title: Content;
+      description: Content;
+      id: string;
+      owner: string;
+      username: string;
+      primary: string;
+      secret: string;
+      server: string;
+      farm: number;
+      photos: number;
+      count_views: number;
+      count_comments: number;
+      count_photos: number;
+      count_vidoes: number;
+      can_comment: Boolean;
+      date_create: number;
+      date_update: number;
    }
 
    interface SetSummary {
-      id: string,
-      title: string,
-      description: string
+      id: string;
+      title: string;
+      description: string;
    }
 
-   interface Size {
-      label: string,
-      width: number,
-      height: number,
-      source: string,
-      url: string,
-      media: string
+   export interface Size {
+      label: string;
+      width: number;
+      height: number;
+      source: string;
+      url: string;
+      media: string;
    }
 
    interface SizeList {
-      size: Flickr.Size[]
+      size: Flickr.Size[];
    }
 
-   interface Tag {
-      clean: string,
-      raw: Content[]
+   export interface Tag {
+      clean: string;
+      raw: Content[];
    }
 
    interface TagSummary {
-      id: string,
-      author: string,
-      raw: string,
-      machine_tag: number
+      id: string;
+      author: string;
+      raw: string;
+      machine_tag: number;
    }
 
    interface Tree {
@@ -322,20 +325,20 @@ export namespace Flickr {
    }
 
    interface URL extends Flickr.Content {
-      type: string
+      type: string;
    }
 
    interface Usage {
-      candownload: Boolean,
-      canblog: Boolean,
-      canprint: Boolean,
-      canshare: Boolean
+      candownload: Boolean;
+      canblog: Boolean;
+      canprint: Boolean;
+      canshare: Boolean;
    }
 
    interface Visibility {
-      ispublic: Boolean,
-      isfriend: Boolean,
-      isfamily: Boolean
+      ispublic: Boolean;
+      isfriend: Boolean;
+      isfamily: Boolean;
    }
 
    // enum ExifTag {
