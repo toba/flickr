@@ -1,2 +1,2 @@
 export { FlickrClient } from './lib/client';
-export { Size } from './lib/constants';
+export { Size, Extra } from './lib/constants';

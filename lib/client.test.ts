@@ -1,5 +1,4 @@
-import flickr from './flickr';
-import config from '../config';
+import client from './client';
 
 const featureSetID = config.flickr.featureSets[0].id;
 const featurePhotoID = '8459503474';

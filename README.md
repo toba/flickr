@@ -3,6 +3,7 @@
 ![Code style](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)
 [![Dependencies](https://img.shields.io/david/toba/flickr.svg)](https://david-dm.org/toba/flickr)
 [![DevDependencies](https://img.shields.io/david/dev/toba/flickr.svg)](https://david-dm.org/toba/flickr#info=devDependencies&view=list)
+[![codecov](https://codecov.io/gh/toba/flickr/branch/master/graph/badge.svg)](https://codecov.io/gh/toba/flickr)
 
 # Usage
 

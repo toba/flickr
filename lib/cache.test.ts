@@ -3,10 +3,14 @@ import { cache } from './cache';
 const m = 'method';
 const id = 'id';
 
-test('add item to cache', () => {
-   cache.add(m, id, { key: 'value' });
+interface TestItem {
+   key: string;
+}
 
-   return cache.get(m, id).then(item => {
+test('add item to cache', () => {
+   cache.add(m, id, { key: 'value' } as TestItem);
+
+   return cache.get<TestItem>(m, id).then(item => {
       expect(item.key).toBe('value');
    });
 });

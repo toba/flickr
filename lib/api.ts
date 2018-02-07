@@ -1,5 +1,6 @@
 import { is } from '@toba/utility';
 import { log } from '@toba/logger';
+import { IdType } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
 
@@ -21,27 +22,31 @@ const defaultCallOptions: Flickr.Options<Flickr.Response> = {
    args: {}
 };
 
+export interface ID {
+   type: IdType,
+   value: string
+}
+
 /**
  * Load response from cache or call API
  */
 export function call<T>(
    method: string,
-   idType: string,
-   id: string,
+   id: ID,
    options: Flickr.Options<T>
 ): Promise<T> {
    options = Object.assign({}, defaultCallOptions, options);
    // generate fallback API call
-   const noCache = () => callAPI<T>(method, idType, id, options);
+   const noCache = () => callAPI<T>(method, id, options);
 
    return options.allowCache
       ? cache
-           .get<T>(method, id)
-           .then(item => (is.value(item) ? item : noCache()))
-           .catch((err: Error) => {
-              log.error(err, { method, id });
-              return noCache();
-           })
+         .get<T>(method, id.value)
+         .then(item => (is.value(item) ? item : noCache()))
+         .catch((err: Error) => {
+            log.error(err, { method, id });
+            return noCache();
+         })
       : noCache();
 }
 
@@ -52,8 +57,7 @@ export function call<T>(
  */
 export function callAPI<T>(
    method: string,
-   idType: string,
-   id: string,
+   id: ID,
    options: Flickr.Options<T>
 ): Promise<T> {
    // create key to track retries and log messages
@@ -62,7 +66,7 @@ export function callAPI<T>(
       'https://' +
       host +
       url.BASE +
-      parameterize(method, idType, id, options.args);
+      parameterize(method, id, options.args);
 
    return new Promise<T>((resolve, reject) => {
       const token = config.flickr.auth.token;
@@ -77,7 +81,7 @@ export function callAPI<T>(
                resolve(parsed);
                // cache result
                if (options.allowCache) {
-                  cache.add(method, id, parsed);
+                  cache.add(method, id.value, parsed);
                }
             } else {
                tryAgain = res.retry;
@@ -87,29 +91,29 @@ export function callAPI<T>(
             tryAgain = true;
          }
          if (!tryAgain || (tryAgain && !retry(attempt, key))) {
-            reject('Flickr ' + method + ' failed for ' + idType + ' ' + id);
+            reject('Flickr ' + method + ' failed for ' + id.type + ' ' + id.value);
          }
       };
       // create call attempt with signing as required
       const attempt = options.sign
          ? () =>
-              oauth.get(
-                 methodUrl,
-                 token.access,
-                 token.secret,
-                 (error, body) => {
-                    handler(error, body, attempt);
-                 }
-              )
+            oauth.get(
+               methodUrl,
+               token.access,
+               token.secret,
+               (error, body) => {
+                  handler(error, body, attempt);
+               }
+            )
          : () =>
-              fetch(methodUrl, { headers: { 'User-Agent': 'node.js' } })
-                 .then(res => res.text())
-                 .then(body => {
-                    handler(null, body, attempt);
-                 })
-                 .catch(err => {
-                    handler(err, null, attempt);
-                 });
+            fetch(methodUrl, { headers: { 'User-Agent': 'node.js' } })
+               .then(res => res.text())
+               .then(body => {
+                  handler(null, body, attempt);
+               })
+               .catch(err => {
+                  handler(err, null, attempt);
+               });
 
       attempt();
    });
@@ -166,14 +170,10 @@ export function retry(fn: Function, key: string): boolean {
 
    if (count > config.flickr.maxRetries) {
       retries[key] = 0;
-      log.error(
-         'Call to %s failed after %s tries',
-         key,
-         config.flickr.maxRetries
-      );
+      log.error(`Call to ${key} failed after ${maxRetries} tries`);
       return false;
    } else {
-      log.warn('Retry %s for %s', count, key);
+      log.warn(`Retry ${count} for ${key}`);
       setTimeout(fn, config.flickr.retryDelay);
       return true;
    }
@@ -194,8 +194,7 @@ export function clearRetries(key: string) {
  */
 export function parameterize(
    method: string,
-   idType?: string,
-   id?: string,
+   id?: ID,
    args: { [key: string]: string | number | boolean } = {}
 ): string {
    let qs = '';
@@ -206,8 +205,8 @@ export function parameterize(
    args.nojsoncallback = 1;
    args.method = 'flickr.' + method;
 
-   if (is.value(idType) && is.value(id)) {
-      args[idType] = id;
+   if (is.value(id)) {
+      args[id.type] = id.value;
    }
    for (const k in args) {
       qs += op + k + '=' + encodeURIComponent(args[k].toString());
