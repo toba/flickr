@@ -1,6 +1,6 @@
 export const host = 'api.flickr.com';
 
-export enum IdType { User = 'user_id', Set = 'photoset_id', Photo = 'photo_id' };
+export enum IdType { User = 'user_id', Set = 'photoset_id', Photo = 'photo_id' }
 
 export enum Url {
    Base = '/services/rest/',
@@ -8,7 +8,7 @@ export enum Url {
    Authorize = 'http://www.flickr.com/services/oauth/authorize',
    AccessToken = 'http://www.flickr.com/services/oauth/access_token',
    PhotoSet = 'http://www.flickr.com/photos/trailimage/sets/'
-};
+}
 
 export const method = {
    COLLECTIONS: 'collections.getTree',
@@ -31,7 +31,7 @@ export enum Extra {
    DateTaken = 'date_taken',
    Location = 'geo',
    PathAlias = 'path_alias'
-};
+}
 
 export enum Size {
    Thumb = 'url_t',
@@ -46,4 +46,4 @@ export enum Size {
    Large1600 = 'url_h',
    Large2048 = 'url_k',
    Original = 'url_o'
-};
+}

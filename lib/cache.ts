@@ -1,4 +1,4 @@
-const store: { [key: string]: any } = {};
+let store: { [key: string]: any } = {};
 
 export const cache = {
    add<T>(method: string, id: string, value: T): void {

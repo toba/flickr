@@ -1,14 +1,20 @@
 import { Flickr } from './types';
-import { Token, Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
+import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
 import { is } from '@toba/utility';
 import { Url, Extra, method, IdType, Size } from './constants';
-import { call, ID } from './api';
+import { call, Identity } from './api';
+
+export interface FeatureSet {
+   id: string;
+   title: string;
+}
 
 export interface ClientConfig {
    userID: string;
    appID: string;
    /** Whether to cache API resuts */
    useCache: boolean;
+   featureSets?: FeatureSet[];
    excludeSets?: string[];
    /** Tags to exclude from tag request */
    excludeTags?: string[];
@@ -44,16 +50,16 @@ export class FlickrClient {
       );
    }
 
-   get _userID(): ID {
-      return { type: IdType.User, value: this.config.userID }
+   get _userID(): Identity {
+      return { type: IdType.User, value: this.config.userID };
    }
 
    _setID(id: string) {
-      return { type: IdType.Set, value: id }
+      return { type: IdType.Set, value: id };
    }
 
    _photoID(id: string | number) {
-      return { type: IdType.Photo, value: id.toString() }
+      return { type: IdType.Photo, value: id.toString() };
    }
 
    getCollections() {
@@ -62,7 +68,8 @@ export class FlickrClient {
          this._userID,
          {
             value: r => r.collections.collection,
-            allowCache: true
+            allowCache: true,
+            client: this.config
          }
       );
    }
@@ -70,26 +77,30 @@ export class FlickrClient {
    getSetInfo(id: string) {
       return call<Flickr.SetInfo>(method.set.INFO, this._setID(id), {
          value: r => r.photoset as Flickr.SetInfo,
-         allowCache: true
+         allowCache: true,
+         client: this.config
       });
    }
 
    getPhotoSizes(id: string) {
       return call<Flickr.Size[]>(method.photo.SIZES, this._photoID(id), {
-         value: r => r.sizes.size
+         value: r => r.sizes.size,
+         client: this.config
       });
    }
 
    getPhotoContext(id: string) {
       return call<Flickr.MemberSet[]>(method.photo.SETS, this._photoID(id), {
-         value: r => r.set
+         value: r => r.set,
+         client: this.config
       });
    }
 
    getExif(id: number) {
       return call<Flickr.Exif[]>(method.photo.EXIF, this._photoID(id), {
          value: r => r.photo.exif,
-         allowCache: true
+         allowCache: true,
+         client: this.config
       });
    }
 
@@ -107,7 +118,8 @@ export class FlickrClient {
                .join()
          },
          value: r => r.photoset as Flickr.SetPhotos,
-         allowCache: true
+         allowCache: true,
+         client: this.config
       });
    }
 
@@ -129,7 +141,8 @@ export class FlickrClient {
                per_page: 500 // maximum
             },
             value: r => r.photos.photo as Flickr.PhotoSummary[],
-            sign: true
+            sign: true,
+            client: this.config
          }
       );
    }
@@ -144,7 +157,8 @@ export class FlickrClient {
          {
             value: r => r.who.tags.tag,
             sign: true,
-            allowCache: true
+            allowCache: true,
+            client: this.config
          }
       );
    }

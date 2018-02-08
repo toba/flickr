@@ -1,6 +1,7 @@
-import { is } from '@toba/utility';
+import { is, merge } from '@toba/utility';
+import { ClientConfig } from './client';
 import { log } from '@toba/logger';
-import { IdType } from './constants';
+import { IdType, host, Url } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
 
@@ -9,7 +10,16 @@ import { cache } from './cache';
  */
 const retries: { [key: string]: number } = {};
 
-const defaultCallOptions: Flickr.Options<Flickr.Response> = {
+export interface RequestConfig<T> {
+   value(r: Flickr.Response): T;
+   client: ClientConfig;
+   sign?: boolean;
+   allowCache?: boolean;
+   error?: string;
+   args?: { [key: string]: string | number | boolean };
+}
+
+const defaultRequestConfig: RequestConfig<Flickr.Response> = {
    // method to retrieve value from JSON response
    value: r => r,
    // error message to log if call fails
@@ -22,9 +32,9 @@ const defaultCallOptions: Flickr.Options<Flickr.Response> = {
    args: {}
 };
 
-export interface ID {
-   type: IdType,
-   value: string
+export interface Identity {
+   type: IdType;
+   value: string;
 }
 
 /**
@@ -32,14 +42,14 @@ export interface ID {
  */
 export function call<T>(
    method: string,
-   id: ID,
-   options: Flickr.Options<T>
+   id: Identity,
+   config: RequestConfig<T>
 ): Promise<T> {
-   options = Object.assign({}, defaultCallOptions, options);
+   config = merge(defaultRequestConfig, config);
    // generate fallback API call
-   const noCache = () => callAPI<T>(method, id, options);
+   const noCache = () => callAPI<T>(method, id, config);
 
-   return options.allowCache
+   return config.allowCache
       ? cache
          .get<T>(method, id.value)
          .then(item => (is.value(item) ? item : noCache()))
@@ -57,19 +67,19 @@ export function call<T>(
  */
 export function callAPI<T>(
    method: string,
-   id: ID,
-   options: Flickr.Options<T>
+   id: Identity,
+   config: RequestConfig<T>
 ): Promise<T> {
    // create key to track retries and log messages
    const key = method + ':' + id;
    const methodUrl =
       'https://' +
       host +
-      url.BASE +
-      parameterize(method, id, options.args);
+      Url.Base +
+      parameterize(method, id, config.args);
 
    return new Promise<T>((resolve, reject) => {
-      const token = config.flickr.auth.token;
+      const token = this.config.auth.token;
       // response handler that may retry call
       const handler = (err: any, body: string, attempt: Function) => {
          let tryAgain = false;
@@ -77,10 +87,10 @@ export function callAPI<T>(
             const res = parse(body, key);
             if (res.stat == 'ok') {
                clearRetries(key);
-               const parsed = options.value(res);
+               const parsed = config.value(res);
                resolve(parsed);
                // cache result
-               if (options.allowCache) {
+               if (config.allowCache) {
                   cache.add(method, id.value, parsed);
                }
             } else {
@@ -95,7 +105,7 @@ export function callAPI<T>(
          }
       };
       // create call attempt with signing as required
-      const attempt = options.sign
+      const attempt = config.sign
          ? () =>
             oauth.get(
                methodUrl,
@@ -127,7 +137,7 @@ export function parse(body: string, key: string): Flickr.Response {
    let json = null;
 
    if (is.value(body)) {
-      body = body.replace(/\\'/g, "'");
+      body = body.replace(/\\'/g, '\'');
    }
 
    try {
@@ -194,7 +204,7 @@ export function clearRetries(key: string) {
  */
 export function parameterize(
    method: string,
-   id?: ID,
+   id?: Identity,
    args: { [key: string]: string | number | boolean } = {}
 ): string {
    let qs = '';

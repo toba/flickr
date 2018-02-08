@@ -4,19 +4,6 @@ export namespace Flickr {
       'true'
    }
 
-   export interface Options<T> {
-      value(r: Response): T;
-      sign?: boolean;
-      allowCache?: boolean;
-      error?: string;
-      args?: { [key: string]: string | number | boolean };
-   }
-
-   export interface FeatureSet {
-      id: string;
-      title: string;
-   }
-
    /**
     * http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
     */

@@ -31,8 +31,8 @@
     logfmt "^1.2.0"
 
 "@toba/oauth@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@toba/oauth/-/oauth-1.1.1.tgz#f8139877bee840b09c5806b03410a66f95f04a9a"
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@toba/oauth/-/oauth-1.1.3.tgz#1b914c284c00f45bd1f2431b1bc20ca8ebe21270"
   dependencies:
     oauth "^0.9.15"
 
@@ -871,8 +871,8 @@ domhandler@^2.3.0:
     domelementtype "1"
 
 domutils@^1.5.1:
-  version "1.6.2"
-  resolved "https://registry.yarnpkg.com/domutils/-/domutils-1.6.2.tgz#1958cc0b4c9426e9ed367fb1c8e854891b0fa3ff"
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/domutils/-/domutils-1.7.0.tgz#56ea341e834e06e6748af7a1cb25da67ea9f8c2a"
   dependencies:
     dom-serializer "0"
     domelementtype "1"
