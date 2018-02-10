@@ -1,7 +1,7 @@
 import { is, merge } from '@toba/utility';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
-import { IdType, host, Url } from './constants';
+import { host, Url } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
 
@@ -10,13 +10,32 @@ import { cache } from './cache';
  */
 const retries: { [key: string]: number } = {};
 
+/**
+ * Optional parameters to include with the Flickr API request.
+ */
+export interface RequestParams {
+   [index: string]: string | number | boolean;
+   api_key?: string;
+   format?: string;
+   nojsoncallback?: 1 | 0;
+   method?: string;
+   per_page?: number;
+   sort?: Flickr.Sort;
+   tags?: string;
+   /** Comma-delimited list of method-specific, extra fields to return */
+   extras?: string;
+   [Flickr.IdType.Photo]?: string;
+   [Flickr.IdType.User]?: string;
+   [Flickr.IdType.Set]?: string;
+}
+
 export interface RequestConfig<T> {
    value(r: Flickr.Response): T;
-   client: ClientConfig;
+   client?: ClientConfig;
    sign?: boolean;
    allowCache?: boolean;
    error?: string;
-   args?: { [key: string]: string | number | boolean };
+   params?: RequestParams;
 }
 
 const defaultRequestConfig: RequestConfig<Flickr.Response> = {
@@ -27,13 +46,14 @@ const defaultRequestConfig: RequestConfig<Flickr.Response> = {
    // whether to OAuth sign the request
    sign: false,
    // whether result can be cached (subject to global configuration)
-   allowCache: false,
-   // additional querystring arguments
-   args: {}
+   allowCache: false
 };
 
+/**
+ * Flickr entity identified by type and an ID value.
+ */
 export interface Identity {
-   type: IdType;
+   type: Flickr.IdType;
    value: string;
 }
 
@@ -76,10 +96,10 @@ export function callAPI<T>(
       'https://' +
       host +
       Url.Base +
-      parameterize(method, id, config.args);
+      parameterize(method, id, config);
 
    return new Promise<T>((resolve, reject) => {
-      const token = this.config.auth.token;
+      const token = config.client.auth.token;
       // response handler that may retry call
       const handler = (err: any, body: string, attempt: Function) => {
          let tryAgain = false;
@@ -107,7 +127,7 @@ export function callAPI<T>(
       // create call attempt with signing as required
       const attempt = config.sign
          ? () =>
-            oauth.get(
+            this.oauth.get(
                methodUrl,
                token.access,
                token.secret,
@@ -202,24 +222,29 @@ export function clearRetries(key: string) {
 /**
  * Setup standard parameters.
  */
-export function parameterize(
+export function parameterize<T>(
    method: string,
-   id?: Identity,
-   args: { [key: string]: string | number | boolean } = {}
+   id: Identity,
+   config: RequestConfig<T>
 ): string {
+   if (!is.value(config.params)) {
+      return '';
+   }
    let qs = '';
    let op = '?';
 
-   args.api_key = config.flickr.auth.apiKey;
-   args.format = 'json';
-   args.nojsoncallback = 1;
-   args.method = 'flickr.' + method;
+   const param = config.params;
+
+   param.api_key = config.client.auth.apiKey;
+   param.format = 'json';
+   param.nojsoncallback = 1;
+   param.method = 'flickr.' + method;
 
    if (is.value(id)) {
-      args[id.type] = id.value;
+      param[id.type] = id.value;
    }
-   for (const k in args) {
-      qs += op + k + '=' + encodeURIComponent(args[k].toString());
+   for (const k in param) {
+      qs += op + k + '=' + encodeURIComponent(param[k].toString());
       op = '&';
    }
    return qs;

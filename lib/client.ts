@@ -1,7 +1,7 @@
 import { Flickr } from './types';
 import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
 import { is } from '@toba/utility';
-import { Url, Extra, method, IdType, Size } from './constants';
+import { Url, method } from './constants';
 import { call, Identity } from './api';
 
 export interface FeatureSet {
@@ -19,9 +19,9 @@ export interface ClientConfig {
    /** Tags to exclude from tag request */
    excludeTags?: string[];
    /** Photo sizes to return from search request */
-   searchPhotoSizes: Size[];
+   searchPhotoSizes: Flickr.SizeUrl[];
    /** Photo sizes to return for photo set request */
-   setPhotoSizes: Size[];
+   setPhotoSizes: Flickr.SizeUrl[];
    /** Number of times to retry failed requests */
    maxRetries: number;
    /** Milliseconds to wait before retrying failed request */
@@ -51,15 +51,15 @@ export class FlickrClient {
    }
 
    get _userID(): Identity {
-      return { type: IdType.User, value: this.config.userID };
+      return { type: Flickr.IdType.User, value: this.config.userID };
    }
 
    _setID(id: string) {
-      return { type: IdType.Set, value: id };
+      return { type: Flickr.IdType.Set, value: id };
    }
 
    _photoID(id: string | number) {
-      return { type: IdType.Photo, value: id.toString() };
+      return { type: Flickr.IdType.Photo, value: id.toString() };
    }
 
    getCollections() {
@@ -106,13 +106,13 @@ export class FlickrClient {
 
    getSetPhotos(id: string) {
       return call<Flickr.SetPhotos>(method.set.PHOTOS, this._setID(id), {
-         args: {
+         params: {
             extras: [
-               Extra.Description,
-               Extra.Tags,
-               Extra.DateTaken,
-               Extra.Location,
-               Extra.PathAlias
+               Flickr.Extra.Description,
+               Flickr.Extra.Tags,
+               Flickr.Extra.DateTaken,
+               Flickr.Extra.Location,
+               Flickr.Extra.PathAlias
             ]
                .concat(this.config.setPhotoSizes)
                .join()
@@ -134,7 +134,7 @@ export class FlickrClient {
          method.photo.SEARCH,
          this._userID,
          {
-            args: {
+            params: {
                extras: this.config.searchPhotoSizes.join(),
                tags: is.array(tags) ? tags.join() : tags,
                sort: 'relevance',

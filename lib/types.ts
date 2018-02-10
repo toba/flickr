@@ -4,6 +4,25 @@ export namespace Flickr {
       'true'
    }
 
+   export enum SizeUrl {
+      Thumb = 'url_t',
+      Square75 = 'url_sq',
+      Square150 = 'url_q',
+      Small240 = 'url_s',
+      Small320 = 'url_n',
+      Medium500 = 'url_m',
+      Medium640 = 'url_z',
+      Medium800 = 'url_c',
+      Large1024 = 'url_l',
+      Large1600 = 'url_h',
+      Large2048 = 'url_k',
+      Original = 'url_o'
+   }
+
+   export enum IdType { User = 'user_id', Set = 'photoset_id', Photo = 'photo_id' }
+
+   export type Sort = 'date-posted-asc' | 'date-posted-desc' | 'date-taken-asc' | 'date-taken-desc' | 'interestingness-desc' | 'interestingness-asc' | 'relevance';
+
    /**
     * http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
     */
@@ -27,16 +46,30 @@ export namespace Flickr {
       Restricted = 3
    }
 
-   export interface API {
+   export enum Extra {
+      Description = 'description',
+      Tags = 'tags',
+      DateTaken = 'date_taken',
+      Location = 'geo',
+      PathAlias = 'path_alias'
+   }
+
+   /**
+    * https://www.flickr.com/services/api/flickr.photos.search.html
+    */
+   export interface Param {
+      [index: string]: string | number | boolean | string[];
       api_key: string;
       format: string;
       nojsoncallback: boolean;
       method: string;
       extras: string;
       tags: string[];
-      sort: string;
+      sort: Sort;
       per_page: number;
-      photo_id: string;
+      [IdType.Photo]?: string;
+      [IdType.User]?: string;
+      [IdType.Set]?: string;
    }
 
    export interface Collection {
