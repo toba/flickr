@@ -55,9 +55,10 @@ export namespace Flickr {
    }
 
    /**
+    * Parameters required or allowed with a Flickr API request.
     * https://www.flickr.com/services/api/flickr.photos.search.html
     */
-   export interface Param {
+   export interface Params {
       [index: string]: string | number | boolean | string[];
       api_key: string;
       format: string;
@@ -269,6 +270,7 @@ export namespace Flickr {
        * retried.
        */
       retry?: boolean;
+      /** Response status */
       stat: string;
       code: number;
       message: string;

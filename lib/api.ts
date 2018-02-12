@@ -13,39 +13,40 @@ const retries: { [key: string]: number } = {};
 /**
  * Optional parameters to include with the Flickr API request.
  */
-export interface RequestParams {
-   [index: string]: string | number | boolean;
-   api_key?: string;
-   format?: string;
-   nojsoncallback?: 1 | 0;
-   method?: string;
-   per_page?: number;
-   sort?: Flickr.Sort;
-   tags?: string;
-   /** Comma-delimited list of method-specific, extra fields to return */
-   extras?: string;
-   [Flickr.IdType.Photo]?: string;
-   [Flickr.IdType.User]?: string;
-   [Flickr.IdType.Set]?: string;
-}
+// export interface RequestParams {
+//    [index: string]: string | number | boolean;
+//    api_key?: string;
+//    format?: string;
+//    nojsoncallback?: 1 | 0;
+//    method?: string;
+//    per_page?: number;
+//    sort?: Flickr.Sort;
+//    tags?: string;
+//    /** Comma-delimited list of method-specific, extra fields to return */
+//    extras?: string;
+//    [Flickr.IdType.Photo]?: string;
+//    [Flickr.IdType.User]?: string;
+//    [Flickr.IdType.Set]?: string;
+// }
 
 export interface RequestConfig<T> {
+   /** Method to retrieve value from JSON response */
    value(r: Flickr.Response): T;
+   /** Reference to client configuration */
    client?: ClientConfig;
+   /** Whether to OAuth sign the request. */
    sign?: boolean;
+   /** Whether result can be cached (subject to global configuration) */
    allowCache?: boolean;
+   /** Error message to log if call fails. */
    error?: string;
-   params?: RequestParams;
+   params?: Flickr.Params;
 }
 
 const defaultRequestConfig: RequestConfig<Flickr.Response> = {
-   // method to retrieve value from JSON response
    value: r => r,
-   // error message to log if call fails
    error: null,
-   // whether to OAuth sign the request
    sign: false,
-   // whether result can be cached (subject to global configuration)
    allowCache: false
 };
 
@@ -121,7 +122,7 @@ export function callAPI<T>(
             tryAgain = true;
          }
          if (!tryAgain || (tryAgain && !retry(attempt, key))) {
-            reject('Flickr ' + method + ' failed for ' + id.type + ' ' + id.value);
+            reject(`Flickr ${method} failed for ${id.type} ${id.value}`);
          }
       };
       // create call attempt with signing as required
@@ -214,7 +215,7 @@ export function retry(fn: Function, key: string): boolean {
  */
 export function clearRetries(key: string) {
    if (retries[key] && retries[key] > 0) {
-      log.info('Call to %s succeeded', key);
+      log.info(`Call to ${key} succeeded`);
       retries[key] = 0;
    }
 }
