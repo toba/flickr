@@ -1,7 +1,7 @@
 import { Flickr } from './types';
 import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
 import { is } from '@toba/utility';
-import { Url, method } from './constants';
+import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
 
 export interface FeatureSet {
@@ -34,10 +34,6 @@ export interface ClientConfig {
 export class FlickrClient {
    config: ClientConfig;
    oauth: AuthClient;
-   /**
-    * Number of retries keyed to API method.
-    */
-   retries: { [key: string]: number } = {};
 
    constructor(config: ClientConfig) {
       this.config = config;
@@ -56,41 +52,44 @@ export class FlickrClient {
       return { type: Flickr.TypeName.User, value: this.config.userID };
    }
 
-   _setID(id: string) {
+   _setID(id: string): Identity {
       return { type: Flickr.TypeName.Set, value: id };
    }
 
-   _photoID(id: string | number) {
+   _photoID(id: string | number): Identity {
       return { type: Flickr.TypeName.Photo, value: id.toString() };
    }
 
-   _call<T>(method: string, id: Identity, req: Request<T>) {
+   _api<T>(method: string, id: Identity, req: Request<T>) {
       call<T>(method, id, req, this.config);
    }
 
    getCollections() {
-      return this._call<Flickr.Collection[]>(method.COLLECTIONS, this._userID, {
+      return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
          value: r => r.collections.collection,
          allowCache: true
       });
    }
 
    getSetInfo(id: string) {
-      return this._call<Flickr.SetInfo>(method.set.INFO, this._setID(id), {
+      return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
          value: r => r.photoset as Flickr.SetInfo,
          allowCache: true
       });
    }
 
    getPhotoSizes(id: string) {
-      return this._call<Flickr.Size[]>(method.photo.SIZES, this._photoID(id), {
+      return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
          value: r => r.sizes.size
       });
    }
 
+   /**
+    * All sets that a photo belongs to.
+    */
    getPhotoContext(id: string) {
-      return this._call<Flickr.MemberSet[]>(
-         method.photo.SETS,
+      return this._api<Flickr.MemberSet[]>(
+         Method.Photo.Sets,
          this._photoID(id),
          {
             value: r => r.set
@@ -99,14 +98,17 @@ export class FlickrClient {
    }
 
    getExif(id: number) {
-      return this._call<Flickr.Exif[]>(method.photo.EXIF, this._photoID(id), {
+      return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
          value: r => r.photo.exif,
          allowCache: true
       });
    }
 
+   /**
+    * All photos in a set.
+    */
    getSetPhotos(id: string) {
-      return this._call<Flickr.SetPhotos>(method.set.PHOTOS, this._setID(id), {
+      return this._api<Flickr.SetPhotos>(Method.Set.Photos, this._setID(id), {
          params: {
             extras: [
                Flickr.Extra.Description,
@@ -130,8 +132,8 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.photos.search.html
     */
    photoSearch(tags: string | string[]) {
-      return this._call<Flickr.PhotoSummary[]>(
-         method.photo.SEARCH,
+      return this._api<Flickr.PhotoSummary[]>(
+         Method.Photo.Search,
          this._userID,
          {
             params: {
@@ -147,10 +149,10 @@ export class FlickrClient {
    }
 
    /**
-    * Photo tags for user
+    * All photo tags for API user
     */
    getAllPhotoTags() {
-      return this._call<Flickr.Tag[]>(method.photo.TAGS, this._userID, {
+      return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
          value: r => r.who.tags.tag,
          sign: true,
          allowCache: true

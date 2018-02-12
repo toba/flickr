@@ -26,7 +26,13 @@ export namespace Flickr {
    }
 
    export enum Status {
-      Okay = 'ok'
+      Okay = 'ok',
+      Failed = 'fail'
+   }
+
+   export enum Format {
+      JSON = 'json',
+      XML = 'xml'
    }
 
    export enum Sort {
@@ -77,13 +83,16 @@ export namespace Flickr {
    export interface Params {
       [index: string]: string | number | boolean | string[];
       api_key?: string;
-      format?: string;
+      format?: Format;
       nojsoncallback?: 1 | 0;
       method?: string;
       /** Comma-delimited list of method-specific, extra fields to return */
       extras?: string;
       tags?: string;
       sort?: Sort;
+      /**
+       * Numer of items to return per page of results. The maximum is 500.
+       */
       per_page?: number;
       [TypeName.Photo]?: string;
       [TypeName.User]?: string;

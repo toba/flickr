@@ -1,3 +1,8 @@
+import { makeKey as key } from './api';
+
+/**
+ * In-memory hash store.
+ */
 let store: { [key: string]: any } = {};
 
 export const cache = {
@@ -17,5 +22,3 @@ export const cache = {
       store = {};
    }
 };
-
-const key = (method: string, id: string) => method + ':' + id;

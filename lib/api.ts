@@ -2,7 +2,7 @@ import { is, merge } from '@toba/utility';
 import { Client as AuthClient } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
-import { host, Url } from './constants';
+import { Url } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
 
@@ -10,25 +10,6 @@ import { cache } from './cache';
  * Number of retries keyed to API method.
  */
 const retries: { [key: string]: number } = {};
-
-/**
- * Optional parameters to include with the Flickr API request.
- */
-// export interface RequestParams {
-//    [index: string]: string | number | boolean;
-//    api_key?: string;
-//    format?: string;
-//    nojsoncallback?: 1 | 0;
-//    method?: string;
-//    per_page?: number;
-//    sort?: Flickr.Sort;
-//    tags?: string;
-//    /** Comma-delimited list of method-specific, extra fields to return */
-//    extras?: string;
-//    [Flickr.IdType.Photo]?: string;
-//    [Flickr.IdType.User]?: string;
-//    [Flickr.IdType.Set]?: string;
-// }
 
 export interface Request<T> {
    /** Method to retrieve value from JSON response */
@@ -96,9 +77,9 @@ export function callAPI<T>(
    config: ClientConfig
 ): Promise<T> {
    // create key to track retries and log messages
-   const key = method + ':' + id;
+   const key = makeKey(method, id.value);
    const methodUrl =
-      'https://' + host + Url.Base + parameterize(method, id, req, config);
+      'https://' + Url.Host + Url.Base + parameterize(method, id, req, config);
 
    return new Promise<T>((resolve, reject) => {
       const token = config.auth.token;
@@ -119,7 +100,7 @@ export function callAPI<T>(
                tryAgain = res.retry;
             }
          } else {
-            log.error(err, { url: methodUrl });
+            log.error(err, { url: methodUrl, key });
             tryAgain = true;
          }
          if (!tryAgain || (tryAgain && !retry(attempt, key, config))) {
@@ -155,11 +136,11 @@ export function callAPI<T>(
  * Parse Flickr response and handle different kinds of error conditions
  */
 export function parse(body: string, key: string): Flickr.Response {
-   const fail = { retry: true, stat: 'fail' };
+   const fail = { retry: true, stat: Flickr.Status.Failed };
    let json = null;
 
    if (is.value(body)) {
-      body = body.replace(/\\'/g, "'");
+      body = body.replace(/\\'/g, '\'');
    }
 
    try {
@@ -245,7 +226,7 @@ export function parameterize<T>(
    const param = req.params;
 
    param.api_key = config.auth.apiKey;
-   param.format = 'json';
+   param.format = Flickr.Format.JSON;
    param.nojsoncallback = 1;
    param.method = 'flickr.' + method;
 
@@ -258,3 +239,5 @@ export function parameterize<T>(
    }
    return qs;
 }
+
+export const makeKey = (method: string, id: string) => method + ':' + id;

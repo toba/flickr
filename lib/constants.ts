@@ -1,6 +1,5 @@
-export const host = 'api.flickr.com';
-
 export enum Url {
+   Host = 'api.flickr.com',
    Base = '/services/rest/',
    RequestToken = 'http://www.flickr.com/services/oauth/request_token',
    Authorize = 'http://www.flickr.com/services/oauth/authorize',
@@ -8,17 +7,21 @@ export enum Url {
    PhotoSet = 'http://www.flickr.com/photos/trailimage/sets/'
 }
 
-export const method = {
-   COLLECTIONS: 'collections.getTree',
-   photo: {
-      EXIF: 'photos.getExif',
-      SEARCH: 'photos.search',
-      SETS: 'photos.getAllContexts',
-      SIZES: 'photos.getSizes',
-      TAGS: 'tags.getListUserRaw'
-   },
-   set: {
-      INFO: 'photosets.getInfo',
-      PHOTOS: 'photosets.getPhotos'
-   }
+enum PhotoMethods {
+   EXIF = 'photos.getExif',
+   Search = 'photos.search',
+   Sets = 'photos.getAllContexts',
+   Sizes = 'photos.getSizes',
+   Tags = 'tags.getListUserRaw'
+}
+
+enum SetMethods {
+   Info = 'photosets.getInfo',
+   Photos = 'photosets.getPhotos'
+}
+
+export const Method = {
+   Collections: 'collections.getTree',
+   Photo: PhotoMethods,
+   Set: SetMethods
 };
