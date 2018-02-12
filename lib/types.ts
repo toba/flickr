@@ -19,9 +19,25 @@ export namespace Flickr {
       Original = 'url_o'
    }
 
-   export enum IdType { User = 'user_id', Set = 'photoset_id', Photo = 'photo_id' }
+   export enum TypeName {
+      User = 'user_id',
+      Set = 'photoset_id',
+      Photo = 'photo_id'
+   }
 
-   export type Sort = 'date-posted-asc' | 'date-posted-desc' | 'date-taken-asc' | 'date-taken-desc' | 'interestingness-desc' | 'interestingness-asc' | 'relevance';
+   export enum Status {
+      Okay = 'ok'
+   }
+
+   export enum Sort {
+      DatePostedAsc = 'date-posted-asc',
+      DatePostedDesc = 'date-posted-desc',
+      DateTakenAsc = 'date-taken-asc',
+      DateTakenDesc = 'date-taken-desc',
+      InterestingDesc = 'interestingness-desc',
+      InterestingAsc = 'interestingness-asc',
+      Relevance = 'relevance'
+   }
 
    /**
     * http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
@@ -60,17 +76,18 @@ export namespace Flickr {
     */
    export interface Params {
       [index: string]: string | number | boolean | string[];
-      api_key: string;
-      format: string;
-      nojsoncallback: boolean;
-      method: string;
-      extras: string;
-      tags: string[];
-      sort: Sort;
-      per_page: number;
-      [IdType.Photo]?: string;
-      [IdType.User]?: string;
-      [IdType.Set]?: string;
+      api_key?: string;
+      format?: string;
+      nojsoncallback?: 1 | 0;
+      method?: string;
+      /** Comma-delimited list of method-specific, extra fields to return */
+      extras?: string;
+      tags?: string;
+      sort?: Sort;
+      per_page?: number;
+      [TypeName.Photo]?: string;
+      [TypeName.User]?: string;
+      [TypeName.Set]?: string;
    }
 
    export interface Collection {
@@ -271,7 +288,7 @@ export namespace Flickr {
        */
       retry?: boolean;
       /** Response status */
-      stat: string;
+      stat: Status;
       code: number;
       message: string;
       photos: {

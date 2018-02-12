@@ -1,4 +1,5 @@
 import { is, merge } from '@toba/utility';
+import { Client as AuthClient } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
 import { host, Url } from './constants';
@@ -29,24 +30,25 @@ const retries: { [key: string]: number } = {};
 //    [Flickr.IdType.Set]?: string;
 // }
 
-export interface RequestConfig<T> {
+export interface Request<T> {
    /** Method to retrieve value from JSON response */
    value(r: Flickr.Response): T;
-   /** Reference to client configuration */
-   client?: ClientConfig;
    /** Whether to OAuth sign the request. */
    sign?: boolean;
    /** Whether result can be cached (subject to global configuration) */
    allowCache?: boolean;
    /** Error message to log if call fails. */
    error?: string;
+   /** OAuthClient to use if signing is required */
+   auth?: AuthClient;
    params?: Flickr.Params;
 }
 
-const defaultRequestConfig: RequestConfig<Flickr.Response> = {
+export const defaultRequest: Request<Flickr.Response> = {
    value: r => r,
    error: null,
    sign: false,
+   auth: null,
    allowCache: false
 };
 
@@ -54,7 +56,7 @@ const defaultRequestConfig: RequestConfig<Flickr.Response> = {
  * Flickr entity identified by type and an ID value.
  */
 export interface Identity {
-   type: Flickr.IdType;
+   type: Flickr.TypeName;
    value: string;
 }
 
@@ -64,21 +66,22 @@ export interface Identity {
 export function call<T>(
    method: string,
    id: Identity,
-   config: RequestConfig<T>
+   req: Request<T>,
+   config: ClientConfig
 ): Promise<T> {
-   config = merge(defaultRequestConfig, config);
+   req = merge(defaultRequest, req);
    // generate fallback API call
-   const noCache = () => callAPI<T>(method, id, config);
+   const noCacheCall = () => callAPI<T>(method, id, req, config);
 
-   return config.allowCache
+   return req.allowCache && config.useCache
       ? cache
-         .get<T>(method, id.value)
-         .then(item => (is.value(item) ? item : noCache()))
-         .catch((err: Error) => {
-            log.error(err, { method, id });
-            return noCache();
-         })
-      : noCache();
+           .get<T>(method, id.value)
+           .then(item => (is.value(item) ? item : noCacheCall()))
+           .catch((err: Error) => {
+              log.error(err, { method, id });
+              return noCacheCall();
+           })
+      : noCacheCall();
 }
 
 /**
@@ -89,29 +92,27 @@ export function call<T>(
 export function callAPI<T>(
    method: string,
    id: Identity,
-   config: RequestConfig<T>
+   req: Request<T>,
+   config: ClientConfig
 ): Promise<T> {
    // create key to track retries and log messages
    const key = method + ':' + id;
    const methodUrl =
-      'https://' +
-      host +
-      Url.Base +
-      parameterize(method, id, config);
+      'https://' + host + Url.Base + parameterize(method, id, req, config);
 
    return new Promise<T>((resolve, reject) => {
-      const token = config.client.auth.token;
-      // response handler that may retry call
+      const token = config.auth.token;
+      /** Response handler that may retry call */
       const handler = (err: any, body: string, attempt: Function) => {
          let tryAgain = false;
          if (err === null) {
             const res = parse(body, key);
-            if (res.stat == 'ok') {
+            if (res.stat == Flickr.Status.Okay) {
                clearRetries(key);
-               const parsed = config.value(res);
+               const parsed = req.value(res);
                resolve(parsed);
                // cache result
-               if (config.allowCache) {
+               if (req.allowCache && config.useCache) {
                   cache.add(method, id.value, parsed);
                }
             } else {
@@ -121,30 +122,30 @@ export function callAPI<T>(
             log.error(err, { url: methodUrl });
             tryAgain = true;
          }
-         if (!tryAgain || (tryAgain && !retry(attempt, key))) {
+         if (!tryAgain || (tryAgain && !retry(attempt, key, config))) {
             reject(`Flickr ${method} failed for ${id.type} ${id.value}`);
          }
       };
       // create call attempt with signing as required
-      const attempt = config.sign
+      const attempt = req.sign
          ? () =>
-            this.oauth.get(
-               methodUrl,
-               token.access,
-               token.secret,
-               (error, body) => {
-                  handler(error, body, attempt);
-               }
-            )
+              req.auth.get(
+                 methodUrl,
+                 token.access,
+                 token.secret,
+                 (error, body) => {
+                    handler(error, body, attempt);
+                 }
+              )
          : () =>
-            fetch(methodUrl, { headers: { 'User-Agent': 'node.js' } })
-               .then(res => res.text())
-               .then(body => {
-                  handler(null, body, attempt);
-               })
-               .catch(err => {
-                  handler(err, null, attempt);
-               });
+              fetch(methodUrl, { headers: { 'User-Agent': 'node.js' } })
+                 .then(res => res.text())
+                 .then(body => {
+                    handler(null, body, attempt);
+                 })
+                 .catch(err => {
+                    handler(err, null, attempt);
+                 });
 
       attempt();
    });
@@ -158,7 +159,7 @@ export function parse(body: string, key: string): Flickr.Response {
    let json = null;
 
    if (is.value(body)) {
-      body = body.replace(/\\'/g, '\'');
+      body = body.replace(/\\'/g, "'");
    }
 
    try {
@@ -190,7 +191,11 @@ export function parse(body: string, key: string): Flickr.Response {
 /**
  * Retry service call if bad response and less than max retries
  */
-export function retry(fn: Function, key: string): boolean {
+export function retry(
+   fn: Function,
+   key: string,
+   config: ClientConfig
+): boolean {
    let count = 1;
 
    if (retries[key]) {
@@ -199,13 +204,15 @@ export function retry(fn: Function, key: string): boolean {
       retries[key] = count;
    }
 
-   if (count > config.flickr.maxRetries) {
+   if (count > config.maxRetries) {
       retries[key] = 0;
-      log.error(`Call to ${key} failed after ${maxRetries} tries`);
+      log.error(`Call to ${key} failed after ${config.maxRetries} tries`, {
+         key
+      });
       return false;
    } else {
-      log.warn(`Retry ${count} for ${key}`);
-      setTimeout(fn, config.flickr.retryDelay);
+      log.warn(`Retry ${count} for ${key}`, { key });
+      setTimeout(fn, config.retryDelay);
       return true;
    }
 }
@@ -215,7 +222,7 @@ export function retry(fn: Function, key: string): boolean {
  */
 export function clearRetries(key: string) {
    if (retries[key] && retries[key] > 0) {
-      log.info(`Call to ${key} succeeded`);
+      log.info(`Call to ${key} succeeded`, { key });
       retries[key] = 0;
    }
 }
@@ -226,17 +233,18 @@ export function clearRetries(key: string) {
 export function parameterize<T>(
    method: string,
    id: Identity,
-   config: RequestConfig<T>
+   req: Request<T>,
+   config: ClientConfig
 ): string {
-   if (!is.value(config.params)) {
+   if (!is.value(req.params)) {
       return '';
    }
    let qs = '';
    let op = '?';
 
-   const param = config.params;
+   const param = req.params;
 
-   param.api_key = config.client.auth.apiKey;
+   param.api_key = config.auth.apiKey;
    param.format = 'json';
    param.nojsoncallback = 1;
    param.method = 'flickr.' + method;

@@ -1,5 +1,5 @@
 import { FlickrClient, ClientConfig } from './client';
-import { Size } from './constants';
+import { Flickr } from './types';
 
 let client: FlickrClient;
 const longTimeout = 5000;
@@ -20,12 +20,12 @@ const config: ClientConfig = {
    maxRetries: 10,
    retryDelay: 300,
    useCache: false,
-   searchPhotoSizes: [Size.Large1024],
-   setPhotoSizes: [Size.Large1024],
+   searchPhotoSizes: [Flickr.SizeUrl.Large1024],
+   setPhotoSizes: [Flickr.SizeUrl.Large1024],
    auth: {
       apiKey: process.env['FLICKR_API_KEY'],
       secret: process.env['FLICKR_SECRET'],
-      callbackURL: 'http://www.trailimage.com/auth/flickr',
+      callback: 'http://www.trailimage.com/auth/flickr',
       token: {
          access: process.env['FLICKR_ACCESS_TOKEN'],
          secret: process.env['FLICKR_TOKEN_SECRET'],
@@ -128,3 +128,45 @@ test(
       }),
    longTimeout
 );
+
+// const sizes = {
+//    thumb: s.SQUARE_150,
+//    preview: s.SMALL_320,
+//    normal: [s.LARGE_1024, s.MEDIUM_800, s.MEDIUM_640],
+//    big: [s.LARGE_2048, s.LARGE_1600, s.LARGE_1024]
+// };
+
+// const flickr = {
+//    userID: '60950751@N04',
+//    appID: '72157631007435048',
+//    featureSets: [
+//       { id: '72157632729508554', title: 'Ruminations' }
+//    ] as Flickr.FeatureSet[],
+//    sizes,
+//    /** Photo sizes that must be retrieved for certain contexts */
+//    photoSize: {
+//       post: sizes.normal.concat(sizes.big, sizes.preview),
+//       map: [s.SMALL_320],
+//       search: [s.SQUARE_150]
+//    },
+//    excludeSets: ['72157631638576162'],
+//    excludeTags: [
+//       'Idaho',
+//       'United States of America',
+//       'Abbott',
+//       'LensTagger',
+//       'Boise'
+//    ],
+//    maxRetries: 10,
+//    retryDelay: 300,
+//    auth: {
+//       apiKey: env('FLICKR_API_KEY'),
+//       secret: env('FLICKR_SECRET'),
+//       callback: 'http://www.' + domain + '/auth/flickr',
+//       token: {
+//          access: process.env['FLICKR_ACCESS_TOKEN'] as string,
+//          secret: process.env['FLICKR_TOKEN_SECRET'] as string,
+//          request: null as string
+//       } as Token
+//    }
+// };
