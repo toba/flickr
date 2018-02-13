@@ -5,6 +5,7 @@ import { log } from '@toba/logger';
 import { Url } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
+import 'fetch';
 
 /**
  * Number of retries keyed to API method.
@@ -12,8 +13,8 @@ import { cache } from './cache';
 const retries: { [key: string]: number } = {};
 
 export interface Request<T> {
-   /** Method to retrieve value from JSON response */
-   value(r: Flickr.Response): T;
+   /** Method to retreive response from JSON result */
+   res(r: Flickr.Response): T;
    /** Whether to OAuth sign the request. */
    sign?: boolean;
    /** Whether result can be cached (subject to global configuration) */
@@ -26,7 +27,7 @@ export interface Request<T> {
 }
 
 export const defaultRequest: Request<Flickr.Response> = {
-   value: r => r,
+   res: r => r,
    error: null,
    sign: false,
    auth: null,
@@ -90,7 +91,7 @@ export function callAPI<T>(
             const res = parse(body, key);
             if (res.stat == Flickr.Status.Okay) {
                clearRetries(key);
-               const parsed = req.value(res);
+               const parsed = req.res(res);
                resolve(parsed);
                // cache result
                if (req.allowCache && config.useCache) {
@@ -140,7 +141,8 @@ export function parse(body: string, key: string): Flickr.Response {
    let json = null;
 
    if (is.value(body)) {
-      body = body.replace(/\\'/g, '\'');
+      // tslint:disable-next-line:quotemark
+      body = body.replace(/\\'/g, "'");
    }
 
    try {

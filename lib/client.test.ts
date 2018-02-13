@@ -14,9 +14,7 @@ const config: ClientConfig = {
       'LensTagger',
       'Boise'
    ],
-   featureSets: [
-      { id: '72157632729508554', title: 'Ruminations' }
-   ],
+   featureSets: [{ id: '72157632729508554', title: 'Ruminations' }],
    maxRetries: 10,
    retryDelay: 300,
    useCache: false,
@@ -33,6 +31,9 @@ const config: ClientConfig = {
       }
    }
 };
+
+const featureSetID = config.featureSets[0].id;
+const featurePhotoID = '0';
 
 beforeAll(() => {
    client = new FlickrClient(config);
@@ -61,7 +62,7 @@ test(
 test(
    'retrieves set information',
    () =>
-      client.getSetInfo(config.featureSets[0].id).then(json => {
+      client.getSetInfo(featureSetID).then(json => {
          expect(json.id).toBe(config.featureSets[0].id);
       }),
    longTimeout
@@ -73,9 +74,9 @@ test(
       client.getSetPhotos(config.featureSets[0].id).then(json => {
          expect(json).toHaveProperty('id', config.featureSets[0].id);
          expect(json.photo).toBeInstanceOf(Array);
-         config.photoSize.post.forEach(s => {
+         config.setPhotoSizes.forEach(s => {
             // should retrieve all size URLs needed to display post
-            expect(json.photo[0]).to.include.keys(s);
+            expect(json.photo[0]).toHaveProperty(s);
          });
       }),
    longTimeout
@@ -95,7 +96,7 @@ test(
    () =>
       client.getPhotoSizes(featurePhotoID).then(json => {
          expect(json).toBeInstanceOf(Array);
-         expect(json[0]).to.include.keys('url');
+         expect(json[0]).toHaveProperty('url');
       }),
    longTimeout
 );
@@ -124,7 +125,7 @@ test(
    () =>
       client.photoSearch('horse').then(json => {
          expect(json).toBeInstanceOf(Array);
-         expect(json[0]).toHaveProperty('owner', config.flickr.userID);
+         expect(json[0]).toHaveProperty('owner', config.userID);
       }),
    longTimeout
 );

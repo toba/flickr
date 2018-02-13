@@ -60,67 +60,82 @@ export class FlickrClient {
       return { type: Flickr.TypeName.Photo, value: id.toString() };
    }
 
-   _api<T>(method: string, id: Identity, req: Request<T>) {
-      call<T>(method, id, req, this.config);
+   _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
+      return call<T>(method, id, req, this.config);
    }
 
+   /**
+    * https://www.flickr.com/services/api/flickr.collections.getTree.html
+    */
    getCollections() {
       return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
-         value: r => r.collections.collection,
+         res: r => r.collections.collection,
          allowCache: true
       });
    }
 
+   /**
+    * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
+    */
    getSetInfo(id: string) {
       return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
-         value: r => r.photoset as Flickr.SetInfo,
+         res: r => r.photoset as Flickr.SetInfo,
          allowCache: true
       });
    }
 
+   /**
+    * https://www.flickr.com/services/api/flickr.photos.getSizes.html
+    */
    getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
-         value: r => r.sizes.size
+         res: r => r.sizes.size
       });
    }
 
    /**
     * All sets that a photo belongs to.
+    * https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
     */
    getPhotoContext(id: string) {
       return this._api<Flickr.MemberSet[]>(
          Method.Photo.Sets,
          this._photoID(id),
          {
-            value: r => r.set
+            res: r => r.set
          }
       );
    }
 
-   getExif(id: number) {
+   /**
+    * https://www.flickr.com/services/api/flickr.photos.getExif.html
+    */
+   getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
-         value: r => r.photo.exif,
+         res: r => r.photo.exif,
          allowCache: true
       });
    }
 
    /**
     * All photos in a set.
+    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
    getSetPhotos(id: string) {
       return this._api<Flickr.SetPhotos>(Method.Set.Photos, this._setID(id), {
          params: {
-            extras: [
-               Flickr.Extra.Description,
-               Flickr.Extra.Tags,
-               Flickr.Extra.DateTaken,
-               Flickr.Extra.Location,
-               Flickr.Extra.PathAlias
-            ]
-               .concat(this.config.setPhotoSizes)
-               .join()
+            extras:
+               [
+                  Flickr.Extra.Description,
+                  Flickr.Extra.Tags,
+                  Flickr.Extra.DateTaken,
+                  Flickr.Extra.Location,
+                  Flickr.Extra.PathAlias
+               ].join() +
+               ',' +
+               this.config.searchPhotoSizes.join()
          },
-         value: r => r.photoset as Flickr.SetPhotos,
+         res: r => r.photoset as Flickr.SetPhotos,
          allowCache: true
       });
    }
@@ -142,18 +157,19 @@ export class FlickrClient {
                sort: Flickr.Sort.Relevance,
                per_page: 500 // maximum
             },
-            value: r => r.photos.photo as Flickr.PhotoSummary[],
+            res: r => r.photos.photo as Flickr.PhotoSummary[],
             sign: true
          }
       );
    }
 
    /**
-    * All photo tags for API user
+    * All photo tags for API user.
+    * https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
    getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
-         value: r => r.who.tags.tag,
+         res: r => r.who.tags.tag,
          sign: true,
          allowCache: true
       });
