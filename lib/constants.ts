@@ -21,6 +21,7 @@ enum SetMethods {
 }
 
 export const Method = {
+   Prefix: 'flickr.',
    Collections: 'collections.getTree',
    Photo: PhotoMethods,
    Set: SetMethods

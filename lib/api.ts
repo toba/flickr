@@ -2,10 +2,10 @@ import { is, merge } from '@toba/utility';
 import { Client as AuthClient } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
-import { Url } from './constants';
+import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
-import 'fetch';
+import * as fetch from 'node-fetch';
 
 /**
  * Number of retries keyed to API method.
@@ -230,7 +230,7 @@ export function parameterize<T>(
    param.api_key = config.auth.apiKey;
    param.format = Flickr.Format.JSON;
    param.nojsoncallback = 1;
-   param.method = 'flickr.' + method;
+   param.method = Method.Prefix + method;
 
    if (is.value(id)) {
       param[id.type] = id.value;
