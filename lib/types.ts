@@ -84,7 +84,7 @@ export namespace Flickr {
       [index: string]: string | number | boolean | string[];
       api_key?: string;
       format?: Format;
-      nojsoncallback?: 1 | 0;
+      nojsoncallback?: Boolean;
       method?: string;
       /** Comma-delimited list of method-specific, extra fields to return */
       extras?: string;
