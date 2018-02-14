@@ -5,7 +5,7 @@ import { log } from '@toba/logger';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';
-import * as fetch from 'node-fetch';
+import fetch from 'node-fetch';
 
 /**
  * Number of retries keyed to API method.
@@ -149,9 +149,9 @@ export function parse(body: string, key: string): Flickr.Response {
       json = JSON.parse(body);
 
       if (json === null) {
-         log.error(`Call to ${key} returned null`);
+         log.error(`Call to ${key} returned null`, { key });
          json = fail;
-      } else if (json.stat == 'fail') {
+      } else if (json.stat == Flickr.Status.Failed) {
          log.error(json.message, { key, code: json.code });
          // do not retry if the item is simply not found
          if (json.message.includes('not found')) {
@@ -164,7 +164,7 @@ export function parse(body: string, key: string): Flickr.Response {
       if (/<html>/.test(body)) {
          // Flickr returned an HTML response instead of JSON -- likely an error message
          // see if we can swallow it
-         log.error('Flickr returned HTML instead of JSON');
+         log.error('Flickr returned HTML instead of JSON', { key });
       }
       json = fail;
    }

@@ -61,6 +61,7 @@ export class FlickrClient {
    }
 
    _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
+      req.auth = this.oauth;
       return call<T>(method, id, req, this.config);
    }
 

@@ -3,9 +3,12 @@ import { Identity, Request } from '../api';
 import { ClientConfig } from '../client';
 import { Method } from '../constants';
 
-export const api = jest.genMockFromModule('../api.ts');
+export { call, parse, parameterize, defaultRequest } from '../api';
 
-export const call = <T>(
+//jest.mock('../api.ts');
+//export const api = jest.genMockFromModule('../api.ts');
+
+export const callAPI = <T>(
    method: string,
    _id: Identity,
    req: Request<T>,

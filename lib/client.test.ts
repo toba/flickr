@@ -1,9 +1,11 @@
 import { FlickrClient, ClientConfig } from './client';
 import { Flickr } from './types';
 
+jest.mock('./api');
+
 let client: FlickrClient;
 const longTimeout = 5000;
-const config: ClientConfig = {
+export const config: ClientConfig = {
    appID: '72157631007435048',
    userID: '60950751@N04',
    excludeSets: ['72157631638576162'],
