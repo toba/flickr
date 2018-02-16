@@ -16,13 +16,10 @@ import { Flickr } from './types';
 //    'HMAC-SHA1'
 // );
 
-test('parses Flickr reponse', () => {
-   expect(typeof call).toBe('function');
-
+test('parses Flickr response', () =>
    call(
       Method.Collections,
       { type: Flickr.TypeName.User, value: '' },
       { res: r => r.collections.collection },
       config
-   );
-});
+   ));

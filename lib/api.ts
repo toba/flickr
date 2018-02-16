@@ -51,7 +51,8 @@ export function call<T>(
    req: Request<T>,
    config: ClientConfig
 ): Promise<T> {
-   req = merge(defaultRequest, req);
+   //req = merge(defaultRequest, req);
+   req = Object.assign(defaultRequest, req);
    // generate fallback API call
    const noCacheCall = () => callAPI<T>(method, id, req, config);
 
