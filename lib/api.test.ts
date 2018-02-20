@@ -4,7 +4,7 @@ import { config } from './client.test';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
 
-//jest.mock('./api');
+jest.mock('./api');
 
 // const oauth = new AuthClient(
 //    Url.RequestToken,
@@ -22,4 +22,6 @@ test('parses Flickr response', () =>
       { type: Flickr.TypeName.User, value: '' },
       { res: r => r.collections.collection },
       config
-   ));
+   ).then(collections => {
+      expect(collections).toBeDefined();
+   }));
