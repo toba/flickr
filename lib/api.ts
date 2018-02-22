@@ -220,13 +220,10 @@ export function parameterize<T>(
    req: Request<T>,
    config: ClientConfig
 ): string {
-   if (!is.value(req.params)) {
-      return '';
-   }
    let qs = '';
    let op = '?';
 
-   const param = req.params;
+   const param: Flickr.Params = is.value(req.params) ? req.params : {};
 
    param.api_key = config.auth.apiKey;
    param.format = Flickr.Format.JSON;
