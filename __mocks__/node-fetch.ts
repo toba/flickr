@@ -15,6 +15,9 @@ class MockResponse extends Response {
    }
 }
 
+/**
+ * Mock `fetch` to return local files instead of remote resources.
+ */
 export default function fetch(
    url: string | Request,
    init?: RequestInit

@@ -1,5 +1,5 @@
 {
    "eslint.enable": false,
    "jest.enableCodeLens": true,
-   "jest.pathToJest": "node_modules/jest-cli/bin/jest.js"
+   "jest.pathToJest": "node_modules/.bin/jest.cmd"
 }

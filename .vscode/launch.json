@@ -6,9 +6,11 @@
          "request": "launch",
          "name": "Test",
          "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-         "args": ["-t", "parse"],
+         //"args": ["-t", "parse"],
          "internalConsoleOptions": "neverOpen",
-         "outFiles": ["${workspaceFolder}/**/*.js"]
+         "outFiles": [
+            "${workspaceFolder}/**/*.js"
+         ]
       }
    ]
 }
