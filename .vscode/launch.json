@@ -6,11 +6,35 @@
          "request": "launch",
          "name": "Test",
          "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-         //"args": ["-t", "parse"],
-         "internalConsoleOptions": "neverOpen",
+         "args": [
+            "--runInBand",
+            "--config"
+         ],
+         "sourceMaps": true,
+         //"internalConsoleOptions": "neverOpen",
          "outFiles": [
-            "${workspaceFolder}/**/*.js"
+            "${workspaceRoot}/output/debug/**/*"
          ]
+      },
+      {
+         "type": "node",
+         "request": "launch",
+         "name": "Jest",
+         "port": 9229,
+         "address": "localhost",
+         "protocol": "legacy",
+         "stopOnEntry": false,
+         "runtimeExecutable": null,
+         "sourceMaps": true,
+         "env": {
+            "NODE_ENV": "production"
+         },
+         "runtimeArgs": [
+            "--inspect-brk",
+            "./node_modules/.bin/jest",
+            "-i"
+         ],
+         "cwd": "${workspaceRoot}"
       }
    ]
 }

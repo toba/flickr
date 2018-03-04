@@ -298,12 +298,12 @@ export namespace Flickr {
       retry?: boolean;
       /** Response status */
       stat: Status;
-      code: number;
-      message: string;
-      photos: {
+      code?: number;
+      message?: string;
+      photos?: {
          photo: SearchResult | PhotoSummary[];
       };
-      who: {
+      who?: {
          tags: {
             tag: Tag[];
          };

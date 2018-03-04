@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parses response body 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "[Error] Call to mockKey returned null key=mockKey level=4 message=\\"Call to mockKey returned null\\"",
+    ],
+    Array [
+      "[Error] Flickr returned HTML instead of JSON key=mockKey level=4 message=\\"Flickr returned HTML instead of JSON\\"",
+    ],
+    Array [
+      "[Error] Unexpected token o in JSON at position 1 key=mockKey error=\\"SyntaxError: Unexpected token o in JSON at position 1\\" stack=\\"SyntaxError: Unexpected token o in JSON at position 1
+    at JSON.parse (<anonymous>)
+    at Object.parse (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\lib\\\\\\\\api.ts:199:18)
+    at Object.<anonymous>.test (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\lib\\\\\\\\api.test.ts:70:11)
+    at Object.asyncFn (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\node_modules\\\\\\\\jest-jasmine2\\\\\\\\build\\\\\\\\jasmine_async.js:82:37)
+    at resolve (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\node_modules\\\\\\\\jest-jasmine2\\\\\\\\build\\\\\\\\queue_runner.js:52:12)
+    at new Promise (<anonymous>)
+    at mapper (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\node_modules\\\\\\\\jest-jasmine2\\\\\\\\build\\\\\\\\queue_runner.js:39:19)
+    at promise.then (D:\\\\\\\\dev\\\\\\\\src\\\\\\\\github.com\\\\\\\\toba\\\\\\\\flickr\\\\\\\\node_modules\\\\\\\\jest-jasmine2\\\\\\\\build\\\\\\\\queue_runner.js:73:82)
+    at <anonymous>\\" level=4 message=\\"Unexpected token o in JSON at position 1\\"",
+    ],
+    Array [
+      "[Error] thing not found key=mockKey code= level=4 message=\\"thing not found\\"",
+    ],
+  ],
+}
+`;

@@ -1,5 +1,5 @@
 import { is, merge } from '@toba/utility';
-import { Client as AuthClient } from '@toba/oauth';
+import { Client as AuthClient, Token } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
 import { Url, Method } from './constants';
@@ -12,9 +12,14 @@ import fetch from 'node-fetch';
  */
 const retries: { [key: string]: number } = {};
 
+export const failResponse: Flickr.Response = {
+   retry: true,
+   stat: Flickr.Status.Failed
+};
+
 export interface Request<T> {
    /** Method to retreive response from JSON result */
-   res(r: Flickr.Response): T;
+   parse(r: Flickr.Response): T;
    /** Whether to OAuth sign the request. */
    sign?: boolean;
    /** Whether result can be cached (subject to global configuration) */
@@ -26,8 +31,17 @@ export interface Request<T> {
    params?: Flickr.Params;
 }
 
+/**
+ * Response handler that may re-attempt HTTP Get request.
+ */
+export type ResponseHandler = (
+   err: any,
+   body: string,
+   httpGet: () => void
+) => void;
+
 export const defaultRequest: Request<Flickr.Response> = {
-   res: r => r,
+   parse: r => r,
    error: null,
    sign: false,
    auth: null,
@@ -43,7 +57,7 @@ export interface Identity {
 }
 
 /**
- * Load response from cache or call API
+ * Load response from cache or call API.
  */
 export function call<T>(
    method: string,
@@ -53,22 +67,25 @@ export function call<T>(
 ): Promise<T> {
    //req = merge(defaultRequest, req);
    req = Object.assign(defaultRequest, req);
-   // generate fallback API call
-   const noCacheCall = () => callAPI<T>(method, id, req, config);
+   // curry parameterless fallback call to API
+   const remoteCall = () => callAPI<T>(method, id, req, config);
 
    return req.allowCache && config.useCache
       ? cache
            .get<T>(method, id.value)
-           .then(item => (is.value(item) ? item : noCacheCall()))
+           // revert to calling API if cache item is invalid
+           .then(item => (is.value(item) ? item : remoteCall()))
+           // revert to calling API if error reading cache
            .catch((err: Error) => {
               log.error(err, { method, id });
-              return noCacheCall();
+              return remoteCall();
            })
-      : noCacheCall();
+      : remoteCall();
 }
 
 /**
- * Invoke remote API when method result isn't cached locally.
+ * Invoke remote API when method result isn't cached locally. Optionally retry
+ * the call if an error is received.
  *
  * See http://www.flickr.com/services/api/response.json.html
  */
@@ -80,103 +97,129 @@ export function callAPI<T>(
 ): Promise<T> {
    // create key to track retries and log messages
    const key = makeKey(method, id.value);
-   const methodUrl =
+   const url =
       'https://' + Url.Host + Url.Base + parameterize(method, id, req, config);
 
    return new Promise<T>((resolve, reject) => {
       const token = config.auth.token;
-      /** Response handler that may retry call */
-      const handler = (err: any, body: string, attempt: Function) => {
+      const handler: ResponseHandler = (
+         err: any,
+         body: string,
+         httpGet: () => void
+      ) => {
          let tryAgain = false;
+
          if (err === null) {
             const res = parse(body, key);
+
             if (res.stat == Flickr.Status.Okay) {
                clearRetries(key);
-               const parsed = req.res(res);
+               const parsed = req.parse(res);
                resolve(parsed);
+
                // cache result
                if (req.allowCache && config.useCache) {
                   cache.add(method, id.value, parsed);
                }
             } else {
+               // try again depending on custom flag appended in `parse()`
                tryAgain = res.retry;
             }
          } else {
-            log.error(err, { url: methodUrl, key });
+            log.error(err, { url, key });
             tryAgain = true;
          }
-         if (!tryAgain || (tryAgain && !retry(attempt, key, config))) {
+
+         if (!tryAgain || (tryAgain && !retry(httpGet, key, config))) {
             reject(`Flickr ${method} failed for ${id.type} ${id.value}`);
          }
       };
-      // create call attempt with signing as required
-      const attempt = req.sign
-         ? () =>
-              req.auth.get(
-                 methodUrl,
-                 token.access,
-                 token.secret,
-                 (error, body) => {
-                    handler(error, body, attempt);
-                 }
-              )
-         : () =>
-              fetch(methodUrl, { headers: { 'User-Agent': 'node.js' } })
-                 .then(res => res.text())
-                 .then(body => {
-                    handler(null, body, attempt);
-                 })
-                 .catch(err => {
-                    handler(err, null, attempt);
-                 });
 
-      attempt();
+      const httpGet = req.sign
+         ? signedGet(url, handler, req.auth, token)
+         : basicGet(url, handler);
+
+      httpGet();
    });
 }
 
 /**
- * Parse Flickr response and handle different kinds of error conditions
+ * Curry signed HTTP get request that can be retried without further parameters.
+ */
+export function signedGet(
+   url: string,
+   handler: ResponseHandler,
+   authClient: AuthClient,
+   token: Token
+) {
+   const getter = () =>
+      authClient.get(url, token.access, token.secret, (err, body) => {
+         handler(err, body, getter);
+      });
+
+   return getter;
+}
+
+/**
+ * Curry basic HTTP get request that can be retried without further parameters.
+ */
+export function basicGet(url: string, handler: ResponseHandler) {
+   const getter = () =>
+      fetch(url, { headers: { 'User-Agent': 'node.js' } })
+         .then(res => res.text())
+         .then(body => {
+            handler(null, body, getter);
+         })
+         .catch(err => {
+            handler(err, null, getter);
+         });
+
+   return getter;
+}
+
+/**
+ * Parse Flickr response and handle different kinds of error conditions.
  */
 export function parse(body: string, key: string): Flickr.Response {
-   const fail = { retry: true, stat: Flickr.Status.Failed };
-   let json = null;
+   let res: Flickr.Response = null;
 
    if (is.value(body)) {
       // tslint:disable-next-line:quotemark
       body = body.replace(/\\'/g, "'");
    }
 
-   try {
-      json = JSON.parse(body);
+   if (/<html>/.test(body)) {
+      // Flickr returned an HTML response instead of JSON -- likely an error
+      // message; see if we can swallow it and retry.
+      log.error('Flickr returned HTML instead of JSON', { key });
+      return failResponse;
+   }
 
-      if (json === null) {
+   try {
+      res = JSON.parse(body);
+
+      if (res === null) {
          log.error(`Call to ${key} returned null`, { key });
-         json = fail;
-      } else if (json.stat == Flickr.Status.Failed) {
-         log.error(json.message, { key, code: json.code });
+         res = failResponse;
+      } else if (res.stat == Flickr.Status.Failed) {
+         log.error(res.message, { key, code: res.code });
          // do not retry if the item is simply not found
-         if (json.message.includes('not found')) {
-            json.retry = false;
+         if (res.message.includes('not found')) {
+            res.retry = false;
          }
       }
    } catch (ex) {
       log.error(ex, { key });
-
-      if (/<html>/.test(body)) {
-         // Flickr returned an HTML response instead of JSON -- likely an error message
-         // see if we can swallow it
-         log.error('Flickr returned HTML instead of JSON', { key });
-      }
-      json = fail;
+      res = failResponse;
    }
-   return json;
+   return res;
 }
 
 /**
- * Retry service call if bad response and less than max retries
+ * Retry service call if bad response and less than max retries.
  */
 export function retry(
-   fn: Function,
+   httpGet: () => void,
    key: string,
    config: ClientConfig
 ): boolean {
@@ -196,7 +239,7 @@ export function retry(
       return false;
    } else {
       log.warn(`Retry ${count} for ${key}`, { key });
-      setTimeout(fn, config.retryDelay);
+      setTimeout(httpGet, config.retryDelay);
       return true;
    }
 }
@@ -212,7 +255,7 @@ export function clearRetries(key: string) {
 }
 
 /**
- * Setup standard parameters.
+ * Setup standard parameters for Flickr API call.
  */
 export function parameterize<T>(
    method: string,
@@ -240,4 +283,7 @@ export function parameterize<T>(
    return qs;
 }
 
+/**
+ * Simple key used to track HTTP retries and caching.
+ */
 export const makeKey = (method: string, id: string) => method + ':' + id;

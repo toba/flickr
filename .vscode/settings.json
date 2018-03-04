@@ -1,5 +1,6 @@
 {
    "eslint.enable": false,
    "jest.enableCodeLens": true,
-   "jest.pathToJest": "node_modules/.bin/jest.cmd"
+   "jest.pathToJest": "node_modules/.bin/jest.cmd",
+   "jest.enableSnapshotUpdateMessages": false
 }

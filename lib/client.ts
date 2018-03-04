@@ -70,7 +70,7 @@ export class FlickrClient {
     */
    getCollections() {
       return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
-         res: r => r.collections.collection,
+         parse: r => r.collections.collection,
          allowCache: true
       });
    }
@@ -80,7 +80,7 @@ export class FlickrClient {
     */
    getSetInfo(id: string) {
       return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
-         res: r => r.photoset as Flickr.SetInfo,
+         parse: r => r.photoset as Flickr.SetInfo,
          allowCache: true
       });
    }
@@ -90,7 +90,7 @@ export class FlickrClient {
     */
    getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
-         res: r => r.sizes.size
+         parse: r => r.sizes.size
       });
    }
 
@@ -103,7 +103,7 @@ export class FlickrClient {
          Method.Photo.Sets,
          this._photoID(id),
          {
-            res: r => r.set
+            parse: r => r.set
          }
       );
    }
@@ -113,7 +113,7 @@ export class FlickrClient {
     */
    getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
-         res: r => r.photo.exif,
+         parse: r => r.photo.exif,
          allowCache: true
       });
    }
@@ -136,7 +136,7 @@ export class FlickrClient {
                ',' +
                this.config.searchPhotoSizes.join()
          },
-         res: r => r.photoset as Flickr.SetPhotos,
+         parse: r => r.photoset as Flickr.SetPhotos,
          allowCache: true
       });
    }
@@ -158,7 +158,7 @@ export class FlickrClient {
                sort: Flickr.Sort.Relevance,
                per_page: 500 // maximum
             },
-            res: r => r.photos.photo as Flickr.PhotoSummary[],
+            parse: r => r.photos.photo as Flickr.PhotoSummary[],
             sign: true
          }
       );
@@ -170,7 +170,7 @@ export class FlickrClient {
     */
    getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
-         res: r => r.who.tags.tag,
+         parse: r => r.who.tags.tag,
          sign: true,
          allowCache: true
       });
