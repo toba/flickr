@@ -1,12 +1,11 @@
 import {
    call,
    parse,
-   retry,
    parameterize,
    failResponse,
-   basicGet,
+   basicRequest,
+   signedRequest,
    Request,
-   ResponseHandler,
    Identity
 } from './api';
 import { config } from './client.test';
@@ -14,6 +13,7 @@ import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { merge } from '@toba/utility';
 import { log } from '@toba/logger';
+import { Client as AuthClient } from '@toba/oauth';
 
 const key = 'mockKey';
 const logMock = jest.fn();
@@ -21,7 +21,16 @@ const responseHandler = jest.fn();
 const mockID: Identity = { value: 'user-name', type: Flickr.TypeName.User };
 const mockRequest: Request<Flickr.Collection[]> = {
    parse: r => r.collections.collection,
-   allowCache: false
+   allowCache: false,
+   auth: new AuthClient(
+      Url.RequestToken,
+      Url.AccessToken,
+      config.auth.apiKey,
+      config.auth.secret,
+      '1.0A',
+      config.auth.callback,
+      'HMAC-SHA1'
+   )
 };
 let logWithColor: boolean;
 
@@ -49,11 +58,23 @@ test('builds request parameters', () => {
 
 test('curries basic HTTP get method', () => {
    const url = parameterize(Method.Collections, mockID, mockRequest, config);
-   const getter = basicGet(url, responseHandler);
+   const getter = basicRequest(url);
+
    expect(getter).toBeInstanceOf(Function);
 
-   return getter().then(() => {
-      expect(responseHandler).toHaveBeenCalledTimes(1);
+   return getter().then(body => {
+      expect(body).toBeDefined();
+   });
+});
+
+test('curries signed HTTP get method', () => {
+   const url = parameterize(Method.Collections, mockID, mockRequest, config);
+   const getter = signedRequest(url, mockRequest.auth, config.auth.token);
+
+   expect(getter).toBeInstanceOf(Function);
+
+   return getter().then(body => {
+      expect(body).toBeDefined();
    });
 });
 
@@ -73,28 +94,7 @@ test('parses response body', () => {
       merge(notFound, { retry: false })
    );
 
-   expect(logMock).toMatchSnapshot();
-});
-
-test('retries request', () => {
-   const mockCall = jest
-      .fn(() => Promise.resolve())
-      .mockImplementationOnce(() => Promise.reject('reason 1'))
-      .mockImplementationOnce(() => Promise.reject('reason 2'));
-
-   jest.useFakeTimers();
-
-   // do not retry if count >= max retries
-   config.maxRetries = 0;
-   expect(retry(mockCall, key, config)).toBe(false);
-   expect(mockCall).toHaveBeenCalledTimes(0);
-
-   config.maxRetries = 2;
-   expect(retry(mockCall, key, config)).toBe(true);
-   expect(setTimeout).toHaveBeenCalledTimes(1);
-
-   // jest.runAllTimers();
-   // expect(mockCall).toHaveBeenCalledTimes(1);
+   //expect(logMock).toMatchSnapshot();
 });
 
 test('converts response to objects', () =>

@@ -43,7 +43,7 @@
    "dependencies": {
       "@toba/logger": "^1.0.0",
       "@toba/oauth": "^1.1.0",
-      "@toba/utility": "^1.6.0",
+      "@toba/utility": "^1.7.0",
       "node-fetch": "^2.0.0"
    }
 }
