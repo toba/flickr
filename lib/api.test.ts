@@ -13,16 +13,14 @@ import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { merge, is } from '@toba/tools';
 import { log } from '@toba/logger';
-// this should automatically select mock implementation but isn't
-//import { Client as AuthClient } from '@toba/oauth';
-import { Client as AuthClient } from '../__mocks__/@toba/oauth';
+import { Client as AuthClient } from '@toba/oauth';
 
 const key = 'mockKey';
 const logMock = jest.fn();
 const responseHandler = jest.fn();
 const mockID: Identity = { value: 'user-name', type: Flickr.TypeName.User };
 const mockRequest: Request<Flickr.Collection[]> = {
-   parse: r => r.collections.collection,
+   select: r => r.collections.collection,
    allowCache: false,
    auth: new AuthClient(
       Url.RequestToken,
@@ -123,6 +121,6 @@ test('converts response to objects', () =>
    call(
       Method.Collections,
       { type: Flickr.TypeName.User, value: '' },
-      { parse: r => r },
+      { select: r => r },
       config
    ).then(expectCollection));

@@ -3,6 +3,7 @@ import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
 import { is, merge } from '@toba/tools';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
+import { cache } from './cache';
 
 export interface FeatureSet {
    id: string;
@@ -64,6 +65,7 @@ export class FlickrClient {
          config.auth.callback,
          'HMAC-SHA1'
       );
+      cache.maxItems(this.config.maxCacheSize);
    }
 
    get _userID(): Identity {
@@ -88,7 +90,7 @@ export class FlickrClient {
     */
    getCollections() {
       return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
-         parse: r => r.collections.collection,
+         select: r => r.collections.collection,
          allowCache: true
       });
    }
@@ -98,7 +100,7 @@ export class FlickrClient {
     */
    getSetInfo(id: string) {
       return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
-         parse: r => r.photoset as Flickr.SetInfo,
+         select: r => r.photoset as Flickr.SetInfo,
          allowCache: true
       });
    }
@@ -108,7 +110,7 @@ export class FlickrClient {
     */
    getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
-         parse: r => r.sizes.size
+         select: r => r.sizes.size
       });
    }
 
@@ -121,7 +123,7 @@ export class FlickrClient {
          Method.Photo.Sets,
          this._photoID(id),
          {
-            parse: r => r.set
+            select: r => r.set
          }
       );
    }
@@ -131,7 +133,7 @@ export class FlickrClient {
     */
    getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
-         parse: r => r.photo.exif,
+         select: r => r.photo.EXIF,
          allowCache: true
       });
    }
@@ -154,7 +156,7 @@ export class FlickrClient {
                ',' +
                this.config.searchPhotoSizes.join()
          },
-         parse: r => r.photoset as Flickr.SetPhotos,
+         select: r => r.photoset as Flickr.SetPhotos,
          allowCache: true
       });
    }
@@ -176,7 +178,7 @@ export class FlickrClient {
                sort: Flickr.Sort.Relevance,
                per_page: 500 // maximum
             },
-            parse: r => r.photos.photo as Flickr.PhotoSummary[],
+            select: r => r.photos.photo as Flickr.PhotoSummary[],
             sign: true
          }
       );
@@ -188,7 +190,7 @@ export class FlickrClient {
     */
    getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
-         parse: r => r.who.tags.tag,
+         select: r => r.who.tags.tag,
          sign: true,
          allowCache: true
       });

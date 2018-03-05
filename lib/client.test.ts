@@ -3,7 +3,7 @@ import { Flickr } from './types';
 
 jest.unmock('./api');
 jest.unmock('./client');
-jest.unmock('@toba/oauth');
+// jest.unmock('@toba/oauth');
 
 let client: FlickrClient;
 const longTimeout = 5000;
@@ -66,13 +66,10 @@ test('retrieves set photos', () =>
       });
    }));
 
-// test(
-//    'retrieves photo EXIF',
-//    () =>
-//       client.getExif(featurePhotoID).then(json => {
-//          expect(json).toBeInstanceOf(Array);
-//       })
-// );
+test('retrieves photo EXIF', () =>
+   client.getExif(featurePhotoID).then(json => {
+      expect(json).toBeInstanceOf(Array);
+   }));
 
 test('retrieves photo sizes', () =>
    client.getPhotoSizes(featurePhotoID).then(json => {
@@ -80,28 +77,19 @@ test('retrieves photo sizes', () =>
       expect(json[0]).toHaveProperty('url');
    }));
 
-// test(
-//    'retrieves all photo tags',
-//    () =>
-//       client.getAllPhotoTags().then(json => {
-//          expect(json).toBeInstanceOf(Array);
-//       })
-// );
+test('retrieves all photo tags', () =>
+   client.getAllPhotoTags().then(json => {
+      expect(json).toBeInstanceOf(Array);
+   }));
 
-// test(
-//    'retrieves photo context',
-//    () =>
-//       client.getPhotoContext(featurePhotoID).then(json => {
-//          expect(json).toBeInstanceOf(Array);
-//          expect(json[0]).toHaveProperty('id', featureSetID);
-//       })
-// );
+test('retrieves photo context', () =>
+   client.getPhotoContext(featurePhotoID).then(json => {
+      expect(json).toBeInstanceOf(Array);
+      expect(json[0]).toHaveProperty('id', featureSetID);
+   }));
 
-// test(
-//    'searches for photos',
-//    () =>
-//       client.photoSearch('horse').then(json => {
-//          expect(json).toBeInstanceOf(Array);
-//          expect(json[0]).toHaveProperty('owner', config.userID);
-//       })
-// );
+test('searches for photos', () =>
+   client.photoSearch('horse').then(json => {
+      expect(json).toBeInstanceOf(Array);
+      expect(json[0]).toHaveProperty('owner', config.userID);
+   }));

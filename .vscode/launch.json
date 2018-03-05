@@ -6,15 +6,10 @@
          "request": "launch",
          "name": "Test",
          "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
-         "args": [
-            "--runInBand",
-            "--config"
-         ],
+         "args": ["--runInBand", "--config"],
          "sourceMaps": true,
          //"internalConsoleOptions": "neverOpen",
-         "outFiles": [
-            "${workspaceRoot}/output/debug/**/*"
-         ]
+         "outFiles": ["${workspaceRoot}/output/debug/**/*"]
       },
       {
          "type": "node",
@@ -22,19 +17,18 @@
          "name": "Jest",
          "port": 9229,
          "address": "localhost",
-         "protocol": "legacy",
          "stopOnEntry": false,
-         "runtimeExecutable": null,
          "sourceMaps": true,
-         "env": {
-            "NODE_ENV": "production"
-         },
          "runtimeArgs": [
             "--inspect-brk",
-            "./node_modules/.bin/jest",
-            "-i"
+            "./node_modules/jest-cli/bin/jest.js",
+            "--runInBand",
+            "client.test.ts",
+            "--testNamePattern",
+            "EXIF"
          ],
          "cwd": "${workspaceRoot}"
       }
+      // 'node' '--inspect-brk=24996' 'node_modules\jest-cli\bin\jest.js' '--runInBand' 'client.test.ts' '--testNamePattern' 'retrieves photo sizes'
    ]
 }

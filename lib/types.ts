@@ -200,7 +200,7 @@ export namespace Flickr {
       editability: EditAbility;
       publiceditability: EditAbility;
       usage: Usage;
-      exif: Exif[];
+      EXIF: Exif[];
       tags: {
          tag: TagSummary;
       };

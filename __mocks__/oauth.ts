@@ -1,11 +1,9 @@
 import fetch from 'node-fetch';
 
 /**
- * Mock OAuth client.
- *
- * https://github.com/facebook/jest/pull/2483
+ * Mock the OAuth client imported by @toba/oauth
  */
-export class Client {
+export class OAuth {
    urls: { [key: string]: string };
    last: {
       accessToken: string;

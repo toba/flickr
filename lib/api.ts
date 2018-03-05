@@ -1,9 +1,10 @@
-import { is, merge, retry, Cache } from '@toba/tools';
+import { is, merge, retry } from '@toba/tools';
 import { Client as AuthClient, Token } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
+import { cache } from './cache';
 import fetch from 'node-fetch';
 
 export const failResponse: Flickr.Response = {
@@ -12,8 +13,8 @@ export const failResponse: Flickr.Response = {
 };
 
 export interface Request<T> {
-   /** Method to retreive response from JSON result */
-   parse(r: Flickr.Response): T;
+   /** Method to select response from JSON result */
+   select(r: Flickr.Response): T;
    /** Whether to OAuth sign the request. */
    sign?: boolean;
    /** Whether result can be cached (subject to global configuration) */
@@ -26,7 +27,7 @@ export interface Request<T> {
 }
 
 export const defaultRequest: Request<Flickr.Response> = {
-   parse: r => r,
+   select: r => r,
    error: null,
    sign: false,
    auth: null,
@@ -93,13 +94,17 @@ export function callAPI<T>(
          const res = parse(body, key);
 
          if (res.stat == Flickr.Status.Okay) {
-            const parsed = req.parse(res);
+            const item = req.select(res);
+
+            if (item === undefined) {
+               throw `Failed to select item from ${url} response`;
+            }
 
             // cache result
             if (req.allowCache && config.useCache) {
-               cache.add(method, id.value, parsed);
+               cache.add(method, id.value, item);
             }
-            return parsed;
+            return item;
          } else if (!res.retry) {
             // try again depending on custom flag appended in `parse()`
             throw `${url} failed`;
