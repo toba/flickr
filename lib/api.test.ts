@@ -11,9 +11,11 @@ import {
 import { config } from './client.test';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
-import { merge } from '@toba/utility';
+import { merge, is } from '@toba/utility';
 import { log } from '@toba/logger';
 import { Client as AuthClient } from '@toba/oauth';
+
+//jest.mock('@toba/oauth');
 
 const key = 'mockKey';
 const logMock = jest.fn();
@@ -32,9 +34,22 @@ const mockRequest: Request<Flickr.Collection[]> = {
       'HMAC-SHA1'
    )
 };
+const collectionsURL = parameterize(
+   Method.Collections,
+   mockID,
+   mockRequest,
+   config
+);
 let logWithColor: boolean;
 
 console.log = logMock;
+
+function expectCollection(res: Flickr.Response): void {
+   expect(res).toHaveProperty('stat', Flickr.Status.Okay);
+   expect(res).toHaveProperty('collections');
+   expect(res.collections).toHaveProperty('collection');
+   expect(res.collections.collection).toBeInstanceOf(Array);
+}
 
 // remove color codes since they complicate the snapshots
 beforeAll(() => {
@@ -57,24 +72,28 @@ test('builds request parameters', () => {
 });
 
 test('curries basic HTTP get method', () => {
-   const url = parameterize(Method.Collections, mockID, mockRequest, config);
-   const getter = basicRequest(url);
+   const getter = basicRequest(collectionsURL);
 
    expect(getter).toBeInstanceOf(Function);
 
    return getter().then(body => {
-      expect(typeof body).toBe('string');
+      expect(typeof body).toBe(is.Type.String);
+      expectCollection(JSON.parse(body));
    });
 });
 
 test.skip('curries signed HTTP get method', () => {
-   const url = parameterize(Method.Collections, mockID, mockRequest, config);
-   const getter = signedRequest(url, mockRequest.auth, config.auth.token);
+   const getter = signedRequest(
+      collectionsURL,
+      mockRequest.auth,
+      config.auth.token
+   );
 
    expect(getter).toBeInstanceOf(Function);
 
    return getter().then(body => {
-      expect(body).toBeInstanceOf(String);
+      expect(typeof body).toBe(is.Type.String);
+      expectCollection(JSON.parse(body));
    });
 });
 
@@ -93,8 +112,11 @@ test('parses response body', () => {
    expect(parse(JSON.stringify(notFound), key)).toEqual(
       merge(notFound, { retry: false })
    );
+   expect(logMock).toHaveBeenCalledTimes(4);
 
-   //expect(logMock).toMatchSnapshot();
+   logMock.mock.calls.forEach(params => {
+      expect(params[0]).toContain('[Error]');
+   });
 });
 
 test('converts response to objects', () =>
@@ -103,9 +125,4 @@ test('converts response to objects', () =>
       { type: Flickr.TypeName.User, value: '' },
       { parse: r => r },
       config
-   ).then((res: Flickr.Response) => {
-      expect(res).toHaveProperty('stat', Flickr.Status.Okay);
-      expect(res).toHaveProperty('collections');
-      expect(res.collections).toHaveProperty('collection');
-      expect(res.collections.collection).toBeInstanceOf(Array);
-   }));
+   ).then(expectCollection));
