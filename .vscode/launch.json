@@ -29,6 +29,5 @@
          ],
          "cwd": "${workspaceRoot}"
       }
-      // 'node' '--inspect-brk=24996' 'node_modules\jest-cli\bin\jest.js' '--runInBand' 'client.test.ts' '--testNamePattern' 'retrieves photo sizes'
    ]
 }
