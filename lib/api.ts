@@ -1,10 +1,9 @@
-import { is, merge, retry } from '@toba/utility';
+import { is, merge, retry, Cache } from '@toba/tools';
 import { Client as AuthClient, Token } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
-import { cache } from './cache';
 import fetch from 'node-fetch';
 
 export const failResponse: Flickr.Response = {

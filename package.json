@@ -1,7 +1,7 @@
 {
    "name": "@toba/flickr",
    "description": "Toba Flickr API",
-   "version": "1.0.0",
+   "version": "1.0.1",
    "private": false,
    "publishConfig": {
       "access": "public"
@@ -10,7 +10,6 @@
    "files": [
       "index.ts",
       "lib/api.ts",
-      "lib/cache.ts",
       "lib/client.ts",
       "lib/constants.ts",
       "lib/types.ts"
@@ -43,7 +42,7 @@
    "dependencies": {
       "@toba/logger": "^1.0.0",
       "@toba/oauth": "^1.1.0",
-      "@toba/utility": "^1.7.0",
+      "@toba/tools": "^1.8.0",
       "node-fetch": "^2.0.0"
    }
 }

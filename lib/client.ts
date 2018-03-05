@@ -1,6 +1,6 @@
 import { Flickr } from './types';
 import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
-import { is } from '@toba/utility';
+import { is, merge } from '@toba/tools';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
 
@@ -13,7 +13,9 @@ export interface ClientConfig {
    userID: string;
    appID: string;
    /** Whether to cache API resuts */
-   useCache: boolean;
+   useCache?: boolean;
+   /** Maximum number of responses to cache */
+   maxCacheSize?: number;
    /** Optional set IDs to feature */
    featureSets?: FeatureSet[];
    /** Optional set IDs to exclude from results */
@@ -21,23 +23,38 @@ export interface ClientConfig {
    /** Optional tags to exclude from tag request */
    excludeTags?: string[];
    /** Photo sizes to return from search request */
-   searchPhotoSizes: Flickr.SizeUrl[];
+   searchPhotoSizes?: Flickr.SizeUrl[];
    /** Photo sizes to return for photo set request */
-   setPhotoSizes: Flickr.SizeUrl[];
+   setPhotoSizes?: Flickr.SizeUrl[];
    /** Number of times to retry failed requests */
-   maxRetries: number;
+   maxRetries?: number;
    /** Milliseconds to wait before retrying failed request */
-   retryDelay: number;
+   retryDelay?: number;
    /** https://www.flickr.com/services/api/auth.oauth.html */
    auth: AuthConfig;
 }
+
+const defaultConfig: ClientConfig = {
+   userID: null,
+   appID: null,
+   useCache: true,
+   maxCacheSize: 200,
+   featureSets: [],
+   excludeSets: [],
+   excludeTags: [],
+   searchPhotoSizes: [Flickr.SizeUrl.Large1024],
+   setPhotoSizes: [Flickr.SizeUrl.Large1024],
+   maxRetries: 3,
+   retryDelay: 500,
+   auth: null
+};
 
 export class FlickrClient {
    config: ClientConfig;
    oauth: AuthClient;
 
    constructor(config: ClientConfig) {
-      this.config = config;
+      this.config = merge(defaultConfig, config);
       this.oauth = new AuthClient(
          Url.RequestToken,
          Url.AccessToken,

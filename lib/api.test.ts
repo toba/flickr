@@ -11,7 +11,7 @@ import {
 import { config } from './client.test';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
-import { merge, is } from '@toba/utility';
+import { merge, is } from '@toba/tools';
 import { log } from '@toba/logger';
 // this should automatically select mock implementation but isn't
 //import { Client as AuthClient } from '@toba/oauth';

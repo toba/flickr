@@ -20,11 +20,8 @@ export const config: ClientConfig = {
       'Boise'
    ],
    featureSets: [{ id: '72157632729508554', title: 'Ruminations' }],
-   maxRetries: 10,
-   retryDelay: 300,
-   useCache: false,
-   searchPhotoSizes: [Flickr.SizeUrl.Large1024],
    setPhotoSizes: [Flickr.SizeUrl.Large1024],
+   useCache: false,
    auth: {
       apiKey: 'FLICKR_API_KEY',
       secret: 'FLICKR_SECRET',

@@ -28,36 +28,32 @@
     tslint-consistent-codestyle "^1.11.0"
 
 "@toba/logger@^1.0.0":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@toba/logger/-/logger-1.0.2.tgz#5a946347a995aa9df442fd5631888f6c5ec899a1"
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@toba/logger/-/logger-1.0.3.tgz#d9d0b80048cb53b6aef42a66fe1074269dfa1ccd"
   dependencies:
-    "@toba/utility" "^1.6.0"
+    "@toba/tools" "^1.8.0"
     chalk "^2.3.0"
     flat "^4.0.0"
     logfmt "^1.2.0"
 
 "@toba/oauth@^1.1.0":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@toba/oauth/-/oauth-1.1.5.tgz#f586359db2236e52c6e22bb45ed01d3c643aa5ee"
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@toba/oauth/-/oauth-1.1.6.tgz#495dda9d0c6b005b1b4903c1961c567d745446af"
   dependencies:
     oauth "^0.9.15"
 
 "@toba/test@^1.0.0":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.0.5.tgz#dd370f90b74641f290bb389395ca2ad345c26036"
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.1.1.tgz#03effc2e7f8c67fd59fa04424ae274a74c68f80d"
   dependencies:
     "@types/jest" "^22.1.1"
     jest "^22.4.0"
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
-"@toba/utility@^1.6.0":
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/@toba/utility/-/utility-1.6.1.tgz#6ab6279284879479cd9d389bc73a82f3130f6321"
-
-"@toba/utility@^1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@toba/utility/-/utility-1.7.0.tgz#770374e54fbe27adadb1f231bb58e7b5c90e1835"
+"@toba/tools@^1.8.0":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.8.1.tgz#ae9fa16852de281cb9364b07961a672e8677a385"
 
 "@types/jest@^22.1.1":
   version "22.1.4"
@@ -112,8 +108,8 @@ ajv@^5.1.0:
     json-schema-traverse "^0.3.0"
 
 ajv@^6.0.1:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.2.0.tgz#afac295bbaa0152449e522742e4547c1ae9328d2"
+  version "6.2.1"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.2.1.tgz#28a6abc493a2abe0fb4c8507acaedb43fa550671"
   dependencies:
     fast-deep-equal "^1.0.0"
     fast-json-stable-stringify "^2.0.0"
@@ -561,8 +557,8 @@ camelcase@^4.1.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
 caniuse-lite@^1.0.30000809, caniuse-lite@^1.0.30000810:
-  version "1.0.30000811"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000811.tgz#0b6e40f2efccc27bd3cb52f91ee7ca4673d77d10"
+  version "1.0.30000812"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000812.tgz#d173b686b49bc941fa18ff2e7e533048e20ed92c"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -861,8 +857,8 @@ detect-newline@^2.1.0:
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-2.1.0.tgz#f41f1c10be4b00e87b5f13da680759f2c5bfd3e2"
 
 diff@^3.2.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/diff/-/diff-3.4.0.tgz#b1d85507daf3964828de54b37d0d73ba67dda56c"
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
 
 dir-glob@^2.0.0:
   version "2.0.0"
@@ -2032,8 +2028,8 @@ js-tokens@^3.0.0, js-tokens@^3.0.2:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-3.0.2.tgz#9866df395102130e38f7f996bceb65443209c25b"
 
 js-yaml@^3.7.0, js-yaml@^3.9.0:
-  version "3.10.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.10.0.tgz#2e78441646bd4682e963f22b6e92823c309c62dc"
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.11.0.tgz#597c1a8bd57152f26d622ce4117851a51f5ebaef"
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
@@ -2386,8 +2382,8 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
 
 node-fetch@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.0.0.tgz#982bba43ecd4f2922a29cc186a6bbb0bb73fcba6"
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.1.1.tgz#369ca70b82f50c86496104a6c776d274f4e4a2d4"
 
 node-int64@^0.4.0:
   version "0.4.0"
@@ -3578,8 +3574,8 @@ tslint@^5.9.0:
     tsutils "^2.12.1"
 
 tsutils@^2.12.1, tsutils@^2.21.0:
-  version "2.22.1"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.22.1.tgz#30450bd701be623b9e11a129df0c32322678461b"
+  version "2.22.2"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.22.2.tgz#0b9f3d87aa3eb95bd32d26ce2b88aa329a657951"
   dependencies:
     tslib "^1.8.1"
 
