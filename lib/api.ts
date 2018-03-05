@@ -35,7 +35,7 @@ export const defaultRequest: Request<Flickr.Response> = {
 };
 
 /**
- * Flickr entity identified by type and an ID value.
+ * Flickr entity identified by its type and ID value.
  */
 export interface Identity {
    type: Flickr.TypeName;
@@ -89,7 +89,7 @@ export function callAPI<T>(
    const request = req.sign
       ? signedRequest(url, req.auth, token)
       : basicRequest(url);
-   const handler = () =>
+   const requestAndVerify = () =>
       request().then(body => {
          const res = parse(body, key);
 
@@ -107,11 +107,11 @@ export function callAPI<T>(
          }
       });
 
-   return retry(handler, config.maxRetries, config.retryDelay);
+   return retry(requestAndVerify, config.maxRetries, config.retryDelay);
 }
 
 /**
- * Curry signed HTTP get request as string `Promise` can be retried without
+ * Curry signed HTTP get request as string `Promise` that can be retried without
  * further parameters.
  */
 export const signedRequest = (
@@ -176,6 +176,8 @@ export function parse(body: string, key: string): Flickr.Response {
 
 /**
  * Setup standard parameters for Flickr API call.
+ *
+ * https://www.flickr.com/services/api/request.rest.html
  */
 export function parameterize<T>(
    method: string,

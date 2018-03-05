@@ -13,9 +13,9 @@ import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { merge, is } from '@toba/utility';
 import { log } from '@toba/logger';
-import { Client as AuthClient } from '@toba/oauth';
-
-//jest.mock('@toba/oauth');
+// this should automatically select mock implementation but isn't
+//import { Client as AuthClient } from '@toba/oauth';
+import { Client as AuthClient } from '../__mocks__/@toba/oauth';
 
 const key = 'mockKey';
 const logMock = jest.fn();
@@ -82,7 +82,7 @@ test('curries basic HTTP get method', () => {
    });
 });
 
-test.skip('curries signed HTTP get method', () => {
+test('curries signed HTTP get method', () => {
    const getter = signedRequest(
       collectionsURL,
       mockRequest.auth,

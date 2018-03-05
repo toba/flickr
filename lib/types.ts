@@ -31,7 +31,9 @@ export namespace Flickr {
    }
 
    export enum Format {
+      /** https://www.flickr.com/services/api/response.json.html */
       JSON = 'json',
+      /** https://www.flickr.com/services/api/response.xmlrpc.html */
       XML = 'xml'
    }
 
@@ -82,6 +84,7 @@ export namespace Flickr {
     */
    export interface Params {
       [index: string]: string | number | boolean | string[];
+      /** https://www.flickr.com/services/api/misc.api_keys.html */
       api_key?: string;
       format?: Format;
       nojsoncallback?: Boolean;

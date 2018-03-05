@@ -28,6 +28,7 @@ export interface ClientConfig {
    maxRetries: number;
    /** Milliseconds to wait before retrying failed request */
    retryDelay: number;
+   /** https://www.flickr.com/services/api/auth.oauth.html */
    auth: AuthConfig;
 }
 

@@ -26,6 +26,10 @@ export class Client {
          accessTokenUrl,
          callbackUrl
       };
+      this.last = {
+         accessToken: null,
+         secret: null
+      };
    }
 
    /**
