@@ -1,4 +1,4 @@
-import { is, merge, retry } from '@toba/tools';
+import { is, retry } from '@toba/tools';
 import { Client as AuthClient, Token } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
@@ -45,7 +45,7 @@ export interface Identity {
 /**
  * Load response from cache or call API.
  */
-export function call<T>(
+export async function call<T>(
    method: string,
    id: Identity,
    req: Request<T>,

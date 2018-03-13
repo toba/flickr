@@ -3,10 +3,8 @@ import { Flickr } from './types';
 
 jest.unmock('./api');
 jest.unmock('./client');
-// jest.unmock('@toba/oauth');
 
 let client: FlickrClient;
-const longTimeout = 5000;
 
 export const config: ClientConfig = {
    appID: '72157631007435048',
@@ -41,55 +39,55 @@ beforeAll(() => {
    client = new FlickrClient(config);
 });
 
-test('retrieves all collections', () =>
-   client.getCollections().then(json => {
-      expect(json).toBeInstanceOf(Array);
-   }));
+test('retrieves all collections', async () => {
+   const collections = await client.getCollections();
+   expect(collections).toBeInstanceOf(Array);
+});
 
 test('catches non-existent set request', () =>
    client.getSetInfo('45').catch(error => {
       expect(error).toBe('Flickr photosets.getInfo failed for photoset_id 45');
    }));
 
-test('retrieves set information', () =>
-   client.getSetInfo(featureSetID).then(json => {
-      expect(json.id).toBe(config.featureSets[0].id);
-   }));
+test('retrieves set information', async () => {
+   const setInfo = await client.getSetInfo(featureSetID);
+   expect(setInfo.id).toBe(config.featureSets[0].id);
+});
 
-test('retrieves set photos', () =>
-   client.getSetPhotos(config.featureSets[0].id).then(json => {
-      expect(json).toHaveProperty('id', config.featureSets[0].id);
-      expect(json.photo).toBeInstanceOf(Array);
-      config.setPhotoSizes.forEach(s => {
-         // should retrieve all size URLs needed to display post
-         expect(json.photo[0]).toHaveProperty(s);
-      });
-   }));
+test('retrieves set photos', async () => {
+   const res = await client.getSetPhotos(config.featureSets[0].id);
+   expect(res).toHaveProperty('id', config.featureSets[0].id);
+   expect(res.photo).toBeInstanceOf(Array);
+   config.setPhotoSizes.forEach(s => {
+      // should retrieve all size URLs needed to display post
+      expect(res.photo[0]).toHaveProperty(s);
+   });
+});
 
-test('retrieves photo EXIF', () =>
-   client.getExif(featurePhotoID).then(json => {
-      expect(json).toBeInstanceOf(Array);
-   }));
+test('retrieves photo EXIF', async () => {
+   const exif = await client.getExif(featurePhotoID);
+   expect(exif).toBeInstanceOf(Array);
+});
 
-test('retrieves photo sizes', () =>
-   client.getPhotoSizes(featurePhotoID).then(json => {
-      expect(json).toBeInstanceOf(Array);
-      expect(json[0]).toHaveProperty('url');
-   }));
+test('retrieves photo sizes', async () => {
+   const sizes = await client.getPhotoSizes(featurePhotoID);
+   expect(sizes).toBeInstanceOf(Array);
+   expect(sizes[0]).toHaveProperty('url');
+});
 
-test('retrieves all photo tags', () =>
-   client.getAllPhotoTags().then(json => {
-      expect(json).toBeInstanceOf(Array);
-   }));
+test('retrieves all photo tags', async () => {
+   const tags = await client.getAllPhotoTags();
+   expect(tags).toBeInstanceOf(Array);
+});
 
-test('retrieves photo context', () =>
-   client.getPhotoContext(featurePhotoID).then(json => {
-      expect(json).toBeInstanceOf(Array);
-      expect(json[0]).toHaveProperty('id', featureSetID);
-   }));
+test('retrieves photo context', async () => {
+   const context = await client.getPhotoContext(featurePhotoID);
+   expect(context).toBeInstanceOf(Array);
+   expect(context[0]).toHaveProperty('id', featureSetID);
+});
 
-test('searches for photos', () =>
-   client.photoSearch('horse').then(json => {
-      expect(json).toBeInstanceOf(Array);
-      expect(json[0]).toHaveProperty('owner', config.userID);
-   }));
+test('searches for photos', async () => {
+   const matches = await client.photoSearch('horse');
+   expect(matches).toBeInstanceOf(Array);
+   expect(matches[0]).toHaveProperty('owner', config.userID);
+});
