@@ -58,23 +58,29 @@
   dependencies:
     oauth "^0.9.15"
 
-"@toba/test@^1.0.0":
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.6.0.tgz#8488ae578b09e7ad0ed520b2cc1403fe4cda22df"
+"@toba/test@^1.8.0":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.8.1.tgz#f8516153e43ccf5f3315ac5d97ed68326a13c0b8"
   dependencies:
-    "@toba/tools" "^1.10.0"
-    "@types/jest" "^22.1.1"
+    "@toba/tools" "^1.12.0"
+    "@types/jest" "^22.2.0"
     "@types/node" "^9.4.7"
     "@types/node-fetch" "^1.6.7"
     jest "^22.4.0"
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
-"@toba/tools@^1.10.0", "@toba/tools@^1.8.0":
+"@toba/tools@^1.12.0":
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.12.1.tgz#10af417e25d52effe3abf3f3b3dfc4489391c7f4"
+  dependencies:
+    zlib "^1.0.5"
+
+"@toba/tools@^1.8.0":
   version "1.10.2"
   resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.10.2.tgz#338678dabfced72f7481e760b2475fe35d23cff6"
 
-"@types/jest@^22.1.1":
+"@types/jest@^22.2.0":
   version "22.2.0"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-22.2.0.tgz#55ce83139f7ad1b48b414c3927746614c6963c0f"
 
@@ -4439,3 +4445,7 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+zlib@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/zlib/-/zlib-1.0.5.tgz#6e7c972fc371c645a6afb03ab14769def114fcc0"
