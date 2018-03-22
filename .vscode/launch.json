@@ -8,7 +8,6 @@
          "program": "${workspaceRoot}/node_modules/jest/bin/jest.js",
          "args": ["--runInBand", "--config"],
          "sourceMaps": true,
-         //"internalConsoleOptions": "neverOpen",
          "outFiles": ["${workspaceRoot}/output/debug/**/*"]
       },
       {

@@ -14,7 +14,7 @@ export const cache = {
    /**
     * Return as `Promise` to simplify integration with `fetch` alternative.
     */
-   get<T>(method: string, id: string): Promise<T> {
+   async get<T>(method: string, id: string): Promise<T> {
       return Promise.resolve(store.get(key(method, id)) as T);
    },
 

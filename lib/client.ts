@@ -80,7 +80,7 @@ export class FlickrClient {
       return { type: Flickr.TypeName.Photo, value: id.toString() };
    }
 
-   _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
+   async _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
       req.auth = this.oauth;
       return call<T>(method, id, req, this.config);
    }
@@ -88,7 +88,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
-   getCollections() {
+   async getCollections() {
       return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
          select: r => r.collections.collection,
          allowCache: true
@@ -98,7 +98,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
-   getSetInfo(id: string) {
+   async getSetInfo(id: string) {
       return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
          select: r => r.photoset as Flickr.SetInfo,
          allowCache: true
@@ -108,7 +108,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photos.getSizes.html
     */
-   getPhotoSizes(id: string) {
+   async getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
          select: r => r.sizes.size
       });
@@ -118,7 +118,7 @@ export class FlickrClient {
     * All sets that a photo belongs to.
     * https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
     */
-   getPhotoContext(id: string) {
+   async getPhotoContext(id: string) {
       return this._api<Flickr.MemberSet[]>(
          Method.Photo.Sets,
          this._photoID(id),
@@ -131,7 +131,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photos.getExif.html
     */
-   getExif(id: string) {
+   async getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
          select: r => r.photo.EXIF,
          allowCache: true
@@ -142,7 +142,7 @@ export class FlickrClient {
     * All photos in a set.
     * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
-   getSetPhotos(id: string) {
+   async getSetPhotos(id: string) {
       return this._api<Flickr.SetPhotos>(Method.Set.Photos, this._setID(id), {
          params: {
             extras:
@@ -167,7 +167,7 @@ export class FlickrClient {
     *
     * https://www.flickr.com/services/api/flickr.photos.search.html
     */
-   photoSearch(tags: string | string[]) {
+   async photoSearch(tags: string | string[]) {
       return this._api<Flickr.PhotoSummary[]>(
          Method.Photo.Search,
          this._userID,
@@ -188,7 +188,7 @@ export class FlickrClient {
     * All photo tags for API user.
     * https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
-   getAllPhotoTags() {
+   async getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
          select: r => r.who.tags.tag,
          sign: true,
