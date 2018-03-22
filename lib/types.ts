@@ -340,7 +340,7 @@ export namespace Flickr {
       date_update: number;
    }
 
-   interface SetSummary {
+   export interface SetSummary {
       id: string;
       title: string;
       description: string;
