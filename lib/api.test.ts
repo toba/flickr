@@ -17,7 +17,6 @@ import { Client as AuthClient } from '@toba/oauth';
 
 const key = 'mockKey';
 const logMock = jest.fn();
-const responseHandler = jest.fn();
 const mockID: Identity = { value: 'user-name', type: Flickr.TypeName.User };
 const mockRequest: Request<Flickr.Collection[]> = {
    select: r => r.collections.collection,

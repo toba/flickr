@@ -1,4 +1,4 @@
-import { is, retry } from '@toba/tools';
+import { is, retry, Header } from '@toba/tools';
 import { Client as AuthClient, Token } from '@toba/oauth';
 import { ClientConfig } from './client';
 import { log } from '@toba/logger';
@@ -89,27 +89,27 @@ export function callAPI<T>(
    const request = req.sign
       ? signedRequest(url, req.auth, token)
       : basicRequest(url);
-   const requestAndVerify = () =>
-      request().then(body => {
-         const res = parse(body, key);
+   const requestAndVerify = async () => {
+      const body = await request();
+      const res = parse(body, key);
 
-         if (res.stat == Flickr.Status.Okay) {
-            const item = req.select(res);
+      if (res.stat == Flickr.Status.Okay) {
+         const item = req.select(res);
 
-            if (item === undefined) {
-               throw `Failed to select item from ${url} response`;
-            }
-
-            // cache result
-            if (req.allowCache && config.useCache) {
-               cache.add(method, id.value, item);
-            }
-            return item;
-         } else if (!res.retry) {
-            // try again depending on custom flag appended in `parse()`
-            throw `${url} failed`;
+         if (item === undefined) {
+            throw `Failed to select item from ${url} response`;
          }
-      });
+
+         // cache result
+         if (req.allowCache && config.useCache) {
+            cache.add(method, id.value, item);
+         }
+         return item;
+      } else if (!res.retry) {
+         // try again depending on custom flag appended in `parse()`
+         throw `${url} failed`;
+      }
+   };
 
    return retry(requestAndVerify, config.maxRetries, config.retryDelay);
 }
@@ -138,7 +138,9 @@ export const signedRequest = (
  * further parameters.
  */
 export const basicRequest = (url: string) => () =>
-   fetch(url, { headers: { 'User-Agent': 'node.js' } }).then(res => res.text());
+   fetch(url, { headers: { [Header.UserAgent]: 'node.js' } }).then(res =>
+      res.text()
+   );
 
 /**
  * Parse Flickr response and handle different kinds of error conditions.
