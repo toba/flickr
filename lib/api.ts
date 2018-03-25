@@ -1,7 +1,7 @@
 import { is, retry, Header } from '@toba/tools';
 import { Client as AuthClient, Token } from '@toba/oauth';
-import { ClientConfig } from './client';
 import { log } from '@toba/logger';
+import { ClientConfig } from './client';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
 import { cache } from './cache';

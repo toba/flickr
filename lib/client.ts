@@ -1,6 +1,10 @@
-import { Flickr } from './types';
-import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
+import {
+   Client as AuthClient,
+   Config as AuthConfig,
+   SignatureMethod
+} from '@toba/oauth';
 import { is, merge } from '@toba/tools';
+import { Flickr } from './types';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
 import { cache } from './cache';
@@ -38,7 +42,7 @@ export interface ClientConfig {
 const defaultConfig: ClientConfig = {
    userID: null,
    appID: null,
-   useCache: true,
+   useCache: false,
    maxCacheSize: 200,
    featureSets: [],
    excludeSets: [],
@@ -63,7 +67,7 @@ export class FlickrClient {
          config.auth.secret,
          '1.0A',
          config.auth.callback,
-         'HMAC-SHA1'
+         SignatureMethod.HMAC
       );
       cache.maxItems(this.config.maxCacheSize);
    }
