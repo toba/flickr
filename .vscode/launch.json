@@ -24,7 +24,7 @@
             "--runInBand",
             "client.test.ts",
             "--testNamePattern",
-            "EXIF"
+            "catches non-existent"
          ],
          "cwd": "${workspaceRoot}"
       }

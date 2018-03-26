@@ -1,6 +1,7 @@
 import { Cache } from '@toba/tools';
 import { makeKey as key } from './api';
 
+/** Cache singleton */
 const store = new Cache<any>();
 
 /**

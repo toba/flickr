@@ -5,6 +5,7 @@ import {
 } from '@toba/oauth';
 import { is, merge, EventEmitter, Time } from '@toba/tools';
 import { Flickr } from './types';
+import { ChangeSubscription, Changes, EventType } from './subscription';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
 import { cache } from './cache';
@@ -12,18 +13,6 @@ import { cache } from './cache';
 export interface FeatureSet {
    id: string;
    title: string;
-}
-
-export interface ChangeSet {
-   sets: {
-      removed: string[];
-      added: string[];
-      changed: string[];
-   };
-}
-
-export enum EventType {
-   Change
 }
 
 export interface ClientConfig {
@@ -69,18 +58,11 @@ const defaultConfig: ClientConfig = {
 export class FlickrClient {
    private config: ClientConfig;
    private oauth: AuthClient;
-   private events: EventEmitter<EventType, ChangeSet>;
-   private detectChange = false;
-   private changeTimer: NodeJS.Timer;
-
-   /**
-    * Track which sets have been queries so they can be monitored for changes.
-    */
-   private monitoredSets: string[] = [];
+   private subscription: ChangeSubscription;
 
    constructor(config: ClientConfig) {
       this.config = merge(defaultConfig, config);
-      this.events = new EventEmitter();
+      this.subscription = new ChangeSubscription(this);
       this.oauth = new AuthClient(
          Url.RequestToken,
          Url.AccessToken,
@@ -91,6 +73,17 @@ export class FlickrClient {
          SigningMethod.HMAC
       );
       cache.maxItems(this.config.maxCacheSize);
+
+      if (this.config.useCache) {
+         // subscribe to change events to clear cache if an external watcher is
+         // added
+         this.subscription.addEventListener(EventType.NewWatcher, () => {
+            this.subscription.addEventListener(
+               EventType.Change,
+               this.onChange.bind(this)
+            );
+         });
+      }
    }
 
    private get userID(): Identity {
@@ -111,72 +104,54 @@ export class FlickrClient {
    }
 
    /**
-    * Record set ID to be monitored for change if `onChange` is subscribed to.
+    * Remove items from cache when change is detected on the Flickr server.
     */
-   private addMonitoredSet(id: string) {
-      if (this.monitoredSets.indexOf(id) < 0) {
-         this.monitoredSets.push(id);
+   private onChange(changes: Changes) {
+      if (!this.config.useCache) {
+         return;
       }
-   }
 
-   private queryChange() {
-      let changed = false;
+      if (changes.collections.length > 0) {
+         cache.remove(Method.Collections, this.userID.value);
+      }
 
-      Promise.all(
-         this.monitoredSets.map(id =>
-            this.getSetPhotos(id, [Flickr.Extra.DateUpdated])
-         )
-      ).then(sets => {
-         const changes: ChangeSet = {
-            sets: { removed: [], added: [], changed: [] }
-         };
-
-         sets.forEach(s => {
-            s.photo.forEach(p => {
-               if (p.lastupdate > 0) {
-                  changes.sets.changed.push(s.id);
-               }
-            });
-         });
-
-         this.events.emit(EventType.Change, changes);
+      changes.sets.forEach(id => {
+         cache.remove(Method.Set.Info, id);
+         cache.remove(Method.Set.Photos, id);
       });
-   }
-
-   onChange(
-      fn: (change: ChangeSet) => void,
-      pollInterval: number = Time.Minute * 5
-   ) {
-      if (this.detectChange) {
-         clearInterval(this.changeTimer);
-      }
-      if (pollInterval < Time.Second * 20) {
-         pollInterval = Time.Minute * 5;
-      }
-      this.events.subscribe(EventType.Change, fn);
-      this.detectChange = true;
-      this.changeTimer = setInterval(this.queryChange, pollInterval);
    }
 
    /**
     * https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
-   getCollections() {
-      return this._api<Flickr.Collection[]>(Method.Collections, this.userID, {
-         select: r => r.collections.collection,
-         allowCache: true
-      });
+   async getCollections(allowCache = true) {
+      const collections = await this._api<Flickr.Collection[]>(
+         Method.Collections,
+         this.userID,
+         {
+            select: r => r.collections.collection,
+            allowCache
+         }
+      );
+      this.subscription.updateCollections(...collections);
+      return collections;
    }
 
    /**
     * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
-   getSetInfo(id: string) {
-      this.addMonitoredSet(id);
-      return this._api<Flickr.SetInfo>(Method.Set.Info, this.setID(id), {
-         select: r => r.photoset as Flickr.SetInfo,
-         allowCache: true
-      });
+   async getSetInfo(id: string): Promise<Flickr.SetInfo> {
+      const info = await this._api<Flickr.SetInfo>(
+         Method.Set.Info,
+         this.setID(id),
+         {
+            select: r => r.photoset as Flickr.SetInfo,
+            allowCache: true
+         }
+      );
+      this.subscription.updateSet(info.id, parseInt(info.date_update));
+
+      return info;
    }
 
    /**
@@ -226,8 +201,12 @@ export class FlickrClient {
     * All photos in a set. Include last update time to enable change detection.
     * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
-   getSetPhotos(id: string, extras: Flickr.Extra[] = [], allowCache = true) {
-      const extraList =
+   async getSetPhotos(
+      id: string,
+      extras: Flickr.Extra[] = [],
+      allowCache = true
+   ): Promise<Flickr.SetPhotos> {
+      const extrasList =
          extras.length > 0
             ? extras.join()
             : [
@@ -241,15 +220,21 @@ export class FlickrClient {
               ',' +
               this.config.searchPhotoSizes.join();
 
-      this.addMonitoredSet(id);
+      const photos = await this._api<Flickr.SetPhotos>(
+         Method.Set.Photos,
+         this.setID(id),
+         {
+            params: {
+               extras: extrasList
+            },
+            select: r => r.photoset as Flickr.SetPhotos,
+            allowCache
+         }
+      );
 
-      return this._api<Flickr.SetPhotos>(Method.Set.Photos, this.setID(id), {
-         params: {
-            extras: extraList
-         },
-         select: r => r.photoset as Flickr.SetPhotos,
-         allowCache
-      });
+      this.subscription.updateSet(id, photos);
+
+      return photos;
    }
 
    /**

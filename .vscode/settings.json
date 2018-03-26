@@ -2,6 +2,6 @@
    "eslint.enable": false,
    "jest.enableCodeLens": true,
    "jest.enableInlineErrorMessages": false,
-   "jest.pathToJest": "node_modules/.bin/jest.cmd",
+   "jest.pathToJest": "node_modules/.bin/jest",
    "jest.enableSnapshotUpdateMessages": false
 }

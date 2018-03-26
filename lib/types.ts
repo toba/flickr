@@ -352,7 +352,8 @@ export namespace Flickr {
       count_vidoes: number;
       can_comment: Boolean;
       date_create: number;
-      date_update: number;
+      /** Timestamp */
+      date_update: string;
    }
 
    export interface SetSummary {
