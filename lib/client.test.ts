@@ -64,6 +64,13 @@ test('retrieves set photos', async () => {
    });
 });
 
+test('retrieves photo info', async () => {
+   const info = await client.getPhotoInfo(featurePhotoID);
+   expect(info).toBeDefined();
+   expect(info.dates.taken).toBe('2017-10-15 16:00:12');
+   expect(info.location.accuracy).toBe(16);
+});
+
 test('retrieves photo EXIF', async () => {
    const exif = await client.getExif(featurePhotoID);
    expect(exif).toBeInstanceOf(Array);

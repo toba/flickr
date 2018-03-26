@@ -9,6 +9,7 @@ export enum Url {
 
 enum PhotoMethods {
    EXIF = 'photos.getExif',
+   Info = 'photos.getInfo',
    Search = 'photos.search',
    Sets = 'photos.getAllContexts',
    Sizes = 'photos.getSizes',

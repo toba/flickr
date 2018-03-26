@@ -165,29 +165,35 @@ export namespace Flickr {
    interface Owner {
       nsid: string;
       username: string;
+      realname: string;
       location: string;
       iconserver: string;
       iconfarm: number;
+      path_alias: string;
    }
 
    interface Permission {
-      permcomment: Boolean;
-      permmetadata: Boolean;
+      permcomment: number;
+      permaddmeta: number;
    }
 
    interface PhotoDates {
-      posted: string;
+      /** Timestamp */
+      posted: number;
+      /** ISO */
       taken: string;
       takengranularity: number;
-      lastupdate: string;
+      takenunknown: Boolean;
+      /** Timestamp */
+      lastupdate: number;
    }
 
    export interface PhotoInfo extends FarmLocation {
-      dateuploaded: string;
+      dateuploaded: number;
       isfavorite: Boolean;
       license: License;
-      safetylevel: SafetyLevel;
-      rotate: Boolean;
+      safety_level: SafetyLevel;
+      rotation: Boolean;
       originalsecret: string;
       originalformat: string;
       owner: Owner;
@@ -200,9 +206,11 @@ export namespace Flickr {
       editability: EditAbility;
       publiceditability: EditAbility;
       usage: Usage;
+      comments: Content;
+      notes: any;
       EXIF: Exif[];
       tags: {
-         tag: TagSummary;
+         tag: TagSummary[];
       };
       location: Location;
       geoperms: LocationPermission;
@@ -283,7 +291,7 @@ export namespace Flickr {
       width_o?: string;
    }
 
-   interface Place {
+   interface Place extends Content {
       place_id: string;
       woeid: string;
    }
@@ -364,10 +372,10 @@ export namespace Flickr {
       raw: Content[];
    }
 
-   interface TagSummary {
+   interface TagSummary extends Content {
       id: string;
       author: string;
-      raw: string;
+      authorname: string;
       machine_tag: number;
    }
 
@@ -375,7 +383,7 @@ export namespace Flickr {
       collection: Flickr.Collection[];
    }
 
-   interface URL extends Flickr.Content {
+   interface URL extends Content {
       type: string;
    }
 

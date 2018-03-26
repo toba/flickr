@@ -1,7 +1,7 @@
 import {
    Client as AuthClient,
    Config as AuthConfig,
-   SignatureMethod
+   SigningMethod
 } from '@toba/oauth';
 import { is, merge } from '@toba/tools';
 import { Flickr } from './types';
@@ -67,7 +67,7 @@ export class FlickrClient {
          config.auth.secret,
          '1.0A',
          config.auth.callback,
-         SignatureMethod.HMAC
+         SigningMethod.HMAC
       );
       cache.maxItems(this.config.maxCacheSize);
    }
@@ -109,6 +109,16 @@ export class FlickrClient {
    async getSetInfo(id: string) {
       return this._api<Flickr.SetInfo>(Method.Set.Info, this.setID(id), {
          select: r => r.photoset as Flickr.SetInfo,
+         allowCache: true
+      });
+   }
+
+   /**
+    * https://www.flickr.com/services/api/flickr.photos.getInfo.html
+    */
+   async getPhotoInfo(id: string) {
+      return this._api<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
+         select: r => r.photo as Flickr.PhotoInfo,
          allowCache: true
       });
    }
