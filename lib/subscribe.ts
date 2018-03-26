@@ -37,3 +37,7 @@ set: NOT CHANGED
      "can_comment": 1, "date_create": "1511224535", "date_update": "1511225009" }, "stat": "ok" }
 
 */
+
+function checkSetChange() {
+
+}

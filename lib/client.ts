@@ -3,7 +3,7 @@ import {
    Config as AuthConfig,
    SigningMethod
 } from '@toba/oauth';
-import { is, merge } from '@toba/tools';
+import { is, merge, EventEmitter, Time } from '@toba/tools';
 import { Flickr } from './types';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
@@ -12,6 +12,18 @@ import { cache } from './cache';
 export interface FeatureSet {
    id: string;
    title: string;
+}
+
+export interface ChangeSet {
+   sets: {
+      removed: string[];
+      added: string[];
+      changed: string[];
+   };
+}
+
+export enum EventType {
+   Change
 }
 
 export interface ClientConfig {
@@ -57,9 +69,18 @@ const defaultConfig: ClientConfig = {
 export class FlickrClient {
    private config: ClientConfig;
    private oauth: AuthClient;
+   private events: EventEmitter<EventType, ChangeSet>;
+   private detectChange = false;
+   private changeTimer: NodeJS.Timer;
+
+   /**
+    * Track which sets have been queries so they can be monitored for changes.
+    */
+   private monitoredSets: string[] = [];
 
    constructor(config: ClientConfig) {
       this.config = merge(defaultConfig, config);
+      this.events = new EventEmitter();
       this.oauth = new AuthClient(
          Url.RequestToken,
          Url.AccessToken,
@@ -84,19 +105,63 @@ export class FlickrClient {
       return { type: Flickr.TypeName.Photo, value: id.toString() };
    }
 
-   private async _api<T>(
-      method: string,
-      id: Identity,
-      req: Request<T>
-   ): Promise<T> {
+   private _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
       req.auth = this.oauth;
       return call<T>(method, id, req, this.config);
    }
 
    /**
+    * Record set ID to be monitored for change if `onChange` is subscribed to.
+    */
+   private addMonitoredSet(id: string) {
+      if (this.monitoredSets.indexOf(id) < 0) {
+         this.monitoredSets.push(id);
+      }
+   }
+
+   private queryChange() {
+      let changed = false;
+
+      Promise.all(
+         this.monitoredSets.map(id =>
+            this.getSetPhotos(id, [Flickr.Extra.DateUpdated])
+         )
+      ).then(sets => {
+         const changes: ChangeSet = {
+            sets: { removed: [], added: [], changed: [] }
+         };
+
+         sets.forEach(s => {
+            s.photo.forEach(p => {
+               if (p.lastupdate > 0) {
+                  changes.sets.changed.push(s.id);
+               }
+            });
+         });
+
+         this.events.emit(EventType.Change, changes);
+      });
+   }
+
+   onChange(
+      fn: (change: ChangeSet) => void,
+      pollInterval: number = Time.Minute * 5
+   ) {
+      if (this.detectChange) {
+         clearInterval(this.changeTimer);
+      }
+      if (pollInterval < Time.Second * 20) {
+         pollInterval = Time.Minute * 5;
+      }
+      this.events.subscribe(EventType.Change, fn);
+      this.detectChange = true;
+      this.changeTimer = setInterval(this.queryChange, pollInterval);
+   }
+
+   /**
     * https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
-   async getCollections() {
+   getCollections() {
       return this._api<Flickr.Collection[]>(Method.Collections, this.userID, {
          select: r => r.collections.collection,
          allowCache: true
@@ -106,7 +171,8 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
-   async getSetInfo(id: string) {
+   getSetInfo(id: string) {
+      this.addMonitoredSet(id);
       return this._api<Flickr.SetInfo>(Method.Set.Info, this.setID(id), {
          select: r => r.photoset as Flickr.SetInfo,
          allowCache: true
@@ -116,7 +182,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photos.getInfo.html
     */
-   async getPhotoInfo(id: string) {
+   getPhotoInfo(id: string) {
       return this._api<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
          select: r => r.photo as Flickr.PhotoInfo,
          allowCache: true
@@ -126,7 +192,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photos.getSizes.html
     */
-   async getPhotoSizes(id: string) {
+   getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
          select: r => r.sizes.size
       });
@@ -136,7 +202,7 @@ export class FlickrClient {
     * All sets that a photo belongs to.
     * https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
     */
-   async getPhotoContext(id: string) {
+   getPhotoContext(id: string) {
       return this._api<Flickr.MemberSet[]>(
          Method.Photo.Sets,
          this.photoID(id),
@@ -149,7 +215,7 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photos.getExif.html
     */
-   async getExif(id: string) {
+   getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
          select: r => r.photo.EXIF,
          allowCache: true
@@ -157,25 +223,32 @@ export class FlickrClient {
    }
 
    /**
-    * All photos in a set.
+    * All photos in a set. Include last update time to enable change detection.
     * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
-   async getSetPhotos(id: string) {
+   getSetPhotos(id: string, extras: Flickr.Extra[] = [], allowCache = true) {
+      const extraList =
+         extras.length > 0
+            ? extras.join()
+            : [
+                 Flickr.Extra.Description,
+                 Flickr.Extra.Tags,
+                 Flickr.Extra.DateTaken,
+                 Flickr.Extra.DateUpdated,
+                 Flickr.Extra.Location,
+                 Flickr.Extra.PathAlias
+              ].join() +
+              ',' +
+              this.config.searchPhotoSizes.join();
+
+      this.addMonitoredSet(id);
+
       return this._api<Flickr.SetPhotos>(Method.Set.Photos, this.setID(id), {
          params: {
-            extras:
-               [
-                  Flickr.Extra.Description,
-                  Flickr.Extra.Tags,
-                  Flickr.Extra.DateTaken,
-                  Flickr.Extra.Location,
-                  Flickr.Extra.PathAlias
-               ].join() +
-               ',' +
-               this.config.searchPhotoSizes.join()
+            extras: extraList
          },
          select: r => r.photoset as Flickr.SetPhotos,
-         allowCache: true
+         allowCache
       });
    }
 
@@ -185,7 +258,7 @@ export class FlickrClient {
     *
     * https://www.flickr.com/services/api/flickr.photos.search.html
     */
-   async photoSearch(tags: string | string[]) {
+   photoSearch(tags: string | string[]) {
       return this._api<Flickr.PhotoSummary[]>(
          Method.Photo.Search,
          this.userID,
@@ -206,7 +279,7 @@ export class FlickrClient {
     * All photo tags for API user.
     * https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
-   async getAllPhotoTags() {
+   getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {
          select: r => r.who.tags.tag,
          sign: true,

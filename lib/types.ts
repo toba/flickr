@@ -47,6 +47,14 @@ export namespace Flickr {
       Relevance = 'relevance'
    }
 
+   export enum Privacy {
+      Public = 1,
+      Friends,
+      Family,
+      FriendsAndFamily,
+      Private
+   }
+
    /**
     * http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
     */
@@ -70,12 +78,21 @@ export namespace Flickr {
       Restricted = 3
    }
 
+   /**
+    * Extra values to return from queries, e.g.
+    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
+    */
    export enum Extra {
       Description = 'description',
       Tags = 'tags',
       DateTaken = 'date_taken',
+      DateUpdated = 'last_update',
       Location = 'geo',
-      PathAlias = 'path_alias'
+      PathAlias = 'path_alias',
+      OriginalFormat = 'original_format',
+      OwnerName = 'owner_name',
+      IconServer = 'icon_server',
+      Views = 'views'
    }
 
    /**
@@ -146,11 +163,8 @@ export namespace Flickr {
       country: Place;
    }
 
-   interface LocationPermission {
-      ispublic: Boolean;
+   interface LocationPermission extends Visibility {
       iscontent: Boolean;
-      isfriend: Boolean;
-      isfamily: Boolean;
    }
 
    export interface MemberSet extends FarmLocation {
@@ -230,27 +244,24 @@ export namespace Flickr {
    }
 
    export interface SetPhotos {
-      photoset: SetInfo;
+      id: string;
+      /** ID of primary photo */
+      primary: string;
+      owner: string;
+      ownername: string;
       photo: PhotoSummary[];
       page: number;
       per_page: string;
       perpage: string;
       pages: number;
-      primary: string;
-      owner: string;
-      ownername: string;
       title: string;
       total: number;
    }
 
-   export interface PhotoSummary extends Place {
-      id: string;
-      secret: string;
-      server: string;
-      farm: number;
+   export interface PhotoSummary extends Place, FarmLocation, Visibility {
       title: string;
-      isprimary: string;
-      tags: string;
+      isprimary: Boolean;
+      tags?: string;
       description?: Content;
       datetaken?: string;
       datetakengranularity?: string;
@@ -261,7 +272,7 @@ export namespace Flickr {
       geo_is_friend?: Boolean | boolean;
       geo_is_contact?: Boolean | boolean;
       geo_is_public?: Boolean | boolean;
-      lastupdate?: string;
+      lastupdate?: number;
       pathalias?: string;
 
       exif: Exif[];
@@ -328,16 +339,12 @@ export namespace Flickr {
       total: number;
    }
 
-   export interface SetInfo {
+   export interface SetInfo extends FarmLocation {
       title: Content;
       description: Content;
-      id: string;
       owner: string;
       username: string;
       primary: string;
-      secret: string;
-      server: string;
-      farm: number;
       photos: number;
       count_views: number;
       count_comments: number;
@@ -364,7 +371,7 @@ export namespace Flickr {
    }
 
    interface SizeList {
-      size: Flickr.Size[];
+      size: Size[];
    }
 
    export interface Tag {
@@ -380,7 +387,7 @@ export namespace Flickr {
    }
 
    interface Tree {
-      collection: Flickr.Collection[];
+      collection: Collection[];
    }
 
    interface URL extends Content {
