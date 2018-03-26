@@ -122,6 +122,14 @@ export class FlickrClient {
    }
 
    /**
+    * Add method to receive change notifications. This also has the effect of
+    * activating change polling.
+    */
+   subscribe(fn: (change: Changes) => void) {
+      this.subscription.add(fn);
+   }
+
+   /**
     * https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
    async getCollections(allowCache = true) {
@@ -140,13 +148,13 @@ export class FlickrClient {
    /**
     * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
-   async getSetInfo(id: string): Promise<Flickr.SetInfo> {
+   async getSetInfo(id: string, allowCache = true): Promise<Flickr.SetInfo> {
       const info = await this._api<Flickr.SetInfo>(
          Method.Set.Info,
          this.setID(id),
          {
             select: r => r.photoset as Flickr.SetInfo,
-            allowCache: true
+            allowCache
          }
       );
       this.subscription.updateSet(info.id, parseInt(info.date_update));

@@ -6,7 +6,7 @@ jest.unmock('./client');
 
 let client: FlickrClient;
 
-export const config: ClientConfig = {
+export const testConfig: ClientConfig = {
    appID: '72157631007435048',
    userID: '60950751@N04',
    excludeSets: ['72157631638576162'],
@@ -32,11 +32,11 @@ export const config: ClientConfig = {
    }
 };
 
-const featureSetID = config.featureSets[0].id;
+const featureSetID = testConfig.featureSets[0].id;
 const featurePhotoID = '8459503474';
 
 beforeAll(() => {
-   client = new FlickrClient(config);
+   client = new FlickrClient(testConfig);
 });
 
 test('retrieves all collections', async () => {
@@ -51,14 +51,14 @@ test('catches non-existent set request', () =>
 
 test('retrieves set information', async () => {
    const setInfo = await client.getSetInfo(featureSetID);
-   expect(setInfo.id).toBe(config.featureSets[0].id);
+   expect(setInfo.id).toBe(testConfig.featureSets[0].id);
 });
 
 test('retrieves set photos', async () => {
-   const res = await client.getSetPhotos(config.featureSets[0].id);
-   expect(res).toHaveProperty('id', config.featureSets[0].id);
+   const res = await client.getSetPhotos(testConfig.featureSets[0].id);
+   expect(res).toHaveProperty('id', testConfig.featureSets[0].id);
    expect(res.photo).toBeInstanceOf(Array);
-   config.setPhotoSizes.forEach(s => {
+   testConfig.setPhotoSizes.forEach(s => {
       // should retrieve all size URLs needed to display post
       expect(res.photo[0]).toHaveProperty(s);
    });
@@ -96,5 +96,5 @@ test('retrieves photo context', async () => {
 test('searches for photos', async () => {
    const matches = await client.photoSearch('horse');
    expect(matches).toBeInstanceOf(Array);
-   expect(matches[0]).toHaveProperty('owner', config.userID);
+   expect(matches[0]).toHaveProperty('owner', testConfig.userID);
 });

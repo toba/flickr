@@ -180,11 +180,16 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          clearTimeout(this.changeTimer);
       }
 
-      return Promise.all(
-         Object.keys(this.watched).map(id =>
-            this.client.getSetPhotos(id, [Flickr.Extra.DateUpdated], false)
-         )
-      ).then(photos => {
+      const keys = Object.keys(this.watched);
+      const photos: Promise<any>[] = keys.map(id =>
+         this.client.getSetPhotos(id, [Flickr.Extra.DateUpdated], false)
+      );
+      const info: Promise<any>[] = keys.map(id =>
+         this.client.getSetInfo(id, false)
+      );
+      const collections = this.client.getCollections(false);
+
+      return Promise.all([... photos, ...info, collections]).then(() => {
          this.emitChange();
          this.changeTimer = setTimeout(this.queryChange, this.pollInterval);
       });
