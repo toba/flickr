@@ -1,0 +1,104 @@
+{
+   "photo": {
+      "id": "38552123631",
+      "secret": "3d78fdf980",
+      "server": "4554",
+      "farm": 5,
+      "dateuploaded": "1511224886",
+      "isfavorite": 0,
+      "license": 0,
+      "safety_level": 0,
+      "rotation": 0,
+      "originalsecret": "521c30719d",
+      "originalformat": "jpg",
+      "owner": {
+         "nsid": "60950751@N04",
+         "username": "Trail Image",
+         "realname": "Jason Abbott",
+         "location": "Boise, Idaho",
+         "iconserver": "7563",
+         "iconfarm": 8,
+         "path_alias": "trailimage"
+      },
+      "title": { "_content": "Into the maw" },
+      "description": { "_content": "" },
+      "visibility": { "ispublic": 1, "isfriend": 0, "isfamily": 0 },
+      "dates": {
+         "posted": "1511224886",
+         "taken": "2017-10-15 16:00:12",
+         "takengranularity": 0,
+         "takenunknown": 0,
+         "lastupdate": "1521989991"
+      },
+      "permissions": { "permcomment": 3, "permaddmeta": 2 },
+      "views": "101",
+      "editability": { "cancomment": 1, "canaddmeta": 1 },
+      "publiceditability": { "cancomment": 1, "canaddmeta": 0 },
+      "usage": { "candownload": 1, "canblog": 1, "canprint": 1, "canshare": 1 },
+      "comments": { "_content": 0 },
+      "notes": {
+         "note": []
+      },
+      "people": { "haspeople": 0 },
+      "tags": {
+         "tag": [
+            {
+               "id": "60918612-38552123631-612031",
+               "author": "60950751@N04",
+               "authorname": "Trail Image",
+               "raw": "Dirt Path",
+               "_content": "dirtpath",
+               "machine_tag": 0
+            },
+            {
+               "id": "60918612-38552123631-5090",
+               "author": "60950751@N04",
+               "authorname": "Trail Image",
+               "raw": "Path",
+               "_content": "path",
+               "machine_tag": 0
+            }
+         ]
+      },
+      "location": {
+         "latitude": 43.243009,
+         "longitude": -116.595969,
+         "accuracy": 16,
+         "context": 0,
+         "county": {
+            "_content": "Owyhee",
+            "place_id": "ZlhYEfJQUL.4EIzuIQ",
+            "woeid": "12588070"
+         },
+         "region": {
+            "_content": "Idaho",
+            "place_id": "Ka1owT5TUb5H6wqX",
+            "woeid": "2347571"
+         },
+         "country": {
+            "_content": "United States",
+            "place_id": "nz.gsghTUb4c2WAecA",
+            "woeid": "23424977"
+         },
+         "place_id": "ZlhYEfJQUL.4EIzuIQ",
+         "woeid": "12588070"
+      },
+      "geoperms": {
+         "ispublic": 1,
+         "iscontact": 0,
+         "isfriend": 0,
+         "isfamily": 0
+      },
+      "urls": {
+         "url": [
+            {
+               "type": "photopage",
+               "_content":
+                  "https://www.flickr.com/photos/trailimage/38552123631/"
+            }
+         ]
+      },
+      "media": "photo"
+   },
+   "stat": "ok"
+}

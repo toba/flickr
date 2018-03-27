@@ -1,6 +1,10 @@
-import { Flickr } from './types';
-import { Client as AuthClient, Config as AuthConfig } from '@toba/oauth';
+import {
+   Client as AuthClient,
+   Config as AuthConfig,
+   SigningMethod
+} from '@toba/oauth';
 import { is, merge } from '@toba/tools';
+import { Flickr } from './types';
 import { Url, Method } from './constants';
 import { call, Identity, Request } from './api';
 import { cache } from './cache';
@@ -38,7 +42,7 @@ export interface ClientConfig {
 const defaultConfig: ClientConfig = {
    userID: null,
    appID: null,
-   useCache: true,
+   useCache: false,
    maxCacheSize: 200,
    featureSets: [],
    excludeSets: [],
@@ -51,8 +55,8 @@ const defaultConfig: ClientConfig = {
 };
 
 export class FlickrClient {
-   config: ClientConfig;
-   oauth: AuthClient;
+   private config: ClientConfig;
+   private oauth: AuthClient;
 
    constructor(config: ClientConfig) {
       this.config = merge(defaultConfig, config);
@@ -63,24 +67,28 @@ export class FlickrClient {
          config.auth.secret,
          '1.0A',
          config.auth.callback,
-         'HMAC-SHA1'
+         SigningMethod.HMAC
       );
       cache.maxItems(this.config.maxCacheSize);
    }
 
-   get _userID(): Identity {
+   private get userID(): Identity {
       return { type: Flickr.TypeName.User, value: this.config.userID };
    }
 
-   _setID(id: string): Identity {
+   private setID(id: string): Identity {
       return { type: Flickr.TypeName.Set, value: id };
    }
 
-   _photoID(id: string | number): Identity {
+   private photoID(id: string | number): Identity {
       return { type: Flickr.TypeName.Photo, value: id.toString() };
    }
 
-   async _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
+   private async _api<T>(
+      method: string,
+      id: Identity,
+      req: Request<T>
+   ): Promise<T> {
       req.auth = this.oauth;
       return call<T>(method, id, req, this.config);
    }
@@ -89,7 +97,7 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
    async getCollections() {
-      return this._api<Flickr.Collection[]>(Method.Collections, this._userID, {
+      return this._api<Flickr.Collection[]>(Method.Collections, this.userID, {
          select: r => r.collections.collection,
          allowCache: true
       });
@@ -99,8 +107,18 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
    async getSetInfo(id: string) {
-      return this._api<Flickr.SetInfo>(Method.Set.Info, this._setID(id), {
+      return this._api<Flickr.SetInfo>(Method.Set.Info, this.setID(id), {
          select: r => r.photoset as Flickr.SetInfo,
+         allowCache: true
+      });
+   }
+
+   /**
+    * https://www.flickr.com/services/api/flickr.photos.getInfo.html
+    */
+   async getPhotoInfo(id: string) {
+      return this._api<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
+         select: r => r.photo as Flickr.PhotoInfo,
          allowCache: true
       });
    }
@@ -109,7 +127,7 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.photos.getSizes.html
     */
    async getPhotoSizes(id: string) {
-      return this._api<Flickr.Size[]>(Method.Photo.Sizes, this._photoID(id), {
+      return this._api<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
          select: r => r.sizes.size
       });
    }
@@ -121,7 +139,7 @@ export class FlickrClient {
    async getPhotoContext(id: string) {
       return this._api<Flickr.MemberSet[]>(
          Method.Photo.Sets,
-         this._photoID(id),
+         this.photoID(id),
          {
             select: r => r.set
          }
@@ -132,7 +150,7 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.photos.getExif.html
     */
    async getExif(id: string) {
-      return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this._photoID(id), {
+      return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
          select: r => r.photo.EXIF,
          allowCache: true
       });
@@ -143,7 +161,7 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
    async getSetPhotos(id: string) {
-      return this._api<Flickr.SetPhotos>(Method.Set.Photos, this._setID(id), {
+      return this._api<Flickr.SetPhotos>(Method.Set.Photos, this.setID(id), {
          params: {
             extras:
                [
@@ -170,7 +188,7 @@ export class FlickrClient {
    async photoSearch(tags: string | string[]) {
       return this._api<Flickr.PhotoSummary[]>(
          Method.Photo.Search,
-         this._userID,
+         this.userID,
          {
             params: {
                extras: this.config.searchPhotoSizes.join(),
@@ -189,7 +207,7 @@ export class FlickrClient {
     * https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
    async getAllPhotoTags() {
-      return this._api<Flickr.Tag[]>(Method.Photo.Tags, this._userID, {
+      return this._api<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {
          select: r => r.who.tags.tag,
          sign: true,
          allowCache: true
