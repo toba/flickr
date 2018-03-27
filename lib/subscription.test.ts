@@ -1,4 +1,6 @@
 import { Time } from '@toba/tools';
+import { log } from '@toba/logger';
+import { sleep } from '@toba/test';
 import { FlickrClient } from '../';
 import { testConfig } from './client.test';
 import {
@@ -6,22 +8,38 @@ import {
    EventType,
    hasChanged,
    WatchMap,
-   watchPhotos
+   watchPhotos,
+   Changes
 } from './subscription';
 
 let client: FlickrClient;
+let logWithColor: boolean;
+
+const logMock = jest.fn();
 const featureSetID = testConfig.featureSets[0].id;
 
+beforeAll(() => {
+   console.log = logMock;
+   logWithColor = log.config.color;
+   log.update({ color: false });
+});
 beforeEach(() => {
-   console.debug = jest.fn();
+   logMock.mockClear();
    testConfig.useCache = true;
    client = new FlickrClient(testConfig);
 });
+afterAll(() => {
+   log.update({ color: logWithColor });
+});
 
 test('rejects unreasonable poll interval', () => {
+   const warn = 'Poll interval of 1s is invalid; reverting to 5m.';
    const s = new ChangeSubscription(null);
    s.add(null, Time.Second);
-   expect(s).toBeDefined();
+   expect(logMock).toHaveBeenCalledTimes(1);
+   expect(logMock).toHaveBeenCalledWith(
+      `[Warn] ${warn} level=3 message=\"${warn}\"`
+   );
 });
 
 test('emits events', () => {
@@ -72,12 +90,32 @@ test('creates map of watched photos', async () => {
    expect(map['8459503474'].lastUpdate).toBe(1451765167);
 });
 
-test('the thing', async () => {
+test('polls for data changes', async done => {
    jest.useFakeTimers();
+   const photoID = '8458410907';
+   const collectionID = '60918612-72157663268880026';
    const sub = new ChangeSubscription(client);
-   const watcher = jest.fn();
+   const watcher = jest.fn((changes: Changes) => {
+      expect(sub.changes).toEqual(finalChange);
+      done();
+   });
+   const noChange: Changes = {
+      collections: [],
+      sets: []
+   };
+   const finalChange: Changes = {
+      collections: [collectionID],
+      sets: [featureSetID]
+   };
 
-   sub.add(watcher);
+   // shouldn't be active before first watcher
+   expect(sub.active).toBe(false);
+   expect(sub.changeTimer).not.toBeDefined();
+
+   sub.add(watcher, Time.Minute * 2);
+
+   expect(sub.active).toBe(true);
+   expect(sub.changeTimer).toBeDefined();
 
    const collections = await client.getCollections();
    const info = await client.getSetInfo(featureSetID);
@@ -88,11 +126,26 @@ test('the thing', async () => {
    sub.updateSet(featureSetID, photos);
 
    expect(watcher).toHaveBeenCalledTimes(0);
-   expect(sub.changes).toEqual({ collections: [], sets: [] });
-   expect(sub.watched).toEqual({
-      collections: [],
-      sets: ['72157632729508554']
-   });
+   expect(sub.changes).toEqual(noChange);
+   expect(sub.watched).toMatchSnapshot();
+   expect(sub.watched).toHaveProperty(featureSetID);
 
+   const photoSetWatcher = sub.watched[featureSetID];
+
+   expect(Object.keys(photoSetWatcher.photos)).toHaveLength(13);
+   expect(photoSetWatcher.photos).toHaveProperty(photoID);
+   // feature photo set is not in any collections
+   expect(photoSetWatcher.collections).toHaveLength(0);
+   expect(photoSetWatcher.photos[photoID].lastUpdate).toBe(1451765387);
+
+   // mock older update time to trigger change detection
+   photoSetWatcher.photos[photoID].lastUpdate -= 10;
+   photoSetWatcher.collections.push(collectionID);
+
+   // run down timer to trigger polling
    jest.runAllTimers();
+
+   //expect(sub.changes).toEqual(finalChange);
+   // expect(watcher).toHaveBeenCalledTimes(1);
+   // expect(watcher).toHaveBeenCalledWith(finalChange);
 });

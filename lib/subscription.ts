@@ -1,4 +1,4 @@
-import { EventEmitter, Time, is } from '@toba/tools';
+import { EventEmitter, Time, is, addUnique, durationString } from '@toba/tools';
 import { log } from '@toba/logger';
 import { Flickr, FlickrClient } from '../';
 import { debug } from 'util';
@@ -137,14 +137,15 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       ...parentIDs: string[]
    ) {
       collections.forEach(c => {
-         const parents = parentIDs.concat(c.id);
          if (is.array(c.set)) {
             c.set.forEach(s => {
-               this.photoSetWatcher(s.id).collections.push(...parents);
+               const setCollection = this.photoSetWatcher(s.id).collections;
+               addUnique<string>(setCollection, c.id);
+               addUnique<string>(setCollection, ...parentIDs);
             });
          }
          if (is.array(c.collection)) {
-            this.addCollections(c.collection, ...parents);
+            this.addCollections(c.collection, ...parentIDs.concat(c.id));
          }
       });
    }
@@ -218,6 +219,8 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
 
    /**
     * Add subscriber to receive change notifications.
+    *
+    * @param pollInterval Milliseconds between queries for change
     */
    add(
       fn: (change: Changes) => void,
@@ -226,7 +229,9 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       if (pollInterval < Time.Second * 20) {
          // disallow rapid polling
          log.warn(
-            `Poll interval of ${pollInterval}ms is invalid; reverting to ${defaultPollInterval}ms.`
+            `Poll interval of ${durationString(
+               pollInterval
+            )} is invalid; reverting to ${durationString(defaultPollInterval)}.`
          );
          pollInterval = defaultPollInterval;
       }

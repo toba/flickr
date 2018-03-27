@@ -39,8 +39,6 @@ const collectionsURL = parameterize(
 );
 let logWithColor: boolean;
 
-console.log = logMock;
-
 function expectCollection(res: Flickr.Response): void {
    expect(res).toHaveProperty('stat', Flickr.Status.Okay);
    expect(res).toHaveProperty('collections');
@@ -50,6 +48,7 @@ function expectCollection(res: Flickr.Response): void {
 
 // remove color codes since they complicate the snapshots
 beforeAll(() => {
+   console.log = logMock;
    logWithColor = log.config.color;
    log.update({ color: false });
 });
