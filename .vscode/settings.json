@@ -3,5 +3,6 @@
    "jest.enableCodeLens": true,
    "jest.enableInlineErrorMessages": false,
    "jest.pathToJest": "node_modules/.bin/jest",
-   "jest.enableSnapshotUpdateMessages": false
+   "jest.enableSnapshotUpdateMessages": false,
+   "typescript.tsdk": "node_modules/typescript/lib"
 }

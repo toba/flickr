@@ -4,7 +4,7 @@ import {
    is,
    addUnique,
    durationString,
-   isEqualList
+   listDifference
 } from '@toba/tools';
 import { log } from '@toba/logger';
 import { Flickr, FlickrClient } from '../';
@@ -25,6 +25,11 @@ export enum EventType {
    /** A new watcher has subscribed to changes. */
    NewWatcher
 }
+
+/**
+ * Collection IDs mapped to Set IDs used to detect changes.
+ */
+type SetCollections = { [key: string]: string[] };
 
 /**
  * Flickr item that is being watched for changes.
@@ -89,6 +94,38 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
 }
 
 /**
+ * Create list of all collections a set belongs to either directly or
+ * ancestrally.
+ *
+ * @param parentIDs Collection IDs to which the current collections belong
+ */
+export function addSetCollections(
+   collections: Flickr.Collection[],
+   sets: SetCollections = {},
+   ...parentIDs: string[]
+): SetCollections {
+   collections.forEach(c => {
+      if (is.array(c.set)) {
+         c.set.forEach(s => {
+            if (!is.defined(sets, s.id)) {
+               sets[s.id] = [];
+            }
+            addUnique(sets[s.id], c.id, ...parentIDs);
+         });
+      }
+      if (is.array(c.collection)) {
+         // recurse into child collections
+         sets = addSetCollections(
+            c.collection,
+            sets,
+            ...parentIDs.concat(c.id)
+         );
+      }
+   });
+   return sets;
+}
+
+/**
  * Sets are considered changed when any one of:
  * - last update time changes
  * - photo is added or removed
@@ -130,48 +167,32 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       return this.watched[id];
    }
 
-   updateCollections(...collections: Flickr.Collection[]) {
-      this.addCollections(collections);
-   }
-
    /**
-    * Add collection parent IDs to monitored sets, e.g. if c1 contains c2 which
-    * contains a set then `set.collections = [c1, c2]`.
+    * Generate unique list of collection IDs that contain different sets
+    * between this and previous update.
     */
-   private addCollections(
-      collections: Flickr.Collection[],
-      ...parentIDs: string[]
-   ) {
-      const sets: { [key: string]: string[] } = {};
-      let changed = false;
-
-      collections.forEach(c => {
-         if (is.array(c.set)) {
-            c.set.forEach(s => {
-               if (!is.defined(sets, s.id)) {
-                  sets[s.id] = [];
-               }
-               addUnique(sets[s.id], c.id, ...parentIDs);
-            });
-         }
-         if (is.array(c.collection)) {
-            // recurse into child collections
-            this.addCollections(c.collection, ...parentIDs.concat(c.id));
-         }
-      });
+   updateCollections(...collections: Flickr.Collection[]) {
+      /** Collection IDs that different between set versions */
+      const collectionDiff: string[] = [];
+      const changedSets: string[] = [];
+      /** List of collection IDs matched to set IDs */
+      const sets = addSetCollections(collections);
 
       Object.keys(sets).forEach(id => {
-         if (!isEqualList(sets[id], this.photoSetWatcher(id).collections)) {
-            this.photoSetWatcher(id).collections = sets[id];
-            changed = true;
-            return;
+         const setWatcher = this.photoSetWatcher(id);
+         const diff = listDifference(sets[id], setWatcher.collections);
+
+         if (diff.length > 0) {
+            // track changes and update watch list
+            addUnique(collectionDiff, diff);
+            changedSets.push(id);
+            setWatcher.collections = sets[id];
          }
       });
 
-      if (changed) {
-         // accumulate change IDs to be emitted together
-         this.changes.sets.push(id);
-         this.changes.collections.push(...set.collections);
+      if (collectionDiff.length > 0) {
+         addUnique(this.changes.collections, ...collectionDiff);
+         addUnique(this.changes.sets, ...changedSets);
       }
    }
 

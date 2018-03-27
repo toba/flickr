@@ -3,7 +3,7 @@ import {
    Config as AuthConfig,
    SigningMethod
 } from '@toba/oauth';
-import { is, merge, EventEmitter, Time } from '@toba/tools';
+import { is, merge } from '@toba/tools';
 import { Flickr } from './types';
 import { ChangeSubscription, Changes, EventType } from './subscription';
 import { Url, Method } from './constants';

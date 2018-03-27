@@ -8,7 +8,8 @@ import {
    hasChanged,
    WatchMap,
    watchPhotos,
-   Changes
+   Changes,
+   addSetCollections
 } from './subscription';
 
 let client: FlickrClient;
@@ -39,6 +40,17 @@ test('rejects unreasonable poll interval', () => {
    expect(logMock).toHaveBeenCalledWith(
       `[Warn] ${warn} level=3 message=\"${warn}\"`
    );
+});
+
+test('creates map of collections per set', async () => {
+   const collections = await client.getCollections();
+   const sets = addSetCollections(collections);
+
+   expect(sets).toMatchSnapshot();
+   expect(Object.keys(sets)).toHaveLength(167);
+   expect(sets).toHaveProperty('72157658347054114');
+   expect(sets['72157658347054114']).toBeInstanceOf(Array);
+   expect(sets['72157658347054114']).toHaveLength(8);
 });
 
 test('emits events', () => {
