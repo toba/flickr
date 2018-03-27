@@ -1,6 +1,5 @@
 import { Time } from '@toba/tools';
 import { log } from '@toba/logger';
-import { sleep } from '@toba/test';
 import { FlickrClient } from '../';
 import { testConfig } from './client.test';
 import {
@@ -90,15 +89,13 @@ test('creates map of watched photos', async () => {
    expect(map['8459503474'].lastUpdate).toBe(1451765167);
 });
 
-test('polls for data changes', async done => {
+test('polls for data changes', async () => {
    jest.useFakeTimers();
+   jest.setTimeout(Time.Second * 10);
    const photoID = '8458410907';
    const collectionID = '60918612-72157663268880026';
    const sub = new ChangeSubscription(client);
-   const watcher = jest.fn((changes: Changes) => {
-      expect(sub.changes).toEqual(finalChange);
-      done();
-   });
+   const watcher = jest.fn();
    const noChange: Changes = {
       collections: [],
       sets: []
@@ -144,6 +141,14 @@ test('polls for data changes', async done => {
 
    // run down timer to trigger polling
    jest.runAllTimers();
+
+   return new Promise(resolve => {
+      jest.useRealTimers();
+      setTimeout(() => {
+         expect(watcher).toHaveBeenCalledTimes(1);
+         resolve();
+      }, 2000);
+   });
 
    //expect(sub.changes).toEqual(finalChange);
    // expect(watcher).toHaveBeenCalledTimes(1);

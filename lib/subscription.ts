@@ -1,7 +1,13 @@
-import { EventEmitter, Time, is, addUnique, durationString } from '@toba/tools';
+import {
+   EventEmitter,
+   Time,
+   is,
+   addUnique,
+   durationString,
+   isEqualList
+} from '@toba/tools';
 import { log } from '@toba/logger';
 import { Flickr, FlickrClient } from '../';
-import { debug } from 'util';
 
 const defaultPollInterval = Time.Minute * 5;
 
@@ -136,18 +142,37 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       collections: Flickr.Collection[],
       ...parentIDs: string[]
    ) {
+      const sets: { [key: string]: string[] } = {};
+      let changed = false;
+
       collections.forEach(c => {
          if (is.array(c.set)) {
             c.set.forEach(s => {
-               const setCollection = this.photoSetWatcher(s.id).collections;
-               addUnique<string>(setCollection, c.id);
-               addUnique<string>(setCollection, ...parentIDs);
+               if (!is.defined(sets, s.id)) {
+                  sets[s.id] = [];
+               }
+               addUnique(sets[s.id], c.id, ...parentIDs);
             });
          }
          if (is.array(c.collection)) {
+            // recurse into child collections
             this.addCollections(c.collection, ...parentIDs.concat(c.id));
          }
       });
+
+      Object.keys(sets).forEach(id => {
+         if (!isEqualList(sets[id], this.photoSetWatcher(id).collections)) {
+            this.photoSetWatcher(id).collections = sets[id];
+            changed = true;
+            return;
+         }
+      });
+
+      if (changed) {
+         // accumulate change IDs to be emitted together
+         this.changes.sets.push(id);
+         this.changes.collections.push(...set.collections);
+      }
    }
 
    updateSet(id: string, photos: Flickr.SetPhotos): void;
@@ -195,7 +220,8 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       );
       const collections = this.client.getCollections(false);
 
-      return Promise.all([...photos, ...info, collections]).then(() => {
+      //return Promise.all([...photos, ...info, collections]).then(() => {
+      return Promise.all([collections]).then(() => {
          this.emitChange();
          this.changeTimer = setTimeout(
             this.queryChange.bind(this),

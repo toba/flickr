@@ -19,7 +19,7 @@
          "stopOnEntry": false,
          "showAsyncStacks": true,
          "sourceMaps": false,
-         "outFiles": ["${workspaceRoot}/output/debug/**/*"],
+         //"outFiles": ["${workspaceRoot}/output/debug/**/*"],
          "runtimeArgs": [
             "--inspect-brk",
             "./node_modules/jest-cli/bin/jest.js",
@@ -28,7 +28,9 @@
             "--testNamePattern",
             "polls for data changes"
          ],
-         "cwd": "${workspaceRoot}"
+         "cwd": "${workspaceRoot}",
+         "console": "integratedTerminal",
+         "internalConsoleOptions": "neverOpen"
       }
    ]
 }
