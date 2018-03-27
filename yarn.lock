@@ -71,8 +71,8 @@
     ts-jest "^22.4.0"
 
 "@toba/tools@^1.12.0", "@toba/tools@^1.13.0", "@toba/tools@^1.8.0":
-  version "1.13.3"
-  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.13.3.tgz#1f0ec2a8bcb02e0209934f94ba9a41f4b6c050aa"
+  version "1.14.1"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.14.1.tgz#a75703fdb1741f5573093e07f9f1434ee306d7de"
   dependencies:
     zlib "^1.0.5"
 

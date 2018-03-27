@@ -8,12 +8,9 @@ import {
    WatchMap,
    watchPhotos
 } from './subscription';
-import { watch } from 'fs';
 
 let client: FlickrClient;
-
 const featureSetID = testConfig.featureSets[0].id;
-const featurePhotoID = '8459503474';
 
 beforeEach(() => {
    console.debug = jest.fn();
