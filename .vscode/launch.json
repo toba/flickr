@@ -17,14 +17,16 @@
          "port": 9229,
          "address": "localhost",
          "stopOnEntry": false,
-         "sourceMaps": true,
+         "showAsyncStacks": true,
+         "sourceMaps": false,
+         "outFiles": ["${workspaceRoot}/output/debug/**/*"],
          "runtimeArgs": [
             "--inspect-brk",
             "./node_modules/jest-cli/bin/jest.js",
             "--runInBand",
-            "client.test.ts",
+            "subscription.test.ts",
             "--testNamePattern",
-            "catches non-existent"
+            "polls for data changes"
          ],
          "cwd": "${workspaceRoot}"
       }

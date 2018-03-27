@@ -1,7 +1,12 @@
 {
    "extends": "./node_modules/@toba/build/ts/config",
    "compilerOptions": {
-      "typeRoots": ["./node_modules/@types", "./node_modules/@toba/oauth/types"]
+      "typeRoots": [
+         "./node_modules/@types",
+         "./node_modules/@toba/oauth/types"
+      ],
+      "outDir": "./output/debug",
+      "sourceMap": true
    },
    "include": ["lib/**/*.ts", "__mocks__/**/*.ts"]
 }
