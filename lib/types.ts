@@ -272,7 +272,7 @@ export namespace Flickr {
       geo_is_friend?: Boolean | boolean;
       geo_is_contact?: Boolean | boolean;
       geo_is_public?: Boolean | boolean;
-      lastupdate?: number;
+      lastupdate?: string;
       pathalias?: string;
 
       exif: Exif[];

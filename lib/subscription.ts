@@ -27,7 +27,7 @@ interface Watched {
    lastUpdate: number;
 }
 
-type WatchMap = { [key: string]: Watched };
+export type WatchMap = { [key: string]: Watched };
 
 /**
  * Sets are the primary watch target. They can their child photos and parent
@@ -42,11 +42,11 @@ interface WatchedSet extends Watched {
  * Create map of watched photos. To work as expected, extra parameter
  * `Flickr.Extra.DateUpdated` must be sent with `getSetPhotos`.
  */
-const watchPhotos = (photos: Flickr.PhotoSummary[]): WatchMap =>
+export const watchPhotos = (photos: Flickr.PhotoSummary[]): WatchMap =>
    photos.reduce(
       (hash, p) => {
          hash[p.id] = {
-            lastUpdate: p.lastupdate
+            lastUpdate: parseInt(p.lastupdate)
          };
          return hash;
       },
@@ -56,26 +56,30 @@ const watchPhotos = (photos: Flickr.PhotoSummary[]): WatchMap =>
 /**
  * Whether a map of watched items has changed.
  */
-function hasChanged(older: WatchMap, newer: WatchMap): boolean {
+export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
    const oldKeys = Object.keys(older);
 
    if (oldKeys.length !== Object.keys(newer).length) {
       return true;
    }
 
+   let changed = false;
+
    oldKeys.forEach(key => {
       if (!is.defined(newer, key)) {
-         return true;
+         changed = true;
+         return;
       }
       if (
-         older[key].lastUpdate !== 0 &&
+         older[key].lastUpdate != 0 &&
          older[key].lastUpdate < newer[key].lastUpdate
       ) {
-         return true;
+         changed = true;
+         return;
       }
    });
 
-   return false;
+   return changed;
 }
 
 /**
@@ -90,7 +94,7 @@ function hasChanged(older: WatchMap, newer: WatchMap): boolean {
  */
 export class ChangeSubscription extends EventEmitter<EventType, any> {
    client: FlickrClient;
-   changeTimer: NodeJS.Timer;
+   changeTimer: number;
    /** Changes accumulated but not yet emitted. */
    changes: Changes;
    /** Frequency at which to query for changes. */
@@ -109,7 +113,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    /**
     * Retrieve photo set watcher, initializing if needed.
     */
-   private setWatcher(id: string) {
+   private photoSetWatcher(id: string) {
       if (!is.defined(this.watched, id)) {
          this.watched[id] = {
             lastUpdate: 0,
@@ -136,7 +140,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          const parents = parentIDs.concat(c.id);
          if (is.array(c.set)) {
             c.set.forEach(s => {
-               this.setWatcher(s.id).collections.push(...parents);
+               this.photoSetWatcher(s.id).collections.push(...parents);
             });
          }
          if (is.array(c.collection)) {
@@ -148,7 +152,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    updateSet(id: string, photos: Flickr.SetPhotos): void;
    updateSet(id: string, lastUpdate: number): void;
    updateSet(id: string, p2: number | Flickr.SetPhotos) {
-      const set = this.setWatcher(id);
+      const set = this.photoSetWatcher(id);
       let changed = false;
 
       if (is.number(p2)) {
@@ -157,10 +161,11 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          }
          set.lastUpdate = p2;
       } else {
-         debugger;
          const photos = watchPhotos(p2.photo);
          if (this.active) {
-            changed = hasChanged(set.photos, photos);
+            changed =
+               Object.keys(set.photos).length > 0 &&
+               hasChanged(set.photos, photos);
          }
          set.photos = photos;
       }
@@ -189,9 +194,12 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       );
       const collections = this.client.getCollections(false);
 
-      return Promise.all([... photos, ...info, collections]).then(() => {
+      return Promise.all([...photos, ...info, collections]).then(() => {
          this.emitChange();
-         this.changeTimer = setTimeout(this.queryChange, this.pollInterval);
+         this.changeTimer = setTimeout(
+            this.queryChange.bind(this),
+            this.pollInterval
+         );
       });
    }
 
@@ -226,6 +234,6 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       this.active = true;
       this.subscribe(EventType.Change, fn);
       this.emit(EventType.NewWatcher);
-      this.changeTimer = setTimeout(this.queryChange, pollInterval);
+      this.changeTimer = setTimeout(this.queryChange.bind(this), pollInterval);
    }
 }

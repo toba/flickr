@@ -36,6 +36,7 @@ const featureSetID = testConfig.featureSets[0].id;
 const featurePhotoID = '8459503474';
 
 beforeAll(() => {
+   console.debug = jest.fn();
    client = new FlickrClient(testConfig);
 });
 
