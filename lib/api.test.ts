@@ -1,6 +1,6 @@
 import { merge, is } from '@toba/tools';
 import { log } from '@toba/logger';
-import { Client as AuthClient } from '@toba/oauth';
+import { Client as AuthClient, SigningMethod } from '@toba/oauth';
 import {
    call,
    parse,
@@ -11,7 +11,7 @@ import {
    Request,
    Identity
 } from './api';
-import { config } from './client.test';
+import { testConfig } from './client.test';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
 
@@ -24,22 +24,20 @@ const mockRequest: Request<Flickr.Collection[]> = {
    auth: new AuthClient(
       Url.RequestToken,
       Url.AccessToken,
-      config.auth.apiKey,
-      config.auth.secret,
+      testConfig.auth.apiKey,
+      testConfig.auth.secret,
       '1.0A',
-      config.auth.callback,
-      'HMAC-SHA1'
+      testConfig.auth.callback,
+      SigningMethod.HMAC
    )
 };
 const collectionsURL = parameterize(
    Method.Collections,
    mockID,
    mockRequest,
-   config
+   testConfig
 );
 let logWithColor: boolean;
-
-console.log = logMock;
 
 function expectCollection(res: Flickr.Response): void {
    expect(res).toHaveProperty('stat', Flickr.Status.Okay);
@@ -50,6 +48,7 @@ function expectCollection(res: Flickr.Response): void {
 
 // remove color codes since they complicate the snapshots
 beforeAll(() => {
+   console.log = logMock;
    logWithColor = log.config.color;
    log.update({ color: false });
 });
@@ -59,10 +58,15 @@ afterAll(() => {
 });
 
 test('builds request parameters', () => {
-   const url = parameterize(Method.Collections, mockID, mockRequest, config);
+   const url = parameterize(
+      Method.Collections,
+      mockID,
+      mockRequest,
+      testConfig
+   );
 
    expect(url).toBe(
-      `?api_key=${config.auth.apiKey}&format=json&nojsoncallback=1&method=${
+      `?api_key=${testConfig.auth.apiKey}&format=json&nojsoncallback=1&method=${
          Method.Prefix
       }${Method.Collections}&user_id=user-name`
    );
@@ -83,7 +87,7 @@ test('curries signed HTTP get method', () => {
    const getter = signedRequest(
       collectionsURL,
       mockRequest.auth,
-      config.auth.token
+      testConfig.auth.token
    );
 
    expect(getter).toBeInstanceOf(Function);
@@ -121,5 +125,5 @@ test('converts response to objects', () =>
       Method.Collections,
       { type: Flickr.TypeName.User, value: '' },
       { select: r => r },
-      config
+      testConfig
    ).then(expectCollection));

@@ -58,7 +58,7 @@
   dependencies:
     oauth "^0.9.15"
 
-"@toba/test@^1.8.0":
+"@toba/test@^1.9.0":
   version "1.9.4"
   resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.9.4.tgz#b1db4862d893f0696f72ee52472ca22509d3634c"
   dependencies:
@@ -70,11 +70,21 @@
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
+<<<<<<< HEAD
 "@toba/tools@^1.12.0", "@toba/tools@^1.13.0", "@toba/tools@^1.8.0":
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.14.1.tgz#a75703fdb1741f5573093e07f9f1434ee306d7de"
+=======
+"@toba/tools@^1.12.0", "@toba/tools@^1.15.0", "@toba/tools@^1.8.0":
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.16.0.tgz#d0097c03366053a1e787ef5705d91296aa5ee869"
+>>>>>>> develop
   dependencies:
     zlib "^1.0.5"
+
+"@types/flat@^0.0.28":
+  version "0.0.28"
+  resolved "https://registry.yarnpkg.com/@types/flat/-/flat-0.0.28.tgz#5c788149d85a6cf8ff5f5f000acdd912cdea4274"
 
 "@types/jest@^22.2.0":
   version "22.2.2"
@@ -824,8 +834,8 @@ copy-descriptor@^0.1.0:
   resolved "https://registry.yarnpkg.com/copy-descriptor/-/copy-descriptor-0.1.1.tgz#676f6eb3c39997c2ee1ac3a924fd6124748f578d"
 
 core-js@^2.4.0, core-js@^2.5.0:
-  version "2.5.3"
-  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.3.tgz#8acc38345824f16d8365b7c9b4259168e8ed603e"
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.5.4.tgz#f2c8bf181f2a80b92f360121429ce63a2f0aeae0"
 
 core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
@@ -4094,8 +4104,8 @@ tslint@^5.9.0:
     tsutils "^2.12.1"
 
 tsutils@^2.12.1, tsutils@^2.22.2:
-  version "2.22.2"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.22.2.tgz#0b9f3d87aa3eb95bd32d26ce2b88aa329a657951"
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.23.0.tgz#5abfb8ed276d19a364aaddf0bc036944d38f7d78"
   dependencies:
     tslib "^1.8.1"
 
@@ -4115,9 +4125,9 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
-typescript@^2.7.0:
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.7.2.tgz#2d615a1ef4aee4f574425cdff7026edf81919836"
+typescript@^2.8.0:
+  version "2.8.1"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.1.tgz#6160e4f8f195d5ba81d4876f9c0cc1fbc0820624"
 
 uglify-js@^2.6:
   version "2.8.29"
