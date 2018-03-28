@@ -58,7 +58,7 @@ const defaultConfig: ClientConfig = {
 export class FlickrClient {
    private config: ClientConfig;
    private oauth: AuthClient;
-   private subscription: ChangeSubscription;
+   subscription: ChangeSubscription;
 
    constructor(config: ClientConfig) {
       this.config = merge(defaultConfig, config);
@@ -163,6 +163,46 @@ export class FlickrClient {
    }
 
    /**
+    * All photos in a set. Include last update time to enable change detection.
+    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
+    */
+   async getSetPhotos(
+      id: string,
+      extras: Flickr.Extra[] = [],
+      allowCache = true
+   ): Promise<Flickr.SetPhotos> {
+      const extrasList =
+         extras.length > 0
+            ? extras.join()
+            : [
+                 Flickr.Extra.Description,
+                 Flickr.Extra.Tags,
+                 Flickr.Extra.DateTaken,
+                 Flickr.Extra.DateUpdated,
+                 Flickr.Extra.Location,
+                 Flickr.Extra.PathAlias
+              ].join() +
+              ',' +
+              this.config.searchPhotoSizes.join();
+
+      const photos = await this._api<Flickr.SetPhotos>(
+         Method.Set.Photos,
+         this.setID(id),
+         {
+            params: {
+               extras: extrasList
+            },
+            select: r => r.photoset as Flickr.SetPhotos,
+            allowCache
+         }
+      );
+
+      this.subscription.updateSet(id, photos);
+
+      return photos;
+   }
+
+   /**
     * https://www.flickr.com/services/api/flickr.photos.getInfo.html
     */
    getPhotoInfo(id: string) {
@@ -203,46 +243,6 @@ export class FlickrClient {
          select: r => r.photo.EXIF,
          allowCache: true
       });
-   }
-
-   /**
-    * All photos in a set. Include last update time to enable change detection.
-    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
-    */
-   async getSetPhotos(
-      id: string,
-      extras: Flickr.Extra[] = [],
-      allowCache = true
-   ): Promise<Flickr.SetPhotos> {
-      const extrasList =
-         extras.length > 0
-            ? extras.join()
-            : [
-                 Flickr.Extra.Description,
-                 Flickr.Extra.Tags,
-                 Flickr.Extra.DateTaken,
-                 Flickr.Extra.DateUpdated,
-                 Flickr.Extra.Location,
-                 Flickr.Extra.PathAlias
-              ].join() +
-              ',' +
-              this.config.searchPhotoSizes.join();
-
-      const photos = await this._api<Flickr.SetPhotos>(
-         Method.Set.Photos,
-         this.setID(id),
-         {
-            params: {
-               extras: extrasList
-            },
-            select: r => r.photoset as Flickr.SetPhotos,
-            allowCache
-         }
-      );
-
-      this.subscription.updateSet(id, photos);
-
-      return photos;
    }
 
    /**

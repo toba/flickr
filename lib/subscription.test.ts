@@ -7,9 +7,9 @@ import {
    EventType,
    hasChanged,
    WatchMap,
-   watchPhotos,
+   mapSetPhotos,
    Changes,
-   addSetCollections
+   mapSetCollections
 } from './subscription';
 
 let client: FlickrClient;
@@ -44,7 +44,7 @@ test('rejects unreasonable poll interval', () => {
 
 test('creates map of collections per set', async () => {
    const collections = await client.getCollections();
-   const sets = addSetCollections(collections);
+   const sets = mapSetCollections(collections);
 
    expect(sets).toMatchSnapshot();
    expect(Object.keys(sets)).toHaveLength(167);
@@ -95,19 +95,23 @@ test('identifies changes in watch maps', () => {
 
 test('creates map of watched photos', async () => {
    const res = await client.getSetPhotos(featureSetID);
-   const map = watchPhotos(res.photo);
+   const map = mapSetPhotos(res.photo);
 
    expect(map).toHaveProperty('8459503474');
    expect(map['8459503474'].lastUpdate).toBe(1451765167);
 });
 
-test('polls for data changes', async () => {
+test('polls for data changes', async done => {
    jest.useFakeTimers();
    jest.setTimeout(Time.Second * 10);
    const photoID = '8458410907';
    const collectionID = '60918612-72157663268880026';
-   const sub = new ChangeSubscription(client);
-   const watcher = jest.fn();
+   const sub = client.subscription;
+   const watcher = jest.fn((changes: Changes) => {
+      expect(watcher).toHaveBeenCalledTimes(1);
+      expect(changes).toEqual(finalChange);
+      done();
+   });
    const noChange: Changes = {
       collections: [],
       sets: []
@@ -126,41 +130,46 @@ test('polls for data changes', async () => {
    expect(sub.active).toBe(true);
    expect(sub.changeTimer).toBeDefined();
 
-   const collections = await client.getCollections();
-   const info = await client.getSetInfo(featureSetID);
-   const photos = await client.getSetPhotos(featureSetID);
+   // const collections = await client.getCollections();
+   // const info = await client.getSetInfo(featureSetID);
+   // const photos = await client.getSetPhotos(featureSetID);
 
-   sub.updateCollections(...collections);
-   sub.updateSet(featureSetID, parseInt(info.date_update));
-   sub.updateSet(featureSetID, photos);
+   await client.getCollections();
+   await client.getSetInfo(featureSetID);
+   await client.getSetPhotos(featureSetID);
+
+   // sub.updateCollections(...collections);
+   // sub.updateSet(featureSetID, parseInt(info.date_update));
+   // sub.updateSet(featureSetID, photos);
 
    expect(watcher).toHaveBeenCalledTimes(0);
    expect(sub.changes).toEqual(noChange);
    expect(sub.watched).toMatchSnapshot();
    expect(sub.watched).toHaveProperty(featureSetID);
 
-   const photoSetWatcher = sub.watched[featureSetID];
+   const watchedSet = sub.watched[featureSetID];
 
-   expect(Object.keys(photoSetWatcher.photos)).toHaveLength(13);
-   expect(photoSetWatcher.photos).toHaveProperty(photoID);
+   expect(Object.keys(watchedSet.photos)).toHaveLength(13);
+   expect(watchedSet.photos).toHaveProperty(photoID);
    // feature photo set is not in any collections
-   expect(photoSetWatcher.collections).toHaveLength(0);
-   expect(photoSetWatcher.photos[photoID].lastUpdate).toBe(1451765387);
+   expect(watchedSet.collections).toHaveLength(0);
+   expect(watchedSet.photos[photoID].lastUpdate).toBe(1451765387);
 
    // mock older update time to trigger change detection
-   photoSetWatcher.photos[photoID].lastUpdate -= 10;
-   photoSetWatcher.collections.push(collectionID);
+   watchedSet.photos[photoID].lastUpdate -= 10;
+   watchedSet.collections.push(collectionID);
 
    // run down timer to trigger polling
    jest.runAllTimers();
 
-   return new Promise(resolve => {
-      jest.useRealTimers();
-      setTimeout(() => {
-         expect(watcher).toHaveBeenCalledTimes(1);
-         resolve();
-      }, 2000);
-   });
+   // return new Promise(resolve => {
+   //    jest.useRealTimers();
+   //    setTimeout(() => {
+   //       expect(watcher).toHaveBeenCalledTimes(1);
+   //       expect(watcher).toHaveBeenCalledWith(finalChange);
+   //       resolve();
+   //    }, 500);
+   // });
 
    //expect(sub.changes).toEqual(finalChange);
    // expect(watcher).toHaveBeenCalledTimes(1);
