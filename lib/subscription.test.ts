@@ -103,28 +103,76 @@ test('creates map of watched photos', async () => {
 
 test('polls for data changes', async done => {
    jest.useFakeTimers();
+   jest.setTimeout(Time.Minute * 1);
    const photoID = '8458410907';
    const collectionID = '60918612-72157663268880026';
    const sub = client.subscription;
-   const watcher = jest.fn((changes: Changes) => {
-      expect(watcher).toHaveBeenCalledTimes(expectedEventCount);
+   const watcher = (changes: Changes) => {
       expect(changes).toEqual(expectedChange);
-
-      process.nextTick(() => {
-         // change is emitted before being reset
-         expect(sub.changes).toEqual(noChange);
-         // timer is set for next poll
-         expect(sub.changeTimer).toBeDefined();
-         done();
-      });
-   });
+      simulateNextChange();
+   };
    const noChange: Changes = {
       collections: [],
       sets: []
    };
+   const simulatedChanges: (() => void)[] = [
+      () => {
+         // trigger change by adding collection and making older photo update
+         watchedSet.photos[photoID].lastUpdate -= 10;
+         watchedSet.collections.push(collectionID);
+         expectedChange = {
+            collections: [collectionID],
+            sets: [featureSetID]
+         };
+      },
+      () => {
+         // trigger change by making older set update
+         watchedSet.lastUpdate -= 10;
+         expectedChange = {
+            collections: [collectionID],
+            sets: [featureSetID]
+         };
+      },
+      () => {
+         // trigger no change
+         expectNoChange = true;
+      },
+      () => {
+         // trigger change by removing collection
+         watchedSet.collections = [];
+         expectedChange = {
+            collections: [collectionID],
+            sets: [featureSetID]
+         };
+      },
+      () => {
+         // trigger change by removing photo
+         delete watchedSet.photos[photoID];
+         expectedChange = {
+            collections: [],
+            sets: [featureSetID]
+         };
+      }
+   ];
 
-   let expectedEventCount = 0;
    let expectedChange: Changes = noChange;
+   let expectNoChange = false;
+
+   const simulateNextChange = () => {
+      if (simulatedChanges.length > 0) {
+         process.nextTick(() => {
+            const fn = simulatedChanges.shift();
+            // nextTick ensures subscription clears changes and sets next timer
+            expect(sub.changes).toEqual(noChange);
+            expect(sub.changeTimer).toBeDefined();
+            fn();
+            // now run out the timer to trigger handler
+            jest.runAllTimers();
+         });
+      } else {
+         done();
+      }
+   };
 
    // shouldn't be active before first watcher
    expect(sub.active).toBe(false);
@@ -132,7 +180,12 @@ test('polls for data changes', async done => {
 
    sub.add(watcher, Time.Minute * 2);
    sub.addEventListener(EventType.NoChange, () => {
-      throw Error('Change expected but none found');
+      if (expectNoChange) {
+         expectNoChange = false;
+         simulateNextChange();
+      } else {
+         throw Error('Change expected but none found');
+      }
    });
 
    expect(sub.active).toBe(true);
@@ -142,7 +195,6 @@ test('polls for data changes', async done => {
    await client.getSetInfo(featureSetID);
    await client.getSetPhotos(featureSetID);
 
-   expect(watcher).toHaveBeenCalledTimes(0);
    expect(sub.changes).toEqual(noChange);
    expect(sub.watched).toMatchSnapshot();
    expect(sub.watched).toHaveProperty(featureSetID);
@@ -155,15 +207,5 @@ test('polls for data changes', async done => {
    expect(watchedSet.collections).toHaveLength(0);
    expect(watchedSet.photos[photoID].lastUpdate).toBe(1451765387);
 
-   // mock older update time to trigger change detection
-   watchedSet.photos[photoID].lastUpdate -= 10;
-   watchedSet.collections.push(collectionID);
-
-   // run down timer to trigger polling
-   expectedEventCount++;
-   expectedChange = {
-      collections: [collectionID],
-      sets: [featureSetID]
-   };
-   jest.runAllTimers();
+   process.nextTick(simulateNextChange);
 });

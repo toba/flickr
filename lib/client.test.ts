@@ -1,3 +1,4 @@
+import { Time } from '@toba/tools';
 import { FlickrClient, ClientConfig } from './client';
 import { Flickr } from './types';
 
@@ -20,6 +21,7 @@ export const testConfig: ClientConfig = {
    featureSets: [{ id: '72157632729508554', title: 'Ruminations' }],
    setPhotoSizes: [Flickr.SizeUrl.Large1024],
    useCache: false,
+   maxRetries: 1,
    auth: {
       apiKey: 'FLICKR_API_KEY',
       secret: 'FLICKR_SECRET',
@@ -56,7 +58,7 @@ test('retrieves set information', async () => {
 });
 
 test('retrieves set photos', async () => {
-   const res = await client.getSetPhotos(testConfig.featureSets[0].id);
+   const res = await client.getSetPhotos(featureSetID);
    expect(res).toHaveProperty('id', testConfig.featureSets[0].id);
    expect(res.photo).toBeInstanceOf(Array);
    testConfig.setPhotoSizes.forEach(s => {
@@ -98,4 +100,17 @@ test('searches for photos', async () => {
    const matches = await client.photoSearch('horse');
    expect(matches).toBeInstanceOf(Array);
    expect(matches[0]).toHaveProperty('owner', testConfig.userID);
+});
+
+test('supports simultaneous requests', () => {
+   jest.setTimeout(Time.Second * 30);
+   return Promise.all([
+      client.getSetInfo(featurePhotoID),
+      client.getSetPhotos(featureSetID),
+      client.getCollections()
+   ]).then(([info, photos, collections]) => {
+      expect(info).toBeDefined();
+      expect(photos).toBeDefined();
+      expect(collections).toBeDefined();
+   });
 });

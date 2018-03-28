@@ -191,8 +191,9 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       const sets = mapSetCollections(collections);
       /** Only compare if collection sets were previously retrieved */
       const compare = Object.keys(this.watched).length > 0;
+      const setIDs = Object.keys(sets);
 
-      Object.keys(sets).forEach(id => {
+      setIDs.forEach(id => {
          const watchedSet = this.watchedSet(id);
 
          if (compare) {
@@ -209,6 +210,18 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          }
          watchedSet.collections = sets[id];
       });
+
+      if (compare) {
+         // find watched sets that were in a collection but are now in none, so
+         // aren't listed in the current collections list
+         Object.keys(this.watched).forEach(id => {
+            const watchedSet = this.watched[id];
+            if (setIDs.indexOf(id) == -1 && watchedSet.collections.length > 0) {
+               changedSets.push(id);
+               addUnique(collectionDiff, ...watchedSet.collections);
+            }
+         });
+      }
 
       if (collectionDiff.length > 0) {
          addUnique(this.changes.collections, ...collectionDiff);
@@ -262,12 +275,12 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       const photos: Promise<any>[] = setIDs.map(id =>
          this.client.getSetPhotos(id, [Flickr.Extra.DateUpdated], false)
       );
-      // const info: Promise<any>[] = setIDs.map(id =>
-      //    this.client.getSetInfo(id, false)
-      // );
-      //const collections = this.client.getCollections(false);
+      const info: Promise<any>[] = setIDs.map(id =>
+         this.client.getSetInfo(id, false)
+      );
+      const collections = this.client.getCollections(false);
 
-      return Promise.all(photos).then(() => {
+      return Promise.all([...info, ...photos, collections]).then(() => {
          this.emitChange();
          this.changeTimer = setTimeout(
             this.queryChange.bind(this),

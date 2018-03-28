@@ -83,25 +83,27 @@ export function callAPI<T>(
 ): Promise<T> {
    // create key to track retries and log messages
    const key = makeKey(method, id.value);
+   // must be assigned in block to be held by closure
+   const selector = req.select;
+   const allowCache = req.allowCache;
    const url =
       'https://' + Url.Host + Url.Base + parameterize(method, id, req, config);
-   const token = config.auth.token;
    const request = req.sign
-      ? signedRequest(url, req.auth, token)
+      ? signedRequest(url, req.auth, config.auth.token)
       : basicRequest(url);
    const requestAndVerify = async () => {
       const body = await request();
       const res = parse(body, key);
 
       if (res.stat == Flickr.Status.Okay) {
-         const item = req.select(res);
+         const item = selector(res);
 
          if (item === undefined) {
             throw `Failed to select item from ${url} response`;
          }
 
          // cache result
-         if (req.allowCache && config.useCache) {
+         if (allowCache && config.useCache) {
             cache.add(method, id.value, item);
          }
          return item;
@@ -137,10 +139,10 @@ export const signedRequest = (
  * Curry basic HTTP get request as string `Promise` that can be retried without
  * further parameters.
  */
-export const basicRequest = (url: string) => () =>
-   fetch(url, { headers: { [Header.UserAgent]: 'node.js' } }).then(res =>
-      res.text()
-   );
+export const basicRequest = (url: string) => async () => {
+   const res = await fetch(url, { headers: { [Header.UserAgent]: 'node.js' } });
+   return res.text();
+};
 
 /**
  * Parse Flickr response and handle different kinds of error conditions.

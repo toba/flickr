@@ -158,7 +158,6 @@ export class FlickrClient {
          }
       );
       this.subscription.updateSet(info.id, parseInt(info.date_update));
-
       return info;
    }
 
@@ -198,7 +197,6 @@ export class FlickrClient {
       );
 
       this.subscription.updateSet(id, photos);
-
       return photos;
    }
 
