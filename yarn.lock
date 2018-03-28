@@ -16,17 +16,17 @@
     esutils "^2.0.2"
     js-tokens "^3.0.0"
 
-"@fimbul/bifrost@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@fimbul/bifrost/-/bifrost-0.5.0.tgz#60e96911fa61c5552eebfc1fbf1738e3afeecf23"
+"@fimbul/bifrost@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@fimbul/bifrost/-/bifrost-0.6.0.tgz#5150302b63e1bd37ff95f561c3605949cb7e3770"
   dependencies:
-    "@fimbul/ymir" "^0.4.0"
+    "@fimbul/ymir" "^0.6.0"
     get-caller-file "^1.0.2"
     tslib "^1.8.1"
 
-"@fimbul/ymir@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@fimbul/ymir/-/ymir-0.4.0.tgz#5d2aeb86f1b257f778d501bbf3b811d2ba3dd3bc"
+"@fimbul/ymir@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@fimbul/ymir/-/ymir-0.6.0.tgz#537cb15d361b7c993fe953b48c898ecdf4f671b8"
   dependencies:
     inversify "^4.10.0"
     reflect-metadata "^0.1.12"
@@ -70,15 +70,9 @@
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
-<<<<<<< HEAD
-"@toba/tools@^1.12.0", "@toba/tools@^1.13.0", "@toba/tools@^1.8.0":
-  version "1.14.1"
-  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.14.1.tgz#a75703fdb1741f5573093e07f9f1434ee306d7de"
-=======
 "@toba/tools@^1.12.0", "@toba/tools@^1.15.0", "@toba/tools@^1.8.0":
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.16.0.tgz#d0097c03366053a1e787ef5705d91296aa5ee869"
->>>>>>> develop
   dependencies:
     zlib "^1.0.5"
 
@@ -97,8 +91,8 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^9.4.7":
-  version "9.6.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.0.tgz#d3480ee666df9784b1001a1872a2f6ccefb6c2d7"
+  version "9.6.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.1.tgz#e2d374ef15b315b48e7efc308fa1a7cd51faa06c"
 
 abab@^1.0.4:
   version "1.0.4"
@@ -325,8 +319,8 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
 atob@^2.0.0:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/atob/-/atob-2.0.3.tgz#19c7a760473774468f20b2d2d03372ad7d4cbf5d"
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.0.tgz#ab2b150e51d7b122b9efc8d7340c06b6c41076bc"
 
 autoprefixer@^8.0.0:
   version "8.2.0"
@@ -659,8 +653,8 @@ camelcase@^4.1.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
 caniuse-lite@^1.0.30000817, caniuse-lite@^1.0.30000819:
-  version "1.0.30000820"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000820.tgz#6e36ee75187a2c83d26d6504a1af47cc580324d2"
+  version "1.0.30000821"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000821.tgz#0f3223f1e048ed96451c56ca6cf197058c42cb93"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -1071,8 +1065,8 @@ ecc-jsbn@~0.1.1:
     jsbn "~0.1.0"
 
 electron-to-chromium@^1.3.40:
-  version "1.3.40"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.40.tgz#1fbd6d97befd72b8a6f921dc38d22413d2f6fddf"
+  version "1.3.41"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.41.tgz#7e33643e00cd85edfd17e04194f6d00e73737235"
 
 entities@^1.1.1, entities@~1.1.1:
   version "1.1.1"
@@ -4079,12 +4073,12 @@ tslint-config-prettier@^1.10.0:
   resolved "https://registry.yarnpkg.com/tslint-config-prettier/-/tslint-config-prettier-1.10.0.tgz#5063c413d43de4f6988c73727f65ecfc239054ec"
 
 tslint-consistent-codestyle@^1.12.0:
-  version "1.12.2"
-  resolved "https://registry.yarnpkg.com/tslint-consistent-codestyle/-/tslint-consistent-codestyle-1.12.2.tgz#a7ecb531ec7c03873e82039472259fab797e3d15"
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/tslint-consistent-codestyle/-/tslint-consistent-codestyle-1.13.0.tgz#82abf230bf39e01159b4e9af721d489dd5ae0e6c"
   dependencies:
-    "@fimbul/bifrost" "^0.5.0"
+    "@fimbul/bifrost" "^0.6.0"
     tslib "^1.7.1"
-    tsutils "^2.22.2"
+    tsutils "^2.24.0"
 
 tslint@^5.9.0:
   version "5.9.1"
@@ -4103,9 +4097,9 @@ tslint@^5.9.0:
     tslib "^1.8.0"
     tsutils "^2.12.1"
 
-tsutils@^2.12.1, tsutils@^2.22.2:
-  version "2.23.0"
-  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.23.0.tgz#5abfb8ed276d19a364aaddf0bc036944d38f7d78"
+tsutils@^2.12.1, tsutils@^2.24.0:
+  version "2.25.0"
+  resolved "https://registry.yarnpkg.com/tsutils/-/tsutils-2.25.0.tgz#14d616ef59224a3c9fb7eb483e1c182b6665ae5e"
   dependencies:
     tslib "^1.8.1"
 
