@@ -23,6 +23,8 @@ export interface Changes {
 export enum EventType {
    /** A set or collection has changed. */
    Change,
+   /** Polling found no data change -- useful for testing */
+   NoChange,
    /** A new watcher has subscribed to changes. */
    NewWatcher
 }
@@ -284,6 +286,8 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
             `Flickr sets [${this.changes.sets.join()}] or collections [${this.changes.collections.join()}] changed`
          );
          this.changes = { sets: [], collections: [] };
+      } else {
+         this.emit(EventType.NoChange);
       }
    }
 

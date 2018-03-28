@@ -103,44 +103,44 @@ test('creates map of watched photos', async () => {
 
 test('polls for data changes', async done => {
    jest.useFakeTimers();
-   jest.setTimeout(Time.Second * 10);
    const photoID = '8458410907';
    const collectionID = '60918612-72157663268880026';
    const sub = client.subscription;
    const watcher = jest.fn((changes: Changes) => {
-      expect(watcher).toHaveBeenCalledTimes(1);
-      expect(changes).toEqual(finalChange);
-      done();
+      expect(watcher).toHaveBeenCalledTimes(expectedEventCount);
+      expect(changes).toEqual(expectedChange);
+
+      process.nextTick(() => {
+         // change is emitted before being reset
+         expect(sub.changes).toEqual(noChange);
+         // timer is set for next poll
+         expect(sub.changeTimer).toBeDefined();
+         done();
+      });
    });
    const noChange: Changes = {
       collections: [],
       sets: []
    };
-   const finalChange: Changes = {
-      collections: [collectionID],
-      sets: [featureSetID]
-   };
+
+   let expectedEventCount = 0;
+   let expectedChange: Changes = noChange;
 
    // shouldn't be active before first watcher
    expect(sub.active).toBe(false);
    expect(sub.changeTimer).not.toBeDefined();
 
    sub.add(watcher, Time.Minute * 2);
+   sub.addEventListener(EventType.NoChange, () => {
+      throw Error('Change expected but none found');
+   });
 
    expect(sub.active).toBe(true);
    expect(sub.changeTimer).toBeDefined();
 
-   // const collections = await client.getCollections();
-   // const info = await client.getSetInfo(featureSetID);
-   // const photos = await client.getSetPhotos(featureSetID);
-
    await client.getCollections();
    await client.getSetInfo(featureSetID);
    await client.getSetPhotos(featureSetID);
-
-   // sub.updateCollections(...collections);
-   // sub.updateSet(featureSetID, parseInt(info.date_update));
-   // sub.updateSet(featureSetID, photos);
 
    expect(watcher).toHaveBeenCalledTimes(0);
    expect(sub.changes).toEqual(noChange);
@@ -160,18 +160,10 @@ test('polls for data changes', async done => {
    watchedSet.collections.push(collectionID);
 
    // run down timer to trigger polling
+   expectedEventCount++;
+   expectedChange = {
+      collections: [collectionID],
+      sets: [featureSetID]
+   };
    jest.runAllTimers();
-
-   // return new Promise(resolve => {
-   //    jest.useRealTimers();
-   //    setTimeout(() => {
-   //       expect(watcher).toHaveBeenCalledTimes(1);
-   //       expect(watcher).toHaveBeenCalledWith(finalChange);
-   //       resolve();
-   //    }, 500);
-   // });
-
-   //expect(sub.changes).toEqual(finalChange);
-   // expect(watcher).toHaveBeenCalledTimes(1);
-   // expect(watcher).toHaveBeenCalledWith(finalChange);
 });
