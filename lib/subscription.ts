@@ -23,7 +23,7 @@ export interface Changes {
 export enum EventType {
    /** A set or collection has changed. */
    Change,
-   /** Polling found no data change -- useful for testing */
+   /** Polling found no data change -- useful for testing. */
    NoChange,
    /** A new watcher has subscribed to changes. */
    NewWatcher
@@ -50,7 +50,8 @@ interface Watched {
 export type WatchMap = { [key: string]: Watched };
 
 /**
- * Sets are the primary watch target.
+ * Sets are the primary watch target. They reference contained photos and
+ * containing collections.
  */
 interface WatchedSet extends Watched {
    collections: string[];
@@ -59,7 +60,7 @@ interface WatchedSet extends Watched {
 
 /**
  * Whether a map of watched items has changed. It is considered changed if it
- * contain a different number of items or an item has a newer update time.
+ * contains a different number of items or an item has a newer update time.
  */
 export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
    const oldKeys = Object.keys(older);
@@ -73,6 +74,7 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
    oldKeys.forEach(key => {
       if (!is.defined(newer, key)) {
          changed = true;
+         // note this returns from loop method, not the main function
          return;
       }
       if (
@@ -141,6 +143,7 @@ export function mapSetCollections(
  * - last update time changes
  * - photo is added or removed
  * - photo update time changes
+ * - collection membership changes
  *
  * Flickr does not roll-up change times. An updated photo does not cause its
  * containing set to show as updated, nor does an updated set cause its
@@ -155,6 +158,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    pollInterval = defaultPollInterval;
    /** Whether there are any change subscribers. */
    active = false;
+   /** Sets being watched for changes. */
    watched: { [key: string]: WatchedSet };
 
    constructor(client: FlickrClient) {
@@ -165,7 +169,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    }
 
    /**
-    * Retrieve photo set watcher, initializing if needed.
+    * Retrieve watched set, initializing if needed.
     */
    private watchedSet(id: string): WatchedSet {
       if (!is.defined(this.watched, id)) {
@@ -212,8 +216,8 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       });
 
       if (compare) {
-         // find watched sets that were in a collection but are now in none, so
-         // aren't listed in the current collections list
+         // Find watched sets that were in a collection but are now in none, so
+         // aren't listed in the current collections list considered above.
          Object.keys(this.watched).forEach(id => {
             const watchedSet = this.watched[id];
             if (setIDs.indexOf(id) == -1 && watchedSet.collections.length > 0) {
@@ -258,7 +262,8 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    }
 
    /**
-    * Query for changes to photos, sets or collections.
+    * Query for changes to photos, sets or collections, ensuring caching is
+    * disabled.
     */
    private queryChange() {
       if (this.changeTimer) {
@@ -290,7 +295,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    }
 
    /**
-    * Emit change and reset accumulated IDs.
+    * Emit change and reset accumulated changes.
     */
    private emitChange() {
       if (this.changes.sets.length > 0 || this.changes.collections.length > 0) {
