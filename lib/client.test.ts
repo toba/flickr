@@ -1,5 +1,6 @@
 import { Time } from '@toba/tools';
-import { FlickrClient, ClientConfig } from './client';
+import { FlickrClient } from './client';
+import { ClientConfig } from './config';
 import { Flickr } from './types';
 
 jest.unmock('./api');
