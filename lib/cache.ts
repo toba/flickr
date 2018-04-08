@@ -13,9 +13,10 @@ export const cache = {
    },
 
    /**
-    * Return as `Promise` to simplify integration with `fetch` alternative.
+    * Cache value returned as `Promise` to simplify integration with `fetch`
+    * or other async fallbacks.
     */
-   async get<T>(method: string, id: string): Promise<T> {
+   get<T>(method: string, id: string): Promise<T> {
       return Promise.resolve(store.get(key(method, id)) as T);
    },
 

@@ -82,7 +82,7 @@ export class FlickrClient {
    }
 
    /**
-    * https://www.flickr.com/services/api/flickr.collections.getTree.html
+    * @see https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
    async getCollections(allowCache = true) {
       const collections = await this._api<Flickr.Collection[]>(
@@ -98,7 +98,7 @@ export class FlickrClient {
    }
 
    /**
-    * https://www.flickr.com/services/api/flickr.photosets.getInfo.html
+    * @see https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
    async getSetInfo(id: string, allowCache = true): Promise<Flickr.SetInfo> {
       const info = await this._api<Flickr.SetInfo>(
@@ -115,7 +115,7 @@ export class FlickrClient {
 
    /**
     * All photos in a set. Include last update time to enable change detection.
-    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
+    * @see https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
    async getSetPhotos(
       id: string,
@@ -153,7 +153,7 @@ export class FlickrClient {
    }
 
    /**
-    * https://www.flickr.com/services/api/flickr.photos.getInfo.html
+    * @see https://www.flickr.com/services/api/flickr.photos.getInfo.html
     */
    getPhotoInfo(id: string) {
       return this._api<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
@@ -163,7 +163,7 @@ export class FlickrClient {
    }
 
    /**
-    * https://www.flickr.com/services/api/flickr.photos.getSizes.html
+    * @see https://www.flickr.com/services/api/flickr.photos.getSizes.html
     */
    getPhotoSizes(id: string) {
       return this._api<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
@@ -173,7 +173,7 @@ export class FlickrClient {
 
    /**
     * All sets that a photo belongs to.
-    * https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
+    * @see https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
     */
    getPhotoContext(id: string) {
       return this._api<Flickr.MemberSet[]>(
@@ -186,7 +186,7 @@ export class FlickrClient {
    }
 
    /**
-    * https://www.flickr.com/services/api/flickr.photos.getExif.html
+    * @see https://www.flickr.com/services/api/flickr.photos.getExif.html
     */
    getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
@@ -199,7 +199,7 @@ export class FlickrClient {
     * The documentation says signing is not required but results differ even
     * with entirely public photos -- perhaps a Flickr bug
     *
-    * https://www.flickr.com/services/api/flickr.photos.search.html
+    * @see https://www.flickr.com/services/api/flickr.photos.search.html
     */
    photoSearch(tags: string | string[]) {
       return this._api<Flickr.PhotoSummary[]>(
@@ -220,7 +220,7 @@ export class FlickrClient {
 
    /**
     * All photo tags for API user.
-    * https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
+    * @see https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
    getAllPhotoTags() {
       return this._api<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {

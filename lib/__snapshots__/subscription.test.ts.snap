@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`creates map of collections per set 1`] = `
+exports[`Creates map of collections per set 1`] = `
 Object {
   "72157630749625094": Array [
     "60918612-72157630885400570",
@@ -1707,7 +1707,7 @@ Object {
 }
 `;
 
-exports[`polls for data changes 1`] = `
+exports[`Polls for data changes 1`] = `
 Object {
   "72157630749625094": Object {
     "collections": Array [

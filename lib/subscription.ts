@@ -41,8 +41,8 @@ type SetCollections = { [key: string]: string[] };
 interface Watched {
    /**
     * Last timestamp at which the item was updated. The value will be 0 if the
-    * item hasn't been directly retrieved through the API, such as a set
-    * identified as part of a collection but not itself loaded.
+    * item hasn't been directly retrieved through the API, such as a photo set
+    * summary retrieved as part of a collection but not itself loaded.
     */
    lastUpdate: number;
 }
@@ -50,8 +50,8 @@ interface Watched {
 export type WatchMap = { [key: string]: Watched };
 
 /**
- * Sets are the primary watch target. They reference contained photos and
- * containing collections.
+ * Sets are the primary watch target. They reference contained photos (children)
+ * and containing collections (parents).
  */
 interface WatchedSet extends Watched {
    collections: string[];
@@ -74,7 +74,7 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
    oldKeys.forEach(key => {
       if (!is.defined(newer, key)) {
          changed = true;
-         // note this returns from loop method, not the main function
+         // note this returns from the loop method, not the main function
          return;
       }
       if (

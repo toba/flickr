@@ -19,6 +19,7 @@ export namespace Flickr {
       Original = 'url_o'
    }
 
+   /** Types of Flickr entities. */
    export enum TypeName {
       User = 'user_id',
       Set = 'photoset_id',
@@ -31,9 +32,9 @@ export namespace Flickr {
    }
 
    export enum Format {
-      /** https://www.flickr.com/services/api/response.json.html */
+      /** @see https://www.flickr.com/services/api/response.json.html */
       JSON = 'json',
-      /** https://www.flickr.com/services/api/response.xmlrpc.html */
+      /** @see https://www.flickr.com/services/api/response.xmlrpc.html */
       XML = 'xml'
    }
 
@@ -56,7 +57,7 @@ export namespace Flickr {
    }
 
    /**
-    * http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
+    * @see http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
     */
    enum License {
       AllRightsReserved = 0,
@@ -70,7 +71,7 @@ export namespace Flickr {
       UnitedStatesGovernmentWork = 8
    }
    /**
-    * http://www.flickr.com/services/api/flickr.photos.setSafetyLevel.html
+    * @see http://www.flickr.com/services/api/flickr.photos.setSafetyLevel.html
     */
    enum SafetyLevel {
       Safe = 1,
@@ -80,7 +81,7 @@ export namespace Flickr {
 
    /**
     * Extra values to return from queries, e.g.
-    * https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
+    * @see https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
    export enum Extra {
       Description = 'description',
@@ -97,11 +98,11 @@ export namespace Flickr {
 
    /**
     * Parameters required or allowed with a Flickr API request.
-    * https://www.flickr.com/services/api/flickr.photos.search.html
+    * @see https://www.flickr.com/services/api/flickr.photos.search.html
     */
    export interface Params {
       [index: string]: string | number | boolean | string[];
-      /** https://www.flickr.com/services/api/misc.api_keys.html */
+      /** @see https://www.flickr.com/services/api/misc.api_keys.html */
       api_key?: string;
       format?: Format;
       nojsoncallback?: Boolean;

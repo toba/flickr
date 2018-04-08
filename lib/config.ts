@@ -9,25 +9,32 @@ export interface FeatureSet {
 export interface ClientConfig {
    userID: string;
    appID: string;
-   /** Whether to cache API resuts */
+   /**
+    * Not all Flickr date fields include the time zone. Set this value to
+    * convert those to a local time zone. The offset may not be the same as
+    * the standard UTC offset. It may instead be relative to wherever Flickr's
+    * servers are.
+    */
+   timeZoneOffset: number;
+   /** Whether to cache API resuts. */
    useCache?: boolean;
-   /** Maximum number of responses to cache */
+   /** Maximum number of responses to cache. */
    maxCacheSize?: number;
-   /** Optional set IDs to feature */
+   /** Optional set IDs to feature. */
    featureSets?: FeatureSet[];
-   /** Optional set IDs to exclude from results */
+   /** Optional set IDs to exclude from results. */
    excludeSets?: string[];
-   /** Optional tags to exclude from tag request */
+   /** Optional tags to exclude from tag request. */
    excludeTags?: string[];
-   /** Photo sizes to return from search request */
+   /** Photo sizes to return from search request. */
    searchPhotoSizes?: Flickr.SizeUrl[];
-   /** Photo sizes to return for photo set request */
+   /** Photo sizes to return for photo set request. */
    setPhotoSizes?: Flickr.SizeUrl[];
-   /** Number of times to retry failed requests */
+   /** Number of times to retry failed requests. */
    maxRetries?: number;
-   /** Milliseconds to wait before retrying failed request */
+   /** Milliseconds to wait before retrying failed request. */
    retryDelay?: number;
-   /** https://www.flickr.com/services/api/auth.oauth.html */
+   /** @see https://www.flickr.com/services/api/auth.oauth.html */
    auth: AuthConfig;
 }
 
@@ -35,6 +42,7 @@ export const defaultConfig: ClientConfig = {
    userID: null,
    appID: null,
    useCache: false,
+   timeZoneOffset: 0,
    maxCacheSize: 200,
    featureSets: [],
    excludeSets: [],

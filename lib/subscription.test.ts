@@ -1,3 +1,4 @@
+import '@toba/test';
 import { Time } from '@toba/tools';
 import { log } from '@toba/logger';
 import { FlickrClient } from '../';
@@ -32,7 +33,7 @@ afterAll(() => {
    log.update({ color: logWithColor });
 });
 
-test('rejects unreasonable poll interval', () => {
+test('Rejects unreasonable poll interval', () => {
    const warn = 'Poll interval of 1s is invalid; reverting to 5m.';
    const s = new ChangeSubscription(null);
    s.add(null, Time.Second);
@@ -42,7 +43,7 @@ test('rejects unreasonable poll interval', () => {
    );
 });
 
-test('creates map of collections per set', async () => {
+test('Creates map of collections per set', async () => {
    const collections = await client.getCollections();
    const sets = mapSetCollections(collections);
 
@@ -53,7 +54,7 @@ test('creates map of collections per set', async () => {
    expect(sets['72157658347054114']).toHaveLength(8);
 });
 
-test('emits events', () => {
+test('Emits events', () => {
    const sub = new ChangeSubscription(client);
    const watchMock = jest.fn();
    const changeMock = jest.fn();
@@ -65,7 +66,7 @@ test('emits events', () => {
    expect(changeMock).toHaveBeenCalledTimes(0);
 });
 
-test('identifies changes in watch maps', () => {
+test('Identifies changes in watch maps', () => {
    const original: WatchMap = {
       one: { lastUpdate: 15 },
       two: { lastUpdate: 20 }
@@ -93,7 +94,7 @@ test('identifies changes in watch maps', () => {
    expect(hasChanged(original, added)).toBe(true);
 });
 
-test('creates map of watched photos', async () => {
+test('Creates map of watched photos', async () => {
    const res = await client.getSetPhotos(featureSetID);
    const map = mapSetPhotos(res.photo);
 
@@ -101,7 +102,7 @@ test('creates map of watched photos', async () => {
    expect(map['8459503474'].lastUpdate).toBe(1451765167);
 });
 
-test('polls for data changes', async done => {
+test('Polls for data changes', async done => {
    jest.useFakeTimers();
    jest.setTimeout(Time.Minute * 1);
    const photoID = '8458410907';

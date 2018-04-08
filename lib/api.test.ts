@@ -1,3 +1,4 @@
+import '@toba/test';
 import { merge, is } from '@toba/tools';
 import { log } from '@toba/logger';
 import { Client as AuthClient, SigningMethod } from '@toba/oauth';
@@ -57,7 +58,7 @@ afterAll(() => {
    log.update({ color: logWithColor });
 });
 
-test('builds request parameters', () => {
+test('Builds request parameters', () => {
    const url = parameterize(
       Method.Collections,
       mockID,
@@ -72,7 +73,7 @@ test('builds request parameters', () => {
    );
 });
 
-test('curries basic HTTP get method', () => {
+test('Curries basic HTTP get method', () => {
    const getter = basicRequest(collectionsURL);
 
    expect(getter).toBeInstanceOf(Function);
@@ -83,7 +84,7 @@ test('curries basic HTTP get method', () => {
    });
 });
 
-test('curries signed HTTP get method', () => {
+test('Curries signed HTTP get method', () => {
    const getter = signedRequest(
       collectionsURL,
       mockRequest.auth,
@@ -98,7 +99,7 @@ test('curries signed HTTP get method', () => {
    });
 });
 
-test('parses response body', () => {
+test('Parses response body', () => {
    const notFound: Flickr.Response = {
       stat: Flickr.Status.Failed,
       message: 'thing not found'
@@ -120,7 +121,7 @@ test('parses response body', () => {
    });
 });
 
-test('converts response to objects', () =>
+test('Converts response to objects', () =>
    call(
       Method.Collections,
       { type: Flickr.TypeName.User, value: '' },

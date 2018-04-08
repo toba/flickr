@@ -7,21 +7,24 @@ import { Flickr } from './types';
 import { cache } from './cache';
 import fetch from 'node-fetch';
 
+/**
+ * Response to return when the API call has failed but can be retried.
+ */
 export const failResponse: Flickr.Response = {
    retry: true,
    stat: Flickr.Status.Failed
 };
 
 export interface Request<T> {
-   /** Method to select response from JSON result */
+   /** Method to select data from the complete Flickr response. */
    select(r: Flickr.Response): T;
    /** Whether to OAuth sign the request. */
    sign?: boolean;
-   /** Whether result can be cached (subject to global configuration) */
+   /** Whether result can be cached (subject to global configuration). */
    allowCache?: boolean;
    /** Error message to log if call fails. */
    error?: string;
-   /** OAuthClient to use if signing is required */
+   /** OAuthClient to use if signing is required. */
    auth?: AuthClient;
    params?: Flickr.Params;
 }
@@ -54,26 +57,26 @@ export async function call<T>(
    //req = merge(defaultRequest, req);
    req = Object.assign(defaultRequest, req);
    // curry parameterless fallback call to API
-   const remoteCall = () => callAPI<T>(method, id, req, config);
+   const curryCallAPI = (): Promise<T> => callAPI<T>(method, id, req, config);
 
    return req.allowCache && config.useCache
       ? cache
            .get<T>(method, id.value)
            // revert to calling API if cache item is invalid
-           .then(item => (is.value(item) ? item : remoteCall()))
+           .then(item => (is.value(item) ? item : curryCallAPI()))
            // revert to calling API if error reading cache
            .catch((err: Error) => {
               log.error(err, { method, id });
-              return remoteCall();
+              return curryCallAPI();
            })
-      : remoteCall();
+      : curryCallAPI();
 }
 
 /**
  * Invoke remote API when method result isn't cached locally. Optionally retry
  * the call if an error is received.
  *
- * See http://www.flickr.com/services/api/response.json.html
+ * @see http://www.flickr.com/services/api/response.json.html
  */
 export function callAPI<T>(
    method: string,
@@ -118,7 +121,7 @@ export function callAPI<T>(
 
 /**
  * Curry signed HTTP get request as string `Promise` that can be retried without
- * further parameters.
+ * re-supplying parameters.
  */
 export const signedRequest = (
    url: string,
@@ -137,7 +140,7 @@ export const signedRequest = (
 
 /**
  * Curry basic HTTP get request as string `Promise` that can be retried without
- * further parameters.
+ * re-supplying parameters.
  */
 export const basicRequest = (url: string) => async () => {
    const res = await fetch(url, { headers: { [Header.UserAgent]: 'node.js' } });
@@ -145,12 +148,13 @@ export const basicRequest = (url: string) => async () => {
 };
 
 /**
- * Parse Flickr response and handle different kinds of error conditions.
+ * Parse Flickr response and handle error conditions.
  */
 export function parse(body: string, key: string): Flickr.Response {
    let res: Flickr.Response = null;
 
    if (is.value(body)) {
+      // replace escaped single-quotes with regular single-quotes
       // tslint:disable-next-line:quotemark
       body = body.replace(/\\'/g, "'");
    }
