@@ -22,7 +22,7 @@ export const testConfig: ClientConfig = {
    ],
    timeZoneOffset: -1,
    featureSets: [{ id: '72157632729508554', title: 'Ruminations' }],
-   setPhotoSizes: [Flickr.SizeUrl.Large1024],
+   setPhotoSizes: [Flickr.SizeCode.Large1024],
    useCache: false,
    maxRetries: 1,
    auth: {

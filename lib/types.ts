@@ -4,7 +4,7 @@ export namespace Flickr {
       'true'
    }
 
-   export enum SizeUrl {
+   export enum SizeCode {
       Thumb = 'url_t',
       Square75 = 'url_sq',
       Square150 = 'url_q',
@@ -259,7 +259,37 @@ export namespace Flickr {
       total: number;
    }
 
-   export interface PhotoSummary extends Place, FarmLocation, Visibility {
+   export interface SizeInfo {
+      [SizeCode.Small240]?: string;
+      height_s?: string;
+      width_s?: string;
+
+      [SizeCode.Large1600]?: string;
+      height_h?: string;
+      width_h?: string;
+
+      [SizeCode.Large2048]?: string;
+      height_k?: string;
+      width_k?: string;
+
+      [SizeCode.Large1024]?: string;
+      height_l?: string;
+      width_l?: string;
+
+      [SizeCode.Medium500]?: string;
+      height_m?: string;
+      width_m?: string;
+
+      [SizeCode.Original]?: string;
+      height_o?: string;
+      width_o?: string;
+   }
+
+   export interface PhotoSummary
+      extends Place,
+         FarmLocation,
+         Visibility,
+         SizeInfo {
       title: string;
       isprimary: Boolean;
       tags?: string;
@@ -277,30 +307,6 @@ export namespace Flickr {
       pathalias?: string;
 
       exif: Exif[];
-
-      url_s?: string;
-      height_s?: string;
-      width_s?: string;
-
-      url_h?: string;
-      height_h?: string;
-      width_h?: string;
-
-      url_k?: string;
-      height_k?: string;
-      width_k?: string;
-
-      url_l?: string;
-      height_l?: string;
-      width_l?: string;
-
-      url_m?: string;
-      height_m?: string;
-      width_m?: string;
-
-      url_o?: string;
-      height_o?: string;
-      width_o?: string;
    }
 
    interface Place extends Content {

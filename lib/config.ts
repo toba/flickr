@@ -27,9 +27,9 @@ export interface ClientConfig {
    /** Optional tags to exclude from tag request. */
    excludeTags?: string[];
    /** Photo sizes to return from search request. */
-   searchPhotoSizes?: Flickr.SizeUrl[];
+   searchPhotoSizes?: Flickr.SizeCode[];
    /** Photo sizes to return for photo set request. */
-   setPhotoSizes?: Flickr.SizeUrl[];
+   setPhotoSizes?: Flickr.SizeCode[];
    /** Number of times to retry failed requests. */
    maxRetries?: number;
    /** Milliseconds to wait before retrying failed request. */
@@ -47,8 +47,8 @@ export const defaultConfig: ClientConfig = {
    featureSets: [],
    excludeSets: [],
    excludeTags: [],
-   searchPhotoSizes: [Flickr.SizeUrl.Large1024],
-   setPhotoSizes: [Flickr.SizeUrl.Large1024],
+   searchPhotoSizes: [Flickr.SizeCode.Large1024],
+   setPhotoSizes: [Flickr.SizeCode.Large1024],
    maxRetries: 3,
    retryDelay: 500,
    auth: null
