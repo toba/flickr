@@ -1,7 +1,7 @@
 {
    "name": "@toba/flickr",
    "description": "Toba Flickr API",
-   "version": "1.3.5",
+   "version": "1.3.6",
    "private": false,
    "publishConfig": {
       "access": "public"

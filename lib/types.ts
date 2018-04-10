@@ -260,6 +260,7 @@ export namespace Flickr {
    }
 
    export interface SizeInfo {
+      [key: string]: string;
       [SizeCode.Small240]?: string;
       height_s?: string;
       width_s?: string;
@@ -290,6 +291,8 @@ export namespace Flickr {
          FarmLocation,
          Visibility,
          SizeInfo {
+      // include index signature so size fields can be accessed by index
+      [key: string]: any;
       title: string;
       isprimary: Boolean;
       tags?: string;
