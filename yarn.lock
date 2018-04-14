@@ -155,22 +155,21 @@
   dependencies:
     oauth "^0.9.15"
 
-"@toba/test@^1.10.0":
-  version "1.12.2"
-  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.12.2.tgz#fe4df8c3147cb2b577230465d40d6b3bf3260d8f"
+"@toba/test@^1.12.5":
+  version "1.12.7"
+  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.12.7.tgz#a04ec44da5eb3f41dbabf0ba614bf549d6c31c71"
   dependencies:
     "@toba/logger" "^1.0.4"
-    "@toba/tools" "^1.19.0"
+    "@toba/tools" "^1.20.0"
     "@types/jest" "^22.2.0"
     "@types/node" "^9.6.0"
-    "@types/node-fetch" "^1.6.7"
     jest "^22.4.0"
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
-"@toba/tools@^1.18.0", "@toba/tools@^1.19.0":
-  version "1.19.3"
-  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.19.3.tgz#adda53def86c2093eb25a79a58c6d61f1417eabd"
+"@toba/tools@^1.18.0", "@toba/tools@^1.19.0", "@toba/tools@^1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.20.0.tgz#77f0c6b6c4443a42f5167ca1ce75426e3bbd7ad9"
   dependencies:
     zlib "^1.0.5"
 
@@ -189,8 +188,8 @@
     "@types/node" "*"
 
 "@types/node@*", "@types/node@^9.6.0":
-  version "9.6.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.4.tgz#0ef7b4cfc3499881c81e0ea1ce61a23f6f4f5b42"
+  version "9.6.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.5.tgz#ee700810fdf49ac1c399fc5980b7559b3e5a381d"
 
 abab@^1.0.4:
   version "1.0.4"
@@ -758,8 +757,8 @@ camelcase@^4.1.0:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-4.1.0.tgz#d545635be1e33c542649c69173e5de6acfae34dd"
 
 caniuse-lite@^1.0.30000817, caniuse-lite@^1.0.30000821:
-  version "1.0.30000827"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000827.tgz#2dad2354e4810c3c9bb1cfc57f655c270c25fa52"
+  version "1.0.30000828"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000828.tgz#048f98de213f7a3c047bf78a9523c611855d4fdd"
 
 caseless@~0.12.0:
   version "0.12.0"
@@ -3343,8 +3342,8 @@ preserve@^0.2.0:
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
 prettier@^1.11.0:
-  version "1.11.1"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.11.1.tgz#61e43fc4cd44e68f2b0dfc2c38cd4bb0fccdcc75"
+  version "1.12.0"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.12.0.tgz#d26fc5894b9230de97629b39cae225b503724ce8"
 
 pretty-format@^22.4.3:
   version "22.4.3"
@@ -3658,8 +3657,8 @@ resolve@1.1.7:
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.1.7.tgz#203114d82ad2c5ed9e8e0411b3932875e889e97b"
 
 resolve@^1.1.7, resolve@^1.3.2:
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.7.0.tgz#2bdf5374811207285df0df652b78f118ab8f3c5e"
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.7.1.tgz#aadd656374fd298aee895bc026b8297418677fd3"
   dependencies:
     path-parse "^1.0.5"
 

@@ -12,7 +12,7 @@ import {
    Request,
    Identity
 } from './api';
-import { testConfig } from './client.test';
+import { testConfig } from './test-data';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
 

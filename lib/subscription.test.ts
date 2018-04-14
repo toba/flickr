@@ -2,7 +2,7 @@ import '@toba/test';
 import { Time } from '@toba/tools';
 import { log } from '@toba/logger';
 import { FlickrClient } from '../';
-import { testConfig } from './client.test';
+import { testConfig } from './test-data';
 import {
    ChangeSubscription,
    EventType,
