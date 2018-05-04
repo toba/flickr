@@ -1,6 +1,6 @@
 import {
    EventEmitter,
-   Time,
+   Duration,
    is,
    addUnique,
    durationString,
@@ -9,7 +9,7 @@ import {
 import { log } from '@toba/logger';
 import { Flickr, FlickrClient } from '../';
 
-const defaultPollInterval = Time.Minute * 5;
+const defaultPollInterval = Duration.Minute * 5;
 
 /**
  * Set and collection IDs that have been added, removed or changed, emitted as
@@ -318,7 +318,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       fn: (change: Changes) => void,
       pollInterval: number = defaultPollInterval
    ) {
-      if (pollInterval < Time.Second * 20) {
+      if (pollInterval < Duration.Second * 20) {
          // disallow rapid polling
          log.warn(
             `Poll interval of ${durationString(

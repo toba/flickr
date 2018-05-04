@@ -1,5 +1,5 @@
 import '@toba/test';
-import { Time } from '@toba/tools';
+import { Duration } from '@toba/tools';
 import { log } from '@toba/logger';
 import { FlickrClient } from '../';
 import { testConfig } from './test-data';
@@ -36,7 +36,7 @@ afterAll(() => {
 test('Rejects unreasonable poll interval', () => {
    const warn = 'Poll interval of 1s is invalid; reverting to 5m.';
    const s = new ChangeSubscription(null);
-   s.add(null, Time.Second);
+   s.add(null, Duration.Second);
    expect(logMock).toHaveBeenCalledTimes(1);
    expect(logMock).toHaveBeenCalledWith(
       `[Warn] ${warn} level=3 message=\"${warn}\"`
@@ -104,7 +104,7 @@ test('Creates map of watched photos', async () => {
 
 test('Polls for data changes', async done => {
    jest.useFakeTimers();
-   jest.setTimeout(Time.Minute * 1);
+   jest.setTimeout(Duration.Minute * 1);
    const photoID = '8458410907';
    const collectionID = '60918612-72157663268880026';
    const sub = client.subscription;
@@ -179,7 +179,7 @@ test('Polls for data changes', async done => {
    expect(sub.active).toBe(false);
    expect(sub.changeTimer).not.toBeDefined();
 
-   sub.add(watcher, Time.Minute * 2);
+   sub.add(watcher, Duration.Minute * 2);
    sub.addEventListener(EventType.NoChange, () => {
       if (expectNoChange) {
          expectNoChange = false;

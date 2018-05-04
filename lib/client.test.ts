@@ -1,5 +1,5 @@
 import '@toba/test';
-import { Time } from '@toba/tools';
+import { Duration } from '@toba/tools';
 import { FlickrClient } from './client';
 import { Flickr } from './types';
 import { testConfig } from './test-data';
@@ -80,7 +80,7 @@ test('Searches for photos', async () => {
 });
 
 test('Supports simultaneous requests', () => {
-   jest.setTimeout(Time.Second * 30);
+   jest.setTimeout(Duration.Second * 30);
    return Promise.all([
       client.getSetInfo(featurePhotoID),
       client.getSetPhotos(featureSetID),
