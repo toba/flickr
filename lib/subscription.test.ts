@@ -2,7 +2,7 @@ import '@toba/test';
 import { Duration } from '@toba/tools';
 import { log } from '@toba/logger';
 import { FlickrClient } from '../';
-import { testConfig } from './test-data';
+import { testConfig, setID } from './.test-data';
 import {
    ChangeSubscription,
    EventType,
@@ -17,7 +17,6 @@ let client: FlickrClient;
 let logWithColor: boolean;
 
 const logMock = jest.fn();
-const featureSetID = testConfig.featureSets[0].id;
 
 beforeAll(() => {
    console.log = logMock;
@@ -95,7 +94,7 @@ test('Identifies changes in watch maps', () => {
 });
 
 test('Creates map of watched photos', async () => {
-   const res = await client.getSetPhotos(featureSetID);
+   const res = await client.getSetPhotos(setID);
    const map = mapSetPhotos(res.photo);
 
    expect(map).toHaveProperty('8459503474');
@@ -123,7 +122,7 @@ test('Polls for data changes', async done => {
          watchedSet.collections.push(collectionID);
          expectedChange = {
             collections: [collectionID],
-            sets: [featureSetID]
+            sets: [setID]
          };
       },
       () => {
@@ -131,7 +130,7 @@ test('Polls for data changes', async done => {
          watchedSet.lastUpdate -= 10;
          expectedChange = {
             collections: [collectionID],
-            sets: [featureSetID]
+            sets: [setID]
          };
       },
       () => {
@@ -143,7 +142,7 @@ test('Polls for data changes', async done => {
          watchedSet.collections = [];
          expectedChange = {
             collections: [collectionID],
-            sets: [featureSetID]
+            sets: [setID]
          };
       },
       () => {
@@ -151,7 +150,7 @@ test('Polls for data changes', async done => {
          delete watchedSet.photos[photoID];
          expectedChange = {
             collections: [],
-            sets: [featureSetID]
+            sets: [setID]
          };
       }
    ];
@@ -193,14 +192,14 @@ test('Polls for data changes', async done => {
    expect(sub.changeTimer).toBeDefined();
 
    await client.getCollections();
-   await client.getSetInfo(featureSetID);
-   await client.getSetPhotos(featureSetID);
+   await client.getSetInfo(setID);
+   await client.getSetPhotos(setID);
 
    expect(sub.changes).toEqual(noChange);
    expect(sub.watched).toMatchSnapshot();
-   expect(sub.watched).toHaveProperty(featureSetID);
+   expect(sub.watched).toHaveProperty(setID);
 
-   const watchedSet = sub.watched[featureSetID];
+   const watchedSet = sub.watched[setID];
 
    expect(Object.keys(watchedSet.photos)).toHaveLength(13);
    expect(watchedSet.photos).toHaveProperty(photoID);

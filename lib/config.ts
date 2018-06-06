@@ -1,11 +1,6 @@
 import { Flickr } from './types';
 import { Config as AuthConfig } from '@toba/oauth';
 
-export interface FeatureSet {
-   id: string;
-   title: string;
-}
-
 export interface ClientConfig {
    userID: string;
    appID: string;
@@ -20,8 +15,6 @@ export interface ClientConfig {
    useCache?: boolean;
    /** Maximum number of responses to cache. */
    maxCacheSize?: number;
-   /** Optional set IDs to feature. */
-   featureSets?: FeatureSet[];
    /** Optional set IDs to exclude from results. */
    excludeSets?: string[];
    /** Optional tags to exclude from tag request. */
@@ -44,7 +37,6 @@ export const defaultConfig: ClientConfig = {
    useCache: false,
    timeZoneOffset: 0,
    maxCacheSize: 200,
-   featureSets: [],
    excludeSets: [],
    excludeTags: [],
    searchPhotoSizes: [Flickr.SizeCode.Large1024],

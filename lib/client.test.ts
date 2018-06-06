@@ -2,15 +2,12 @@ import '@toba/test';
 import { Duration } from '@toba/tools';
 import { FlickrClient } from './client';
 import { Flickr } from './types';
-import { testConfig } from './test-data';
+import { testConfig, photoID, setID } from './.test-data';
 
 jest.unmock('./api');
 jest.unmock('./client');
 
 let client: FlickrClient;
-
-const featureSetID = testConfig.featureSets[0].id;
-const featurePhotoID = '8459503474';
 
 beforeAll(() => {
    console.debug = jest.fn();
@@ -28,13 +25,13 @@ test('Catches non-existent set request', () =>
    }));
 
 test('Retrieves set information', async () => {
-   const setInfo = await client.getSetInfo(featureSetID);
-   expect(setInfo.id).toBe(testConfig.featureSets[0].id);
+   const setInfo = await client.getSetInfo(setID);
+   expect(setInfo.id).toBe(setID);
 });
 
 test('Retrieves set photos', async () => {
-   const res: Flickr.SetPhotos = await client.getSetPhotos(featureSetID);
-   expect(res).toHaveProperty('id', testConfig.featureSets[0].id);
+   const res: Flickr.SetPhotos = await client.getSetPhotos(setID);
+   expect(res).toHaveProperty('id', setID);
    expect(res.photo).toBeInstanceOf(Array);
    testConfig.setPhotoSizes.forEach(s => {
       // should retrieve all size URLs needed to display post
@@ -43,19 +40,19 @@ test('Retrieves set photos', async () => {
 });
 
 test('Retrieves photo info', async () => {
-   const info: Flickr.PhotoInfo = await client.getPhotoInfo(featurePhotoID);
+   const info: Flickr.PhotoInfo = await client.getPhotoInfo(photoID);
    expect(info).toBeDefined();
    expect(info.dates.taken).toBe('2017-10-15 16:00:12');
    expect(info.location.accuracy).toBe(16);
 });
 
 test('Retrieves photo EXIF', async () => {
-   const exif: Flickr.Exif[] = await client.getExif(featurePhotoID);
+   const exif: Flickr.Exif[] = await client.getExif(photoID);
    expect(exif).toBeInstanceOf(Array);
 });
 
 test('Retrieves photo sizes', async () => {
-   const sizes: Flickr.Size[] = await client.getPhotoSizes(featurePhotoID);
+   const sizes: Flickr.Size[] = await client.getPhotoSizes(photoID);
    expect(sizes).toBeInstanceOf(Array);
    expect(sizes[0]).toHaveProperty('url');
 });
@@ -67,10 +64,10 @@ test('Retrieves all photo tags', async () => {
 
 test('Retrieves photo context', async () => {
    const context: Flickr.MemberSet[] = await client.getPhotoContext(
-      featurePhotoID
+      photoID
    );
    expect(context).toBeInstanceOf(Array);
-   expect(context[0]).toHaveProperty('id', featureSetID);
+   expect(context[0]).toHaveProperty('id', setID);
 });
 
 test('Searches for photos', async () => {
@@ -82,8 +79,8 @@ test('Searches for photos', async () => {
 test('Supports simultaneous requests', () => {
    jest.setTimeout(Duration.Second * 30);
    return Promise.all([
-      client.getSetInfo(featurePhotoID),
-      client.getSetPhotos(featureSetID),
+      client.getSetInfo(photoID),
+      client.getSetPhotos(setID),
       client.getCollections()
    ]).then(([info, photos, collections]) => {
       expect(info).toBeDefined();
