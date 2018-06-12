@@ -82,9 +82,27 @@
     jest-localstorage-mock "^2.2.0"
     ts-jest "^22.4.0"
 
+<<<<<<< HEAD
 "@toba/tools@^3.0.0", "@toba/tools@^3.1.0", "@toba/tools@^3.2.0":
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-3.2.2.tgz#d2d6d143f13d24c2569e56aef14f7444e35063e7"
+=======
+"@toba/tools@^1.19.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-1.20.0.tgz#77f0c6b6c4443a42f5167ca1ce75426e3bbd7ad9"
+  dependencies:
+    zlib "^1.0.5"
+
+"@toba/tools@^2.2.0":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-2.3.2.tgz#7e32af24e125f310f45619bf0397b323b9be66c6"
+  dependencies:
+    zlib "^1.0.5"
+
+"@toba/tools@^3.1.0":
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-3.1.1.tgz#cb1328878eefe9b7a8ac1eacbe80358cce7684c2"
+>>>>>>> aae4a6ccbf1278f709088f2d039ce9d7959e2fb8
   dependencies:
     zlib "^1.0.5"
 
@@ -96,9 +114,15 @@
   version "23.0.2"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-23.0.2.tgz#f03f9e6dd2206cc2a2e8fd033161b0b7cf905db6"
 
+<<<<<<< HEAD
 "@types/node-fetch@^1.6.7":
   version "1.6.9"
   resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-1.6.9.tgz#a750fb0f4cf2960bf72b462e4c86908022dd69c5"
+=======
+"@types/node-fetch@^2.1.0":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@types/node-fetch/-/node-fetch-2.1.1.tgz#1e8d0abf4c438828ce9c74b45d564a8a93e48cec"
+>>>>>>> aae4a6ccbf1278f709088f2d039ce9d7959e2fb8
   dependencies:
     "@types/node" "*"
 
@@ -3359,9 +3383,15 @@ preserve@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/preserve/-/preserve-0.2.0.tgz#815ed1f6ebc65926f865b310c0713bcb3315ce4b"
 
+<<<<<<< HEAD
 prettier@^1.12.0:
   version "1.13.5"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.13.5.tgz#7ae2076998c8edce79d63834e9b7b09fead6bfd0"
+=======
+prettier@^1.13.0:
+  version "1.13.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.13.4.tgz#31bbae6990f13b1093187c731766a14036fa72e6"
+>>>>>>> aae4a6ccbf1278f709088f2d039ce9d7959e2fb8
 
 pretty-format@^22.4.0, pretty-format@^22.4.3:
   version "22.4.3"
@@ -4279,7 +4309,11 @@ type-check@~0.3.2:
   dependencies:
     prelude-ls "~1.1.2"
 
+<<<<<<< HEAD
 typescript@^2.8.0:
+=======
+typescript@^2.9.0:
+>>>>>>> aae4a6ccbf1278f709088f2d039ce9d7959e2fb8
   version "2.9.1"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.1.tgz#fdb19d2c67a15d11995fd15640e373e09ab09961"
 

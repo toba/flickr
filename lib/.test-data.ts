@@ -1,6 +1,8 @@
 import { ClientConfig } from './config';
 import { Flickr } from './types';
 
+export const setID = '72157632729508554';
+export const photoID = '8459503474';
 export const testConfig: ClientConfig = {
    appID: '72157631007435048',
    userID: '60950751@N04',
@@ -13,7 +15,6 @@ export const testConfig: ClientConfig = {
       'Boise'
    ],
    timeZoneOffset: -1,
-   featureSets: [{ id: '72157632729508554', title: 'Ruminations' }],
    setPhotoSizes: [Flickr.SizeCode.Large1024],
    useCache: false,
    maxRetries: 1,
