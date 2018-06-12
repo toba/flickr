@@ -7,7 +7,7 @@ import {
    listDifference
 } from '@toba/tools';
 import { log } from '@toba/logger';
-import { Flickr, FlickrClient } from '../';
+import { Flickr, FlickrClient } from './';
 
 const defaultPollInterval = Duration.Minute * 5;
 

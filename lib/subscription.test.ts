@@ -1,7 +1,7 @@
 import '@toba/test';
 import { Duration } from '@toba/tools';
 import { log } from '@toba/logger';
-import { FlickrClient } from '../';
+import { FlickrClient } from './';
 import { testConfig, setID } from './.test-data';
 import {
    ChangeSubscription,

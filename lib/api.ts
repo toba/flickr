@@ -129,13 +129,18 @@ export const signedRequest = (
    token: Token
 ) => () =>
    new Promise<string>((resolve, reject) => {
-      authClient.get(url, token.access, token.secret, (err, body) => {
-         if (err) {
-            reject(err);
-         } else {
-            resolve(body);
+      authClient.get(
+         url,
+         token.access,
+         token.secret,
+         (err: Error, body: string) => {
+            if (err) {
+               reject(err);
+            } else {
+               resolve(body);
+            }
          }
-      });
+      );
    });
 
 /**
