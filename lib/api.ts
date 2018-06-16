@@ -194,7 +194,7 @@ export function parse(body: string, key: string): Flickr.Response {
 /**
  * Setup standard parameters for Flickr API call.
  *
- * https://www.flickr.com/services/api/request.rest.html
+ * @see https://www.flickr.com/services/api/request.rest.html
  */
 export function parameterize<T>(
    method: string,
