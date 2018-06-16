@@ -1,7 +1,7 @@
 {
    "name": "@toba/flickr",
    "description": "Toba Flickr API",
-   "version": "1.4.2",
+   "version": "1.5.0",
    "private": false,
    "publishConfig": {
       "access": "public"
@@ -20,8 +20,8 @@
       "test": "jest --coverage"
    },
    "devDependencies": {
-      "@toba/build": "^1.5.0",
-      "@toba/test": "^1.13.0",
+      "@toba/build": "^1.7.0",
+      "@toba/test": "^1.17.0",
       "@types/flat": "^0.0.28",
       "@types/node-fetch": "^2.1.0",
       "prettier": "^1.13.0",
@@ -41,7 +41,7 @@
    "dependencies": {
       "@toba/logger": "^1.0.0",
       "@toba/oauth": "^1.2.0",
-      "@toba/tools": "^3.1.0",
+      "@toba/tools": "^3.2.0",
       "node-fetch": "^2.1.0"
    }
 }

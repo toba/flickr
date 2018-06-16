@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
-import { useFetch } from '@toba/test';
+import { oAuthGetWithFetch } from '@toba/test';
 
-useFetch(fetch);
+oAuthGetWithFetch(fetch);
 
 export { MockAuth as OAuth } from '@toba/test';

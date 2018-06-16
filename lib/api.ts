@@ -133,7 +133,7 @@ export const signedRequest = (
          url,
          token.access,
          token.secret,
-         (err: Error, body: string) => {
+         (err: { statusCode: number; data: any }, body: string) => {
             if (err) {
                reject(err);
             } else {
