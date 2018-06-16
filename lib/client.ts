@@ -1,4 +1,4 @@
-import { Client as AuthClient, SigningMethod, Token } from '@toba/oauth';
+import { AuthClient, SigningMethod, Token } from '@toba/oauth';
 import { is, merge } from '@toba/tools';
 import { Flickr } from './types';
 import { ClientConfig, defaultConfig } from './config';

@@ -1,5 +1,5 @@
 import { is, retry, Header } from '@toba/tools';
-import { Client as AuthClient, Token } from '@toba/oauth';
+import { AuthClient, Token } from '@toba/oauth';
 import { log } from '@toba/logger';
 import { ClientConfig } from './config';
 import { Url, Method } from './constants';

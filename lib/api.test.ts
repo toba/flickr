@@ -1,7 +1,7 @@
 import '@toba/test';
 import { merge, is } from '@toba/tools';
 import { log } from '@toba/logger';
-import { Client as AuthClient, SigningMethod } from '@toba/oauth';
+import { AuthClient, SigningMethod } from '@toba/oauth';
 import {
    call,
    parse,
