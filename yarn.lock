@@ -71,9 +71,9 @@
     "@types/oauth" "^0.9.0"
     oauth "^0.9.15"
 
-"@toba/test@^1.17.0":
-  version "1.18.0"
-  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.18.0.tgz#4225a000b52d79bf18a98be5ed65a890f9edd607"
+"@toba/test@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.19.0.tgz#65e62810bf784000a54684cda52879442d360e4e"
   dependencies:
     "@toba/logger" "^1.0.4"
     "@toba/tools" "^3.2.0"
@@ -86,6 +86,12 @@
 "@toba/tools@^3.0.0", "@toba/tools@^3.2.0":
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-3.2.5.tgz#a6a73118b84d909c85b65738ce38e24fb9c7721b"
+  dependencies:
+    zlib "^1.0.5"
+
+"@toba/tools@^3.3.0":
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-3.3.0.tgz#d47b814224c0e98dadda073746178b25cbbc01a9"
   dependencies:
     zlib "^1.0.5"
 

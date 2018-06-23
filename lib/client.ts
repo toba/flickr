@@ -134,7 +134,7 @@ export class FlickrClient {
                  Flickr.Extra.PathAlias
               ].join() +
               ',' +
-              this.config.searchPhotoSizes.join();
+              this.config.setPhotoSizes.join();
 
       const photos = await this._api<Flickr.SetPhotos>(
          Method.Set.Photos,
