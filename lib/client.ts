@@ -190,7 +190,8 @@ export class FlickrClient {
     */
    getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
-         select: r => r.photo.EXIF,
+         select: r =>
+            is.defined(r.photo, 'exif') ? r.photo.exif : r.photo.EXIF,
          allowCache: true
       });
    }
