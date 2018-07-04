@@ -1,7 +1,7 @@
 {
    "name": "@toba/flickr",
    "description": "Toba Flickr API",
-   "version": "1.5.3",
+   "version": "1.5.4",
    "private": false,
    "publishConfig": {
       "access": "public"
@@ -21,8 +21,7 @@
    },
    "devDependencies": {
       "@toba/build": "^1.7.0",
-      "@toba/test": "^1.19.0",
-      "@types/flat": "^0.0.28",
+      "@toba/test": "^1.20.0",
       "@types/node-fetch": "^2.1.0",
       "prettier": "^1.13.0",
       "typescript": "^2.9.0"
@@ -39,9 +38,9 @@
       "url": "https://github.com/toba/flickr/issues"
    },
    "dependencies": {
-      "@toba/logger": "^1.0.0",
+      "@toba/logger": "^1.1.0",
       "@toba/oauth": "^1.2.0",
-      "@toba/tools": "^3.3.0",
+      "@toba/tools": "^3.11.0",
       "node-fetch": "^2.1.0"
    }
 }
