@@ -116,7 +116,12 @@ export function callAPI<T>(
       }
    };
 
-   return retry(requestAndVerify, config.maxRetries, config.retryDelay);
+   return retry(
+      requestAndVerify,
+      config.maxRetries,
+      config.retryDelay,
+      `Parsing ${url} response`
+   );
 }
 
 /**

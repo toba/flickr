@@ -30,7 +30,7 @@
       "@types/flat": "^0.0.28",
       "@types/node-fetch": "^2.1.0",
       "prettier": "^1.13.0",
-      "typescript": "^2.9.0"
+      "typescript": "^3.0.0"
    },
    "prettier": {
       "singleQuote": true,
