@@ -1,4 +1,4 @@
-import { is, retry, Header } from '@toba/tools';
+import { is, retry, Header, merge } from '@toba/tools';
 import { AuthClient, Token } from '@toba/oauth';
 import { log } from '@toba/logger';
 import { ClientConfig } from './config';
@@ -29,7 +29,7 @@ export interface Request<T> {
    params?: Flickr.Params;
 }
 
-export const defaultRequest: Request<Flickr.Response> = {
+export const defaultRequest: Request<any> = {
    select: r => r,
    error: null,
    sign: false,
@@ -54,8 +54,7 @@ export async function call<T>(
    req: Request<T>,
    config: ClientConfig
 ): Promise<T> {
-   //req = merge(defaultRequest, req);
-   req = Object.assign(defaultRequest, req);
+   req = merge(defaultRequest, req);
    // curry parameterless fallback call to API
    const curryCallAPI = (): Promise<T> => callAPI<T>(method, id, req, config);
 
