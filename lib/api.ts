@@ -67,7 +67,7 @@ export async function call<T>(
            // revert to calling API if error reading cache
            .catch((err: Error) => {
               log.error(err, { method, id });
-              return curryCallAPI();
+              return null;
            })
       : curryCallAPI();
 }
