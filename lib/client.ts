@@ -1,4 +1,4 @@
-import { Client as AuthClient, SigningMethod } from '@toba/oauth';
+import { AuthClient, SigningMethod, Token } from '@toba/oauth';
 import { is, merge } from '@toba/tools';
 import { Flickr } from './types';
 import { ClientConfig, defaultConfig } from './config';
@@ -134,7 +134,7 @@ export class FlickrClient {
                  Flickr.Extra.PathAlias
               ].join() +
               ',' +
-              this.config.searchPhotoSizes.join();
+              this.config.setPhotoSizes.join();
 
       const photos = await this._api<Flickr.SetPhotos>(
          Method.Set.Photos,
@@ -190,7 +190,8 @@ export class FlickrClient {
     */
    getExif(id: string) {
       return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
-         select: r => r.photo.EXIF,
+         select: r =>
+            is.defined(r.photo, 'exif') ? r.photo.exif : r.photo.EXIF,
          allowCache: true
       });
    }
@@ -227,6 +228,47 @@ export class FlickrClient {
          select: r => r.who.tags.tag,
          sign: true,
          allowCache: true
+      });
+   }
+
+   getRequestToken(): Promise<string> {
+      const token = this.config.auth.token;
+      return new Promise<string>((resolve, reject) => {
+         this.oauth.getOAuthRequestToken((error, requestToken, secret) => {
+            if (is.value(error)) {
+               reject(error);
+            } else {
+               // token and secret are both needed for the next call but token is
+               // echoed back from the authorize service
+               token.request = requestToken;
+               token.secret = secret;
+
+               resolve(`${Url.Authorize}?oauth_token=${requestToken}`);
+            }
+         });
+      });
+   }
+
+   getAccessToken(requestToken: string, verifier: string): Promise<Token> {
+      const token = this.config.auth.token;
+      return new Promise((resolve, reject) => {
+         this.oauth.getOAuthAccessToken(
+            requestToken,
+            token.secret,
+            verifier,
+            (error, accessToken, secret) => {
+               token.secret = null;
+               if (is.value(error)) {
+                  reject(error);
+               } else {
+                  resolve({
+                     access: accessToken,
+                     secret: secret,
+                     accessExpiration: null
+                  } as Token);
+               }
+            }
+         );
       });
    }
 }

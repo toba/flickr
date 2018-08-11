@@ -1,5 +1,5 @@
 import { is, retry, Header } from '@toba/tools';
-import { Client as AuthClient, Token } from '@toba/oauth';
+import { AuthClient, Token } from '@toba/oauth';
 import { log } from '@toba/logger';
 import { ClientConfig } from './config';
 import { Url, Method } from './constants';
@@ -134,13 +134,18 @@ export const signedRequest = (
    token: Token
 ) => () =>
    new Promise<string>((resolve, reject) => {
-      authClient.get(url, token.access, token.secret, (err, body) => {
-         if (err) {
-            reject(err);
-         } else {
-            resolve(body);
+      authClient.get(
+         url,
+         token.access,
+         token.secret,
+         (err: { statusCode: number; data: any }, body: string) => {
+            if (err) {
+               reject(err);
+            } else {
+               resolve(body);
+            }
          }
-      });
+      );
    });
 
 /**
@@ -194,7 +199,7 @@ export function parse(body: string, key: string): Flickr.Response {
 /**
  * Setup standard parameters for Flickr API call.
  *
- * https://www.flickr.com/services/api/request.rest.html
+ * @see https://www.flickr.com/services/api/request.rest.html
  */
 export function parameterize<T>(
    method: string,

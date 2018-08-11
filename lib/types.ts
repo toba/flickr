@@ -223,7 +223,9 @@ export namespace Flickr {
       usage: Usage;
       comments: Content;
       notes: any;
+      /** Flickr changed their API from uppercase to lower for EXIF */
       EXIF: Exif[];
+      exif: Exif[];
       tags: {
          tag: TagSummary[];
       };

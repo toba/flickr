@@ -1,5 +1,5 @@
 import { Flickr } from './types';
-import { Config as AuthConfig } from '@toba/oauth';
+import { AuthConfig } from '@toba/oauth';
 
 export interface ClientConfig {
    userID: string;

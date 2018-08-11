@@ -1,7 +1,7 @@
 import '@toba/test';
 import { Duration } from '@toba/tools';
 import { log } from '@toba/logger';
-import { FlickrClient } from '../';
+import { FlickrClient } from './';
 import { testConfig, setID } from './.test-data';
 import {
    ChangeSubscription,
@@ -32,7 +32,7 @@ afterAll(() => {
    log.update({ color: logWithColor });
 });
 
-test('Rejects unreasonable poll interval', () => {
+test('rejects unreasonable poll interval', () => {
    const warn = 'Poll interval of 1s is invalid; reverting to 5m.';
    const s = new ChangeSubscription(null);
    s.add(null, Duration.Second);
@@ -42,7 +42,7 @@ test('Rejects unreasonable poll interval', () => {
    );
 });
 
-test('Creates map of collections per set', async () => {
+test('creates map of collections per set', async () => {
    const collections = await client.getCollections();
    const sets = mapSetCollections(collections);
 
@@ -53,7 +53,7 @@ test('Creates map of collections per set', async () => {
    expect(sets['72157658347054114']).toHaveLength(8);
 });
 
-test('Emits events', () => {
+test('emits events', () => {
    const sub = new ChangeSubscription(client);
    const watchMock = jest.fn();
    const changeMock = jest.fn();
@@ -65,7 +65,7 @@ test('Emits events', () => {
    expect(changeMock).toHaveBeenCalledTimes(0);
 });
 
-test('Identifies changes in watch maps', () => {
+test('identifies changes in watch maps', () => {
    const original: WatchMap = {
       one: { lastUpdate: 15 },
       two: { lastUpdate: 20 }
@@ -93,7 +93,7 @@ test('Identifies changes in watch maps', () => {
    expect(hasChanged(original, added)).toBe(true);
 });
 
-test('Creates map of watched photos', async () => {
+test('creates map of watched photos', async () => {
    const res = await client.getSetPhotos(setID);
    const map = mapSetPhotos(res.photo);
 
@@ -101,7 +101,7 @@ test('Creates map of watched photos', async () => {
    expect(map['8459503474'].lastUpdate).toBe(1451765167);
 });
 
-test('Polls for data changes', async done => {
+test('polls for data changes', async done => {
    jest.useFakeTimers();
    jest.setTimeout(Duration.Minute * 1);
    const photoID = '8458410907';
