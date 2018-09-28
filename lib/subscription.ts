@@ -151,7 +151,7 @@ export function mapSetCollections(
  */
 export class ChangeSubscription extends EventEmitter<EventType, any> {
    client: FlickrClient;
-   changeTimer: number;
+   changeTimer: NodeJS.Timer;
    /** Changes accumulated but not yet emitted. */
    changes: Changes;
    /** Frequency at which to query for changes. */
