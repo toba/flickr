@@ -203,7 +203,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          if (compare) {
             const diff = listDifference(sets[id], watchedSet.collections);
 
-            if (diff.length > 0) {
+            if (diff !== null && diff.length > 0) {
                // track changes and update watch list
                addUnique(collectionDiff, ...diff);
                if (watchedSet.lastUpdate > 0) {

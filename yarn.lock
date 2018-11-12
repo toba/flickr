@@ -135,9 +135,10 @@
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.2.tgz#54c5a964462be3d4d78af631363c18d6fa91ac26"
 
-"@toba/build@^1.7.0":
-  version "1.7.4"
-  resolved "https://registry.yarnpkg.com/@toba/build/-/build-1.7.4.tgz#6456a9005c747470c6ab2d054c8315b6655710ce"
+"@toba/build@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@toba/build/-/build-2.0.0.tgz#c41a207ed929f30e907bf3918018628905abc8ee"
+  integrity sha512-z+CModjzw3cr/QYlYbbNkPIEGy2jYZBcfIlUvwmV11LBCr49bSPVAHctuaMGbF10hqahtZBoUi6obemY/VBU0A==
   dependencies:
     stylelint "^9.6.0"
     stylelint-config-standard "^18.2.0"
@@ -146,11 +147,12 @@
     tslint-config-prettier "^1.13.0"
     tslint-consistent-codestyle "^1.13.0"
 
-"@toba/logger@^1.1.0":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@toba/logger/-/logger-1.1.1.tgz#5616f17963b1ecc25fc9bbfcdfcdf214831b97b8"
+"@toba/logger@^2.0.0", "@toba/logger@^2.0.4":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@toba/logger/-/logger-2.0.5.tgz#8e196e1e92710873b7b77ed4bb5a53e82764a9ee"
+  integrity sha512-28hO9lS4336R/ryXBmFfRQ+jACSgaRsRov6Sk6fdymuGNzRnvHjYNpW+PfPsPP9IDqM3E8VchaT0hO62j1gLqQ==
   dependencies:
-    "@toba/tools" "^3.8.0"
+    "@toba/tools" "^4.0.0"
 
 "@toba/oauth@^1.2.0":
   version "1.2.8"
@@ -159,20 +161,22 @@
     "@types/oauth" "^0.9.0"
     oauth "^0.9.15"
 
-"@toba/test@^1.20.0":
-  version "1.21.0"
-  resolved "https://registry.yarnpkg.com/@toba/test/-/test-1.21.0.tgz#a190bae3281013d3113e76b3f87942779e364c44"
+"@toba/test@^2.0.0":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@toba/test/-/test-2.0.3.tgz#0099b4da5b6d0af4806a4b0666e3c9c3d151acfa"
+  integrity sha512-0Ad3+2NeKnzOtcC+Ef9vTLIpkQqdt0wnFAAhvEkFYrqkiWHQdxdO51o/hgliZ3SVhKGzxaiOMN5MYWZPESNs0w==
   dependencies:
-    "@toba/logger" "^1.1.0"
-    "@toba/tools" "^3.12.0"
+    "@toba/logger" "^2.0.4"
+    "@toba/tools" "^4.0.0"
     "@types/jest" "^23.3.0"
     "@types/node" "^10.5.0"
     jest "^23.5.0"
-    ts-jest "^23.1.0"
+    ts-jest "^23.10.4"
 
-"@toba/tools@^3.11.0", "@toba/tools@^3.12.0", "@toba/tools@^3.8.0":
-  version "3.15.2"
-  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-3.15.2.tgz#87bed1ca8eb64ff361ca64b024feae6336379433"
+"@toba/tools@^4.0.0":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@toba/tools/-/tools-4.0.3.tgz#8c121f88174b205f6c6448330e00c4dc6a33fc6d"
+  integrity sha512-3xRr6mqoKJ2xNzXoyv76pmhQKtkqTrplaByFuMsPStd9JYvCQa1oqpHXd86gmz+Le6vQRsAwCZUyOA/wnw0lcA==
 
 "@types/jest@^23.3.0":
   version "23.3.2"
@@ -3547,9 +3551,14 @@ sax@^1.2.4:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
 
-"semver@2 || 3 || 4 || 5", semver@5.x, semver@^5.3.0, semver@^5.4.1, semver@^5.5.0:
+"semver@2 || 3 || 4 || 5", semver@^5.3.0, semver@^5.4.1, semver@^5.5.0:
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.5.1.tgz#7dfdd8814bdb7cabc7be0fb1d734cfb66c940477"
+
+semver@^5.5:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
+  integrity sha512-RS9R6R35NYgQn++fkDWaOmqGoj4Ek9gGs+DPxNUZKuwE183xjJroKvyo1IzVFeXvUrvmALy6FWD5xrdJT25gMg==
 
 set-blocking@^2.0.0, set-blocking@~2.0.0:
   version "2.0.0"
@@ -4015,9 +4024,10 @@ trough@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/trough/-/trough-1.0.3.tgz#e29bd1614c6458d44869fc28b255ab7857ef7c24"
 
-ts-jest@^23.1.0:
-  version "23.10.2"
-  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-23.10.2.tgz#10212ec4aba3cb6c75578b09460589ee80cf527a"
+ts-jest@^23.10.4:
+  version "23.10.4"
+  resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-23.10.4.tgz#a7a953f55c9165bcaa90ff91014a178e87fe0df8"
+  integrity sha512-oV/wBwGUS7olSk/9yWMiSIJWbz5xO4zhftnY3gwv6s4SMg6WHF1m8XZNBvQOKQRiTAexZ9754Z13dxBq3Zgssw==
   dependencies:
     bs-logger "0.x"
     buffer-from "1.x"
@@ -4025,7 +4035,7 @@ ts-jest@^23.1.0:
     json5 "2.x"
     make-error "1.x"
     mkdirp "0.x"
-    semver "5.x"
+    semver "^5.5"
     yargs-parser "10.x"
 
 tslib@^1.7.1, tslib@^1.8.0, tslib@^1.8.1:

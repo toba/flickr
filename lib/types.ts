@@ -101,7 +101,7 @@ export namespace Flickr {
     * @see https://www.flickr.com/services/api/flickr.photos.search.html
     */
    export interface Params {
-      [index: string]: string | number | boolean | string[];
+      [index: string]: string | number | boolean | string[] | undefined;
       /** @see https://www.flickr.com/services/api/misc.api_keys.html */
       api_key?: string;
       format?: Format;
@@ -262,7 +262,7 @@ export namespace Flickr {
    }
 
    export interface SizeInfo {
-      [key: string]: string;
+      [key: string]: string | undefined;
       [SizeCode.Small240]?: string;
       height_s?: string;
       width_s?: string;
@@ -308,7 +308,7 @@ export namespace Flickr {
       geo_is_friend?: Boolean | boolean;
       geo_is_contact?: Boolean | boolean;
       geo_is_public?: Boolean | boolean;
-      lastupdate?: string;
+      lastupdate: string;
       pathalias?: string;
 
       exif: Exif[];

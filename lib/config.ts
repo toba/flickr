@@ -2,8 +2,8 @@ import { Flickr } from './types';
 import { AuthConfig } from '@toba/oauth';
 
 export interface ClientConfig {
-   userID: string;
-   appID: string;
+   userID: string | null;
+   appID: string | null;
    /**
     * Not all Flickr date fields include the time zone. Set this value to
     * convert those to a local time zone. The offset may not be the same as
@@ -28,7 +28,7 @@ export interface ClientConfig {
    /** Milliseconds to wait before retrying failed request. */
    retryDelay?: number;
    /** @see https://www.flickr.com/services/api/auth.oauth.html */
-   auth: AuthConfig;
+   auth: AuthConfig | null;
 }
 
 export const defaultConfig: ClientConfig = {

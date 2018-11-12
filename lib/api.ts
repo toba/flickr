@@ -23,9 +23,9 @@ export interface Request<T> {
    /** Whether result can be cached (subject to global configuration). */
    allowCache?: boolean;
    /** Error message to log if call fails. */
-   error?: string;
+   error: string | null;
    /** OAuthClient to use if signing is required. */
-   auth?: AuthClient;
+   auth: AuthClient | null;
    params?: Flickr.Params;
 }
 
@@ -160,7 +160,7 @@ export const basicRequest = (url: string) => async () => {
  * Parse Flickr response and handle error conditions.
  */
 export function parse(body: string, key: string): Flickr.Response {
-   let res: Flickr.Response = null;
+   let res: Flickr.Response | null = null;
 
    if (is.value(body)) {
       // replace escaped single-quotes with regular single-quotes
