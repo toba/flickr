@@ -22,17 +22,17 @@ export interface Request<T> {
    /** Whether result can be cached (subject to global configuration). */
    allowCache?: boolean;
    /** Error message to log if call fails. */
-   error: string | null;
+   error?: string;
    /** OAuthClient to use if signing is required. */
-   auth: AuthClient;
+   auth?: AuthClient;
    params?: Flickr.Params;
 }
 
 export const defaultRequest: Request<any> = {
    select: r => r,
-   error: null,
+   error: undefined,
    sign: false,
-   auth: null,
+   auth: undefined,
    allowCache: false
 };
 
@@ -92,7 +92,7 @@ export function callAPI<T>(
    const request = req.sign
       ? signedRequest(url, req.auth, config.auth.token)
       : basicRequest(url);
-   const requestAndVerify = async () => {
+   const requestAndVerify = async (): Promise<T> => {
       const body = await request();
       const res = parse(body, key);
 
@@ -111,6 +111,8 @@ export function callAPI<T>(
       } else if (!res.retry) {
          // try again depending on custom flag appended in `parse()`
          throw `${url} failed`;
+      } else {
+         throw res.stat;
       }
    };
 
@@ -128,10 +130,19 @@ export function callAPI<T>(
  */
 export const signedRequest = (
    url: string,
-   authClient: AuthClient,
+   authClient?: AuthClient,
    token?: Token
 ) => () =>
    new Promise<string>((resolve, reject) => {
+      if (authClient === undefined) {
+         return reject('Cannot sign request without an OAuth client');
+      }
+      if (token === undefined) {
+         return reject('Cannot sign request with empty token');
+      }
+      if (token.secret === undefined) {
+         return reject('Cannot sign request without token secret');
+      }
       authClient.get(
          url,
          token.access,
@@ -158,14 +169,15 @@ export const basicRequest = (url: string) => async () => {
 /**
  * Parse Flickr response and handle error conditions.
  */
-export function parse(body: string, key: string): Flickr.Response {
-   let res: Flickr.Response | null = null;
+export function parse(body: string | null, key: string): Flickr.Response {
+   let res: Flickr.Response;
 
-   if (is.value(body)) {
-      // replace escaped single-quotes with regular single-quotes
-      // tslint:disable-next-line:quotemark
-      body = body.replace(/\\'/g, "'");
+   if (body === null) {
+      return failResponse;
    }
+
+   // replace escaped single-quotes with regular single-quotes
+   body = body.replace(/\\'/g, "'");
 
    if (/<html>/.test(body)) {
       // Flickr returned an HTML response instead of JSON -- likely an error

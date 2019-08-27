@@ -16,13 +16,13 @@ export interface ClientConfig {
    /** Maximum number of responses to cache. */
    maxCacheSize: number;
    /** Optional set IDs to exclude from results. */
-   excludeSets?: string[];
+   excludeSets: string[];
    /** Optional tags to exclude from tag request. */
-   excludeTags?: string[];
+   excludeTags: string[];
    /** Photo sizes to return from search request. */
-   searchPhotoSizes?: Flickr.SizeCode[];
+   searchPhotoSizes: Flickr.SizeCode[];
    /** Photo sizes to return for photo set request. */
-   setPhotoSizes?: Flickr.SizeCode[];
+   setPhotoSizes: Flickr.SizeCode[];
    /** Number of times to retry failed requests. */
    maxRetries: number;
    /** Milliseconds to wait before retrying failed request. */
@@ -32,8 +32,8 @@ export interface ClientConfig {
 }
 
 export const defaultConfig: ClientConfig = {
-   userID: null,
-   appID: null,
+   userID: '',
+   appID: '',
    useCache: false,
    timeZoneOffset: 0,
    maxCacheSize: 200,
@@ -43,5 +43,9 @@ export const defaultConfig: ClientConfig = {
    setPhotoSizes: [Flickr.SizeCode.Large1024],
    maxRetries: 3,
    retryDelay: 500,
-   auth: null
+   auth: {
+      apiKey: '',
+      secret: '',
+      callback: ''
+   }
 };

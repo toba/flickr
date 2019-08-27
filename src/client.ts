@@ -42,15 +42,21 @@ export class FlickrClient {
       return { type: Flickr.TypeName.User, value: this.config.userID };
    }
 
-   private setID(id: string): Identity {
-      return { type: Flickr.TypeName.Set, value: id };
-   }
+   private setID = (id: string): Identity => ({
+      type: Flickr.TypeName.Set,
+      value: id
+   });
 
-   private photoID(id: string | number): Identity {
-      return { type: Flickr.TypeName.Photo, value: id.toString() };
-   }
+   private photoID = (id: string | number): Identity => ({
+      type: Flickr.TypeName.Photo,
+      value: id.toString()
+   });
 
-   private _api<T>(method: string, id: Identity, req: Request<T>): Promise<T> {
+   private apiCall<T>(
+      method: string,
+      id: Identity,
+      req: Request<T>
+   ): Promise<T | null> {
       req.auth = this.oauth;
       return call<T>(method, id, req, this.config);
    }
@@ -85,23 +91,29 @@ export class FlickrClient {
     * @see https://www.flickr.com/services/api/flickr.collections.getTree.html
     */
    async getCollections(allowCache = true) {
-      const collections = await this._api<Flickr.Collection[]>(
+      const collections = await this.apiCall<Flickr.Collection[]>(
          Method.Collections,
          this.userID,
          {
-            select: r => r.collections.collection,
+            select: r =>
+               r.collections !== undefined ? r.collections.collection : [],
             allowCache
          }
       );
-      this.subscription.updateCollections(...collections);
+      if (collections !== null) {
+         this.subscription.updateCollections(...collections);
+      }
       return collections;
    }
 
    /**
     * @see https://www.flickr.com/services/api/flickr.photosets.getInfo.html
     */
-   async getSetInfo(id: string, allowCache = true): Promise<Flickr.SetInfo> {
-      const info = await this._api<Flickr.SetInfo>(
+   async getSetInfo(
+      id: string,
+      allowCache = true
+   ): Promise<Flickr.SetInfo | null> {
+      const info = await this.apiCall<Flickr.SetInfo>(
          Method.Set.Info,
          this.setID(id),
          {
@@ -109,7 +121,9 @@ export class FlickrClient {
             allowCache
          }
       );
-      this.subscription.updateSet(info.id, parseInt(info.date_update));
+      if (info !== null) {
+         this.subscription.updateSet(info.id, parseInt(info.date_update));
+      }
       return info;
    }
 
@@ -121,7 +135,7 @@ export class FlickrClient {
       id: string,
       extras: Flickr.Extra[] = [],
       allowCache = true
-   ): Promise<Flickr.SetPhotos> {
+   ): Promise<Flickr.SetPhotos | null> {
       const extrasList =
          extras.length > 0
             ? extras.join()
@@ -136,7 +150,7 @@ export class FlickrClient {
               ',' +
               this.config.setPhotoSizes.join();
 
-      const photos = await this._api<Flickr.SetPhotos>(
+      const photos = await this.apiCall<Flickr.SetPhotos>(
          Method.Set.Photos,
          this.setID(id),
          {
@@ -147,54 +161,58 @@ export class FlickrClient {
             allowCache
          }
       );
-
-      this.subscription.updateSet(id, photos);
+      if (photos !== null) {
+         this.subscription.updateSet(id, photos);
+      }
       return photos;
    }
 
    /**
     * @see https://www.flickr.com/services/api/flickr.photos.getInfo.html
     */
-   getPhotoInfo(id: string) {
-      return this._api<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
+   getPhotoInfo = (id: string) =>
+      this.apiCall<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
          select: r => r.photo as Flickr.PhotoInfo,
          allowCache: true
       });
-   }
 
    /**
     * @see https://www.flickr.com/services/api/flickr.photos.getSizes.html
     */
-   getPhotoSizes(id: string) {
-      return this._api<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
-         select: r => r.sizes.size
+   getPhotoSizes = (id: string) =>
+      this.apiCall<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
+         select: r => (r.sizes !== undefined ? r.sizes.size : [])
       });
-   }
 
    /**
     * All sets that a photo belongs to.
     * @see https://www.flickr.com/services/api/flickr.photos.getAllContexts.html
     */
-   getPhotoContext(id: string) {
-      return this._api<Flickr.MemberSet[]>(
-         Method.Photo.Sets,
-         this.photoID(id),
-         {
-            select: r => r.set
-         }
-      );
-   }
+   getPhotoContext = (id: string) =>
+      this.apiCall<Flickr.MemberSet[]>(Method.Photo.Sets, this.photoID(id), {
+         select: r => (r.set !== undefined ? r.set : [])
+      });
 
    /**
     * @see https://www.flickr.com/services/api/flickr.photos.getExif.html
     */
-   getExif(id: string) {
-      return this._api<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
-         select: r =>
-            is.defined(r.photo, 'exif') ? r.photo.exif : r.photo.EXIF,
+   getExif = (id: string) =>
+      this.apiCall<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
+         select: r => {
+            if (r.photo === undefined) {
+               return [];
+            }
+            if (r.photo.exif !== undefined) {
+               return r.photo.exif;
+            }
+            // Flickr changed the field name
+            if (r.photo.EXIF !== undefined) {
+               return r.photo.EXIF;
+            }
+            return [];
+         },
          allowCache: true
       });
-   }
 
    /**
     * The documentation says signing is not required but results differ even
@@ -202,73 +220,72 @@ export class FlickrClient {
     *
     * @see https://www.flickr.com/services/api/flickr.photos.search.html
     */
-   photoSearch(tags: string | string[]) {
-      return this._api<Flickr.PhotoSummary[]>(
-         Method.Photo.Search,
-         this.userID,
-         {
-            params: {
-               extras: this.config.searchPhotoSizes.join(),
-               tags: is.array(tags) ? tags.join() : tags,
-               sort: Flickr.Sort.Relevance,
-               per_page: 500 // maximum
-            },
-            select: r => r.photos.photo as Flickr.PhotoSummary[],
-            sign: true
-         }
-      );
-   }
+   photoSearch = (tags: string | string[]) =>
+      this.apiCall<Flickr.PhotoSummary[]>(Method.Photo.Search, this.userID, {
+         params: {
+            extras: this.config.searchPhotoSizes.join(),
+            tags: is.array(tags) ? tags.join() : tags,
+            sort: Flickr.Sort.Relevance,
+            per_page: 500 // maximum
+         },
+         select: r =>
+            r.photos !== undefined
+               ? (r.photos.photo as Flickr.PhotoSummary[])
+               : [],
+         sign: true
+      });
 
    /**
     * All photo tags for API user.
     * @see https://www.flickr.com/services/api/flickr.tags.getListUserRaw.html
     */
-   getAllPhotoTags() {
-      return this._api<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {
-         select: r => r.who.tags.tag,
+   getAllPhotoTags = () =>
+      this.apiCall<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {
+         select: r => (r.who !== undefined ? r.who.tags.tag : []),
          sign: true,
          allowCache: true
       });
-   }
 
-   getRequestToken(): Promise<string> {
-      const token = this.config.auth.token;
-      return new Promise<string>((resolve, reject) => {
+   getRequestToken = (): Promise<string> =>
+      new Promise<string>((resolve, reject) => {
+         const token = this.config.auth.token;
+         if (token === undefined) {
+            return reject('Cannot get request token without OAuth object');
+         }
          this.oauth.getOAuthRequestToken((error, requestToken, secret) => {
             if (is.value(error)) {
-               reject(error);
-            } else {
-               // token and secret are both needed for the next call but token is
-               // echoed back from the authorize service
-               token.request = requestToken;
-               token.secret = secret;
-
-               resolve(`${Url.Authorize}?oauth_token=${requestToken}`);
+               return reject(error);
             }
+            // token and secret are both needed for the next call but token is
+            // echoed back from the authorize service
+            token.request = requestToken;
+            token.secret = secret;
+
+            resolve(`${Url.Authorize}?oauth_token=${requestToken}`);
          });
       });
-   }
 
-   getAccessToken(requestToken: string, verifier: string): Promise<Token> {
-      const token = this.config.auth.token;
-      return new Promise((resolve, reject) => {
+   getAccessToken = (requestToken: string, verifier: string) =>
+      new Promise<Token>((resolve, reject) => {
+         const token = this.config.auth.token;
+         if (token === undefined || token.secret === undefined) {
+            return reject('Cannot get access token without secret');
+         }
+
          this.oauth.getOAuthAccessToken(
             requestToken,
             token.secret,
             verifier,
             (error, accessToken, secret) => {
-               token.secret = null;
+               token.secret = undefined;
                if (is.value(error)) {
-                  reject(error);
-               } else {
-                  resolve({
-                     access: accessToken,
-                     secret: secret,
-                     accessExpiration: null
-                  } as Token);
+                  return reject(error);
                }
+               resolve({
+                  access: accessToken,
+                  secret: secret
+               } as Token);
             }
          );
       });
-   }
 }

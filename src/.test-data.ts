@@ -16,8 +16,11 @@ export const testConfig: ClientConfig = {
    ],
    timeZoneOffset: -1,
    setPhotoSizes: [Flickr.SizeCode.Large1024],
+   searchPhotoSizes: [Flickr.SizeCode.Large1024],
    useCache: false,
    maxRetries: 1,
+   maxCacheSize: 10,
+   retryDelay: 1,
    auth: {
       apiKey: 'FLICKR_API_KEY',
       secret: 'FLICKR_SECRET',
