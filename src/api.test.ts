@@ -1,6 +1,5 @@
 import '@toba/test';
-import { merge, is } from '@toba/tools';
-import { log } from '@toba/logger';
+import { merge, is, ValueType } from '@toba/tools';
 import { AuthClient, SigningMethod } from '@toba/oauth';
 import {
    call,
@@ -17,10 +16,9 @@ import { Url, Method } from './constants';
 import { Flickr } from './types';
 
 const key = 'mockKey';
-const logMock = jest.fn();
 const mockID: Identity = { value: 'user-name', type: Flickr.TypeName.User };
 const mockRequest: Request<Flickr.Collection[]> = {
-   select: r => r.collections.collection,
+   select: r => (r.collections === undefined ? [] : r.collections.collection),
    allowCache: false,
    auth: new AuthClient(
       Url.RequestToken,
@@ -30,7 +28,8 @@ const mockRequest: Request<Flickr.Collection[]> = {
       '1.0A',
       testConfig.auth.callback,
       SigningMethod.HMAC
-   )
+   ),
+   error: null
 };
 const collectionsURL = parameterize(
    Method.Collections,
@@ -38,25 +37,13 @@ const collectionsURL = parameterize(
    mockRequest,
    testConfig
 );
-let logWithColor: boolean;
 
 function expectCollection(res: Flickr.Response): void {
    expect(res).toHaveProperty('stat', Flickr.Status.Okay);
    expect(res).toHaveProperty('collections');
    expect(res.collections).toHaveProperty('collection');
-   expect(res.collections.collection).toBeInstanceOf(Array);
+   expect(res.collections!.collection).toBeInstanceOf(Array);
 }
-
-// remove color codes since they complicate the snapshots
-beforeAll(() => {
-   console.log = logMock;
-   logWithColor = log.config.color;
-   log.update({ color: false });
-});
-beforeEach(() => logMock.mockClear());
-afterAll(() => {
-   log.update({ color: logWithColor });
-});
 
 test('Builds request parameters', () => {
    const url = parameterize(
@@ -67,9 +54,7 @@ test('Builds request parameters', () => {
    );
 
    expect(url).toBe(
-      `?api_key=${testConfig.auth.apiKey}&format=json&nojsoncallback=1&method=${
-         Method.Prefix
-      }${Method.Collections}&user_id=user-name`
+      `?api_key=${testConfig.auth.apiKey}&format=json&nojsoncallback=1&method=${Method.Prefix}${Method.Collections}&user_id=user-name`
    );
 });
 
@@ -94,7 +79,7 @@ test('Curries signed HTTP get method', () => {
    expect(getter).toBeInstanceOf(Function);
 
    return getter().then(body => {
-      expect(typeof body).toBe(is.Type.String);
+      expect(typeof body).toBe(ValueType.String);
       expectCollection(JSON.parse(body));
    });
 });

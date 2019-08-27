@@ -37,9 +37,8 @@
       "url": "https://github.com/toba/flickr/issues"
    },
    "dependencies": {
-      "@toba/logger": "^2.0.0",
-      "@toba/oauth": "^2.0.0",
-      "@toba/tools": "^6.0.0",
+      "@toba/node-tools": "^1.4.0",
+      "@toba/oauth": "^2.1.0",
       "node-fetch": "^2.1.0"
    }
 }

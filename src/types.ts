@@ -1,10 +1,10 @@
 export namespace Flickr {
-   enum Boolean {
+   const enum Boolean {
       'false',
       'true'
    }
 
-   export enum SizeCode {
+   export const enum SizeCode {
       Thumb = 'url_t',
       Square75 = 'url_sq',
       Square150 = 'url_q',
@@ -20,25 +20,25 @@ export namespace Flickr {
    }
 
    /** Types of Flickr entities. */
-   export enum TypeName {
+   export const enum TypeName {
       User = 'user_id',
       Set = 'photoset_id',
       Photo = 'photo_id'
    }
 
-   export enum Status {
+   export const enum Status {
       Okay = 'ok',
       Failed = 'fail'
    }
 
-   export enum Format {
+   export const enum Format {
       /** @see https://www.flickr.com/services/api/response.json.html */
       JSON = 'json',
       /** @see https://www.flickr.com/services/api/response.xmlrpc.html */
       XML = 'xml'
    }
 
-   export enum Sort {
+   export const enum Sort {
       DatePostedAsc = 'date-posted-asc',
       DatePostedDesc = 'date-posted-desc',
       DateTakenAsc = 'date-taken-asc',
@@ -48,7 +48,7 @@ export namespace Flickr {
       Relevance = 'relevance'
    }
 
-   export enum Privacy {
+   export const enum Privacy {
       Public = 1,
       Friends,
       Family,
@@ -59,7 +59,7 @@ export namespace Flickr {
    /**
     * @see http://www.flickr.com/services/api/flickr.photos.licenses.getInfo.html
     */
-   enum License {
+   const enum License {
       AllRightsReserved = 0,
       Attribution = 4,
       Attribution_NoDervis = 6,
@@ -73,7 +73,7 @@ export namespace Flickr {
    /**
     * @see http://www.flickr.com/services/api/flickr.photos.setSafetyLevel.html
     */
-   enum SafetyLevel {
+   const enum SafetyLevel {
       Safe = 1,
       Moderate = 2,
       Restricted = 3
@@ -83,7 +83,7 @@ export namespace Flickr {
     * Extra values to return from queries, e.g.
     * @see https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
     */
-   export enum Extra {
+   export const enum Extra {
       Description = 'description',
       Tags = 'tags',
       DateTaken = 'date_taken',

@@ -25,7 +25,7 @@ export const testConfig: ClientConfig = {
       token: {
          access: 'FLICKR_ACCESS_TOKEN',
          secret: 'FLICKR_TOKEN_SECRET',
-         request: null
+         request: undefined
       }
    }
 };

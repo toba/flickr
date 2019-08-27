@@ -1,4 +1,4 @@
-export enum Url {
+export const enum Url {
    Host = 'api.flickr.com',
    Base = '/services/rest/',
    RequestToken = 'http://www.flickr.com/services/oauth/request_token',

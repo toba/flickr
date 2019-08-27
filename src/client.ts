@@ -1,5 +1,5 @@
 import { AuthClient, SigningMethod, Token } from '@toba/oauth';
-import { is, merge } from '@toba/tools';
+import { is, merge } from '@toba/node-tools';
 import { Flickr } from './types';
 import { ClientConfig, defaultConfig } from './config';
 import { ChangeSubscription, Changes, EventType } from './subscription';

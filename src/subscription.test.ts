@@ -1,6 +1,5 @@
 import '@toba/test';
 import { Duration } from '@toba/tools';
-import { log } from '@toba/logger';
 import { FlickrClient } from './';
 import { testConfig, setID } from './.test-data';
 import {
@@ -14,22 +13,15 @@ import {
 } from './subscription';
 
 let client: FlickrClient;
-let logWithColor: boolean;
 
 const logMock = jest.fn();
 
 beforeAll(() => {
    console.log = logMock;
-   logWithColor = log.config.color;
-   log.update({ color: false });
 });
 beforeEach(() => {
    logMock.mockClear();
-   testConfig.useCache = true;
    client = new FlickrClient(testConfig);
-});
-afterAll(() => {
-   log.update({ color: logWithColor });
 });
 
 test('rejects unreasonable poll interval', () => {
@@ -165,7 +157,9 @@ test('polls for data changes', async done => {
             // nextTick ensures subscription clears changes and sets next timer
             expect(sub.changes).toEqual(noChange);
             expect(sub.changeTimer).toBeDefined();
-            fn();
+            if (fn !== undefined) {
+               fn();
+            }
             // now run out the timer to trigger handler
             jest.runAllTimers();
          });

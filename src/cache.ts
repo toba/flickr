@@ -1,4 +1,4 @@
-import { Cache } from '@toba/tools';
+import { Cache } from '@toba/node-tools';
 import { makeKey as key } from './api';
 
 /** Cache singleton */

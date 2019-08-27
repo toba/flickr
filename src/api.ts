@@ -1,6 +1,5 @@
-import { is, retry, Header, merge } from '@toba/tools';
+import { is, retry, Header, merge } from '@toba/node-tools';
 import { AuthClient, Token } from '@toba/oauth';
-import { log } from '@toba/logger';
 import { ClientConfig } from './config';
 import { Url, Method } from './constants';
 import { Flickr } from './types';
@@ -25,7 +24,7 @@ export interface Request<T> {
    /** Error message to log if call fails. */
    error: string | null;
    /** OAuthClient to use if signing is required. */
-   auth: AuthClient | null;
+   auth: AuthClient;
    params?: Flickr.Params;
 }
 
@@ -53,19 +52,19 @@ export async function call<T>(
    id: Identity,
    req: Request<T>,
    config: ClientConfig
-): Promise<T> {
+): Promise<T | null> {
    req = merge(defaultRequest, req);
    // curry parameterless fallback call to API
    const curryCallAPI = (): Promise<T> => callAPI<T>(method, id, req, config);
 
-   return req.allowCache && config.useCache
+   return req.allowCache === true && config.useCache === true
       ? cache
            .get<T>(method, id.value)
            // revert to calling API if cache item is invalid
            .then(item => (is.value(item) ? item : curryCallAPI()))
            // revert to calling API if error reading cache
            .catch((err: Error) => {
-              log.error(err, { method, id });
+              console.error(err, { method, id });
               return null;
            })
       : curryCallAPI();
@@ -130,7 +129,7 @@ export function callAPI<T>(
 export const signedRequest = (
    url: string,
    authClient: AuthClient,
-   token: Token
+   token?: Token
 ) => () =>
    new Promise<string>((resolve, reject) => {
       authClient.get(
@@ -171,7 +170,7 @@ export function parse(body: string, key: string): Flickr.Response {
    if (/<html>/.test(body)) {
       // Flickr returned an HTML response instead of JSON -- likely an error
       // message; see if we can swallow it and retry.
-      log.error('Flickr returned HTML instead of JSON', { key });
+      console.error('Flickr returned HTML instead of JSON', { key });
       return failResponse;
    }
 
@@ -179,17 +178,17 @@ export function parse(body: string, key: string): Flickr.Response {
       res = JSON.parse(body);
 
       if (res === null) {
-         log.error(`Call to ${key} returned null`, { key });
+         console.error(`Call to ${key} returned null`, { key });
          res = failResponse;
       } else if (res.stat == Flickr.Status.Failed) {
-         log.error(res.message, { key, code: res.code });
+         console.error(res.message, { key, code: res.code });
          // do not retry if the item is simply not found
-         if (res.message.includes('not found')) {
+         if (res.message !== undefined && res.message.includes('not found')) {
             res.retry = false;
          }
       }
    } catch (ex) {
-      log.error(ex, { key });
+      console.error(ex, { key });
       res = failResponse;
    }
    return res;
@@ -209,7 +208,9 @@ export function parameterize<T>(
    let qs = '';
    let op = '?';
 
-   const param: Flickr.Params = is.value(req.params) ? req.params : {};
+   const param: Flickr.Params = is.value<Flickr.Params>(req.params)
+      ? req.params
+      : {};
 
    param.api_key = config.auth.apiKey;
    param.format = Flickr.Format.JSON;
@@ -220,7 +221,7 @@ export function parameterize<T>(
       param[id.type] = id.value;
    }
    for (const k in param) {
-      qs += op + k + '=' + encodeURIComponent(param[k].toString());
+      qs += op + k + '=' + encodeURIComponent(param[k]!.toString());
       op = '&';
    }
    return qs;

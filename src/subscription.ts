@@ -5,8 +5,7 @@ import {
    addUnique,
    durationString,
    listDifference
-} from '@toba/tools';
-import { log } from '@toba/logger';
+} from '@toba/node-tools';
 import { Flickr, FlickrClient } from './';
 
 const defaultPollInterval = Duration.Minute * 5;
@@ -300,7 +299,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    private emitChange() {
       if (this.changes.sets.length > 0 || this.changes.collections.length > 0) {
          this.emit(EventType.Change, this.changes);
-         log.info(
+         console.info(
             `Flickr sets [${this.changes.sets.join()}] or collections [${this.changes.collections.join()}] changed`
          );
          this.changes = { sets: [], collections: [] };
@@ -320,7 +319,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    ) {
       if (pollInterval < Duration.Second * 20) {
          // disallow rapid polling
-         log.warn(
+         console.warn(
             `Poll interval of ${durationString(
                pollInterval
             )} is invalid; reverting to ${durationString(defaultPollInterval)}.`
