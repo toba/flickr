@@ -25,7 +25,7 @@
    },
    "devDependencies": {
       "@toba/develop": "^6.6.12",
-      "@toba/test": "^4.1.0",
+      "@toba/test": "^4.1.13",
       "@types/node-fetch": "^2.1.0",
       "typescript": "^3.6.2"
    },
@@ -37,7 +37,7 @@
       "url": "https://github.com/toba/flickr/issues"
    },
    "dependencies": {
-      "@toba/node-tools": "^1.4.6",
+      "@toba/node-tools": "^1.4.9",
       "@toba/oauth": "^2.1.0",
       "node-fetch": "^2.1.0"
    }
