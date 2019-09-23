@@ -24,10 +24,10 @@
       "test": "jest --coverage"
    },
    "devDependencies": {
-      "@toba/develop": "^6.6.12",
+      "@toba/develop": "^6.7.3",
       "@toba/test": "^4.1.13",
-      "@types/node-fetch": "^2.1.0",
-      "typescript": "^3.6.2"
+      "@types/node-fetch": "^2.5.1",
+      "typescript": "^3.6.3"
    },
    "repository": {
       "type": "git",
