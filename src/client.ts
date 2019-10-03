@@ -288,4 +288,11 @@ export class FlickrClient {
             }
          );
       });
+
+   /**
+    * Empty API response cache.
+    */
+   clearCache() {
+      cache.clear();
+   }
 }
