@@ -199,16 +199,11 @@ export class FlickrClient {
    getExif = (id: string) =>
       this.apiCall<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
          select: r => {
-            if (r.photo === undefined) {
-               return []
-            }
-            if (r.photo.exif !== undefined) {
-               return r.photo.exif
-            }
+            if (r.photo === undefined) return []
+            if (r.photo.exif !== undefined) return r.photo.exif
             // Flickr changed the field name
-            if (r.photo.EXIF !== undefined) {
-               return r.photo.EXIF
-            }
+            if (r.photo.EXIF !== undefined) return r.photo.EXIF
+
             return []
          },
          allowCache: true
@@ -278,9 +273,8 @@ export class FlickrClient {
             verifier,
             (error, accessToken, secret) => {
                token.secret = undefined
-               if (is.value(error)) {
-                  return reject(error)
-               }
+               if (is.value(error)) return reject(error)
+
                resolve({
                   access: accessToken,
                   secret: secret
