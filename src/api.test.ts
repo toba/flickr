@@ -45,7 +45,7 @@ function expectCollection(res: Flickr.Response): void {
    expect(res.collections!.collection).toBeInstanceOf(Array)
 }
 
-test('Builds request parameters', () => {
+it('Builds request parameters', () => {
    const url = parameterize(Method.Collections, mockID, mockRequest, testConfig)
 
    expect(url).toBe(
@@ -53,7 +53,7 @@ test('Builds request parameters', () => {
    )
 })
 
-test('Curries basic HTTP get method', () => {
+it('Curries basic HTTP get method', () => {
    const getter = basicRequest(collectionsURL)
 
    expect(getter).toBeInstanceOf(Function)
@@ -64,7 +64,7 @@ test('Curries basic HTTP get method', () => {
    })
 })
 
-test('Curries signed HTTP get method', () => {
+it('Curries signed HTTP get method', () => {
    const getter = signedRequest(
       collectionsURL,
       mockRequest.auth,
@@ -79,7 +79,7 @@ test('Curries signed HTTP get method', () => {
    })
 })
 
-test('Parses response body', () => {
+it('Parses response body', () => {
    const notFound: Flickr.Response = {
       stat: Flickr.Status.Failed,
       message: 'thing not found'
@@ -101,7 +101,7 @@ test('Parses response body', () => {
    // });
 })
 
-test('Converts response to objects', () =>
+it('Converts response to objects', () =>
    call(
       Method.Collections,
       { type: Flickr.TypeName.User, value: '' },

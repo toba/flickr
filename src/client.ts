@@ -248,9 +248,7 @@ export class FlickrClient {
             return reject('Cannot get request token without OAuth object')
          }
          this.oauth.getOAuthRequestToken((error, requestToken, secret) => {
-            if (is.value(error)) {
-               return reject(error)
-            }
+            if (is.value(error)) return reject(error)
             // token and secret are both needed for the next call but token is
             // echoed back from the authorize service
             token.request = requestToken

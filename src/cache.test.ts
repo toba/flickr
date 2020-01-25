@@ -8,10 +8,8 @@ interface TestItem {
    key: string
 }
 
-test('Adds items to cache', () => {
+test('Adds items to cache', async () => {
    cache.add(m, id, { key: 'value' } as TestItem)
-
-   return cache.get<TestItem>(m, id).then(item => {
-      expect(item.key).toBe('value')
-   })
+   const item = await cache.get<TestItem>(m, id)
+   expect(item.key).toBe('value')
 })

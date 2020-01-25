@@ -1,7 +1,7 @@
 import '@toba/test'
-import { Duration } from '@toba/tools'
 import { FlickrClient } from './client'
 import { Flickr } from './types'
+import { Url } from './constants'
 import { testConfig, photoID, setID } from './.test-data'
 
 jest.unmock('./api')
@@ -14,22 +14,22 @@ beforeAll(() => {
    client = new FlickrClient(testConfig)
 })
 
-test('Retrieves all collections', async () => {
+it('Retrieves all collections', async () => {
    const collections = await client.getCollections()
    expect(collections).toBeInstanceOf(Array)
 })
 
-test('Catches non-existent set request', () =>
+it('Catches non-existent set request', () =>
    client.getSetInfo('45').catch(error => {
       expect(error).toBe('Flickr photosets.getInfo failed for photoset_id 45')
    }))
 
-test('Retrieves set information', async () => {
+it('Retrieves set information', async () => {
    const setInfo = await client.getSetInfo(setID)
    expect(setInfo!.id).toBe(setID)
 })
 
-test('Retrieves set photos', async () => {
+it('Retrieves set photos', async () => {
    const res: Flickr.SetPhotos | null = await client.getSetPhotos(setID)
    expect(res).toHaveProperty('id', setID)
    expect(res!.photo).toBeInstanceOf(Array)
@@ -39,30 +39,30 @@ test('Retrieves set photos', async () => {
    })
 })
 
-test('Retrieves photo info', async () => {
+it('Retrieves photo info', async () => {
    const info: Flickr.PhotoInfo | null = await client.getPhotoInfo(photoID)
    expect(info).not.toBeNull()
    expect(info!.dates.taken).toBe('2017-10-15 16:00:12')
    expect(info!.location.accuracy).toBe(16)
 })
 
-test('Retrieves photo EXIF', async () => {
+it('Retrieves photo EXIF', async () => {
    const exif: Flickr.Exif[] | null = await client.getExif(photoID)
    expect(exif).toBeInstanceOf(Array)
 })
 
-test('Retrieves photo sizes', async () => {
+it('Retrieves photo sizes', async () => {
    const sizes: Flickr.Size[] | null = await client.getPhotoSizes(photoID)
    expect(sizes).toBeInstanceOf(Array)
    expect(sizes![0]).toHaveProperty('url')
 })
 
-test('Retrieves all photo tags', async () => {
+it('Retrieves all photo tags', async () => {
    const tags: Flickr.Tag[] | null = await client.getAllPhotoTags()
    expect(tags).toBeInstanceOf(Array)
 })
 
-test('Retrieves photo context', async () => {
+it('Retrieves photo context', async () => {
    const context: Flickr.MemberSet[] | null = await client.getPhotoContext(
       photoID
    )
@@ -70,7 +70,7 @@ test('Retrieves photo context', async () => {
    expect(context![0]).toHaveProperty('id', setID)
 })
 
-test('Searches for photos', async () => {
+it('Searches for photos', async () => {
    const matches: Flickr.PhotoSummary[] | null = await client.photoSearch(
       'horse'
    )
@@ -78,8 +78,8 @@ test('Searches for photos', async () => {
    expect(matches![0]).toHaveProperty('owner', testConfig.userID)
 })
 
-test('Supports simultaneous requests', () => {
-   jest.setTimeout(Duration.Second * 30)
+it('Supports simultaneous requests', async () => {
+   //jest.setTimeout(Duration.Second * 30)
    return Promise.all([
       client.getSetInfo(photoID),
       client.getSetPhotos(setID),
@@ -89,4 +89,11 @@ test('Supports simultaneous requests', () => {
       expect(photos).toBeDefined()
       expect(collections).toBeDefined()
    })
+})
+
+it('gets request token', async () => {
+   jest.unmock('oauth')
+   jest.unmock('@toba/oauth')
+   const url = await client.getRequestToken()
+   expect(url).toBe(`${Url.Authorize}?oauth_token=mock-request-token`)
 })
