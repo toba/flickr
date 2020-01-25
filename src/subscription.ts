@@ -5,18 +5,18 @@ import {
    addUnique,
    durationString,
    listDifference
-} from '@toba/node-tools';
-import { Flickr, FlickrClient } from './';
+} from '@toba/node-tools'
+import { Flickr, FlickrClient } from './'
 
-const defaultPollInterval = Duration.Minute * 5;
+const defaultPollInterval = Duration.Minute * 5
 
 /**
  * Set and collection IDs that have been added, removed or changed, emitted as
  * change event payload.
  */
 export interface Changes {
-   sets: string[];
-   collections: string[];
+   sets: string[]
+   collections: string[]
 }
 
 export enum EventType {
@@ -32,7 +32,7 @@ export enum EventType {
  * Collection IDs mapped to Set IDs used to detect changes by comparing to the
  * previously collected `WatchMap`.
  */
-type SetCollections = { [key: string]: string[] };
+type SetCollections = { [key: string]: string[] }
 
 /**
  * Flickr item that is being watched for changes.
@@ -43,18 +43,18 @@ interface Watched {
     * item hasn't been directly retrieved through the API, such as a photo set
     * summary retrieved as part of a collection but not itself loaded.
     */
-   lastUpdate: number;
+   lastUpdate: number
 }
 
-export type WatchMap = { [key: string]: Watched };
+export type WatchMap = { [key: string]: Watched }
 
 /**
  * Sets are the primary watch target. They reference contained photos (children)
  * and containing collections (parents).
  */
 interface WatchedSet extends Watched {
-   collections: string[];
-   photos: WatchMap;
+   collections: string[]
+   photos: WatchMap
 }
 
 /**
@@ -62,30 +62,28 @@ interface WatchedSet extends Watched {
  * contains a different number of items or an item has a newer update time.
  */
 export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
-   const oldKeys = Object.keys(older);
+   const oldKeys = Object.keys(older)
 
-   if (oldKeys.length !== Object.keys(newer).length) {
-      return true;
-   }
+   if (oldKeys.length !== Object.keys(newer).length) return true
 
-   let changed = false;
+   let changed = false
 
    oldKeys.forEach(key => {
       if (!is.defined(newer, key)) {
-         changed = true;
+         changed = true
          // note this returns from the loop method, not the main function
-         return;
+         return
       }
       if (
          older[key].lastUpdate != 0 &&
          older[key].lastUpdate < newer[key].lastUpdate
       ) {
-         changed = true;
-         return;
+         changed = true
+         return
       }
-   });
+   })
 
-   return changed;
+   return changed
 }
 
 /**
@@ -93,15 +91,12 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
  * `Flickr.Extra.DateUpdated` must be sent with `getSetPhotos`.
  */
 export const mapSetPhotos = (photos: Flickr.PhotoSummary[]): WatchMap =>
-   photos.reduce(
-      (hash, p) => {
-         hash[p.id] = {
-            lastUpdate: parseInt(p.lastupdate)
-         };
-         return hash;
-      },
-      {} as WatchMap
-   );
+   photos.reduce((hash, p) => {
+      hash[p.id] = {
+         lastUpdate: parseInt(p.lastupdate)
+      }
+      return hash
+   }, {} as WatchMap)
 
 /**
  * Create list of all collections a set belongs to either directly or
@@ -117,18 +112,16 @@ export function mapSetCollections(
    collections.forEach(c => {
       if (is.array(c.set)) {
          c.set.forEach(s => {
-            if (!is.defined(sets, s.id)) {
-               sets[s.id] = [];
-            }
-            addUnique(sets[s.id], c.id, ...parentIDs);
-         });
+            if (!is.defined(sets, s.id)) sets[s.id] = []
+            addUnique(sets[s.id], c.id, ...parentIDs)
+         })
       }
       if (is.array(c.collection)) {
          // recurse into child collections
-         sets = mapSetCollections(c.collection, sets, c.id, ...parentIDs);
+         sets = mapSetCollections(c.collection, sets, c.id, ...parentIDs)
       }
-   });
-   return sets;
+   })
+   return sets
 }
 
 /**
@@ -149,22 +142,22 @@ export function mapSetCollections(
  * containing collection to show updated.
  */
 export class ChangeSubscription extends EventEmitter<EventType, any> {
-   client: FlickrClient;
-   changeTimer: NodeJS.Timer;
+   client: FlickrClient
+   changeTimer: NodeJS.Timer
    /** Changes accumulated but not yet emitted. */
-   changes: Changes;
+   changes: Changes
    /** Frequency at which to query for changes. */
-   pollInterval = defaultPollInterval;
+   pollInterval = defaultPollInterval
    /** Whether there are any change subscribers. */
-   active = false;
+   active = false
    /** Sets being watched for changes. */
-   watched: { [key: string]: WatchedSet };
+   watched: { [key: string]: WatchedSet }
 
    constructor(client: FlickrClient) {
-      super();
-      this.client = client;
-      this.watched = {};
-      this.changes = { sets: [], collections: [] };
+      super()
+      this.client = client
+      this.watched = {}
+      this.changes = { sets: [], collections: [] }
    }
 
    /**
@@ -176,9 +169,9 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
             lastUpdate: 0,
             collections: [],
             photos: {}
-         };
+         }
       }
-      return this.watched[id];
+      return this.watched[id]
    }
 
    /**
@@ -187,76 +180,76 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
     */
    updateCollections(...collections: Flickr.Collection[]) {
       /** Collection IDs that differ between set versions */
-      const collectionDiff: string[] = [];
+      const collectionDiff: string[] = []
       /** Sets that belong to changed collections */
-      const changedSets: string[] = [];
+      const changedSets: string[] = []
       /** List of collection IDs matched to set IDs */
-      const sets = mapSetCollections(collections);
+      const sets = mapSetCollections(collections)
       /** Only compare if collection sets were previously retrieved */
-      const compare = Object.keys(this.watched).length > 0;
-      const setIDs = Object.keys(sets);
+      const compare = Object.keys(this.watched).length > 0
+      const setIDs = Object.keys(sets)
 
       setIDs.forEach(id => {
-         const watchedSet = this.watchedSet(id);
+         const watchedSet = this.watchedSet(id)
 
          if (compare) {
-            const diff = listDifference(sets[id], watchedSet.collections);
+            const diff = listDifference(sets[id], watchedSet.collections)
 
             if (diff !== null && diff.length > 0) {
                // track changes and update watch list
-               addUnique(collectionDiff, ...diff);
+               addUnique(collectionDiff, ...diff)
                if (watchedSet.lastUpdate > 0) {
                   // if set doesn't have update time then it hasn't been retrieved
-                  changedSets.push(id);
+                  changedSets.push(id)
                }
             }
          }
-         watchedSet.collections = sets[id];
-      });
+         watchedSet.collections = sets[id]
+      })
 
       if (compare) {
          // Find watched sets that were in a collection but are now in none, so
          // aren't listed in the current collections list considered above.
          Object.keys(this.watched).forEach(id => {
-            const watchedSet = this.watched[id];
+            const watchedSet = this.watched[id]
             if (setIDs.indexOf(id) == -1 && watchedSet.collections.length > 0) {
-               changedSets.push(id);
-               addUnique(collectionDiff, ...watchedSet.collections);
+               changedSets.push(id)
+               addUnique(collectionDiff, ...watchedSet.collections)
             }
-         });
+         })
       }
 
       if (collectionDiff.length > 0) {
-         addUnique(this.changes.collections, ...collectionDiff);
-         addUnique(this.changes.sets, ...changedSets);
+         addUnique(this.changes.collections, ...collectionDiff)
+         addUnique(this.changes.sets, ...changedSets)
       }
    }
 
-   updateSet(id: string, photos: Flickr.SetPhotos): void;
-   updateSet(id: string, lastUpdate: number): void;
+   updateSet(id: string, photos: Flickr.SetPhotos): void
+   updateSet(id: string, lastUpdate: number): void
    updateSet(id: string, p2: number | Flickr.SetPhotos) {
-      const set = this.watchedSet(id);
-      let changed = false;
+      const set = this.watchedSet(id)
+      let changed = false
 
       if (is.number(p2)) {
          if (this.active) {
-            changed = set.lastUpdate != 0 && p2 > set.lastUpdate;
+            changed = set.lastUpdate != 0 && p2 > set.lastUpdate
          }
-         set.lastUpdate = p2;
+         set.lastUpdate = p2
       } else {
-         const photos = mapSetPhotos(p2.photo);
+         const photos = mapSetPhotos(p2.photo)
          if (this.active) {
             changed =
                Object.keys(set.photos).length > 0 &&
-               hasChanged(set.photos, photos);
+               hasChanged(set.photos, photos)
          }
-         set.photos = photos;
+         set.photos = photos
       }
 
       if (changed) {
          // accumulate change IDs to be emitted together
-         this.changes.sets.push(id);
-         this.changes.collections.push(...set.collections);
+         this.changes.sets.push(id)
+         this.changes.collections.push(...set.collections)
       }
    }
 
@@ -266,7 +259,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
     */
    private queryChange() {
       if (this.changeTimer) {
-         clearTimeout(this.changeTimer);
+         clearTimeout(this.changeTimer)
       }
 
       /**
@@ -275,22 +268,22 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
        */
       const setIDs = Object.keys(this.watched).filter(
          id => this.watched[id].lastUpdate > 0
-      );
+      )
       const photos: Promise<any>[] = setIDs.map(id =>
          this.client.getSetPhotos(id, [Flickr.Extra.DateUpdated], false)
-      );
+      )
       const info: Promise<any>[] = setIDs.map(id =>
          this.client.getSetInfo(id, false)
-      );
-      const collections = this.client.getCollections(false);
+      )
+      const collections = this.client.getCollections(false)
 
       return Promise.all([...info, ...photos, collections]).then(() => {
-         this.emitChange();
+         this.emitChange()
          this.changeTimer = setTimeout(
             this.queryChange.bind(this),
             this.pollInterval
-         );
-      });
+         )
+      })
    }
 
    /**
@@ -298,13 +291,13 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
     */
    private emitChange() {
       if (this.changes.sets.length > 0 || this.changes.collections.length > 0) {
-         this.emit(EventType.Change, this.changes);
+         this.emit(EventType.Change, this.changes)
          console.info(
             `Flickr sets [${this.changes.sets.join()}] or collections [${this.changes.collections.join()}] changed`
-         );
-         this.changes = { sets: [], collections: [] };
+         )
+         this.changes = { sets: [], collections: [] }
       } else {
-         this.emit(EventType.NoChange);
+         this.emit(EventType.NoChange)
       }
    }
 
@@ -323,13 +316,13 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
             `Poll interval of ${durationString(
                pollInterval
             )} is invalid; reverting to ${durationString(defaultPollInterval)}.`
-         );
-         pollInterval = defaultPollInterval;
+         )
+         pollInterval = defaultPollInterval
       }
-      this.pollInterval = pollInterval;
-      this.active = true;
-      this.subscribe(EventType.Change, fn);
-      this.emit(EventType.NewWatcher);
-      this.changeTimer = setTimeout(this.queryChange.bind(this), pollInterval);
+      this.pollInterval = pollInterval
+      this.active = true
+      this.subscribe(EventType.Change, fn)
+      this.emit(EventType.NewWatcher)
+      this.changeTimer = setTimeout(this.queryChange.bind(this), pollInterval)
    }
 }

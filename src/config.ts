@@ -1,34 +1,34 @@
-import { Flickr } from './types';
-import { AuthConfig } from '@toba/oauth';
+import { Flickr } from './types'
+import { AuthConfig } from '@toba/oauth'
 
 export interface ClientConfig {
-   userID: string;
-   appID: string;
+   userID: string
+   appID: string
    /**
     * Not all Flickr date fields include the time zone. Set this value to
     * convert those to a local time zone. The offset may not be the same as
     * the standard UTC offset. It may instead be relative to wherever Flickr's
     * servers are.
     */
-   timeZoneOffset: number;
+   timeZoneOffset: number
    /** Whether to cache API resuts. */
-   useCache?: boolean;
+   useCache?: boolean
    /** Maximum number of responses to cache. */
-   maxCacheSize: number;
+   maxCacheSize: number
    /** Optional set IDs to exclude from results. */
-   excludeSets: string[];
+   excludeSets: string[]
    /** Optional tags to exclude from tag request. */
-   excludeTags: string[];
+   excludeTags: string[]
    /** Photo sizes to return from search request. */
-   searchPhotoSizes: Flickr.SizeCode[];
+   searchPhotoSizes: Flickr.SizeCode[]
    /** Photo sizes to return for photo set request. */
-   setPhotoSizes: Flickr.SizeCode[];
+   setPhotoSizes: Flickr.SizeCode[]
    /** Number of times to retry failed requests. */
-   maxRetries: number;
+   maxRetries: number
    /** Milliseconds to wait before retrying failed request. */
-   retryDelay: number;
+   retryDelay: number
    /** @see https://www.flickr.com/services/api/auth.oauth.html */
-   auth: AuthConfig;
+   auth: AuthConfig
 }
 
 export const defaultConfig: ClientConfig = {
@@ -48,4 +48,4 @@ export const defaultConfig: ClientConfig = {
       secret: '',
       callback: ''
    }
-};
+}
