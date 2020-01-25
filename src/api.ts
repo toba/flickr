@@ -140,7 +140,7 @@ export const signedRequest = (
       if (token === undefined) {
          return reject('Cannot sign request with empty token')
       }
-      if (token.secret === undefined) {
+      if (token.secret === undefined || token.access === undefined) {
          return reject('Cannot sign request without token secret')
       }
       authClient.get(

@@ -65,9 +65,7 @@ export class FlickrClient {
     * Remove items from cache when change is detected on the Flickr server.
     */
    private onChange(changes: Changes) {
-      if (!this.config.useCache) {
-         return
-      }
+      if (!this.config.useCache) return
 
       if (changes.collections.length > 0) {
          cache.remove(Method.Collections, this.userID.value)

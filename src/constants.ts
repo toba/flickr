@@ -1,10 +1,10 @@
 export const Url = {
    Host: 'api.flickr.com',
    Base: '/services/rest/',
-   RequestToken: 'http://www.flickr.com/services/oauth/request_token',
-   Authorize: 'http://www.flickr.com/services/oauth/authorize',
-   AccessToken: 'http://www.flickr.com/services/oauth/access_token',
-   PhotoSet: 'http://www.flickr.com/photos/trailimage/sets/'
+   RequestToken: 'https://www.flickr.com/services/oauth/request_token',
+   Authorize: 'https://www.flickr.com/services/oauth/authorize',
+   AccessToken: 'https://www.flickr.com/services/oauth/access_token',
+   PhotoSet: 'https://www.flickr.com/photos/trailimage/sets/'
 }
 
 const PhotoMethods = {

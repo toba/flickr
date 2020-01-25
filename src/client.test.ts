@@ -1,7 +1,6 @@
 import '@toba/test'
 import { FlickrClient } from './client'
 import { Flickr } from './types'
-import { Url } from './constants'
 import { testConfig, photoID, setID } from './.test-data'
 
 jest.unmock('./api')
@@ -89,11 +88,4 @@ it('Supports simultaneous requests', async () => {
       expect(photos).toBeDefined()
       expect(collections).toBeDefined()
    })
-})
-
-it('gets request token', async () => {
-   jest.unmock('oauth')
-   jest.unmock('@toba/oauth')
-   const url = await client.getRequestToken()
-   expect(url).toBe(`${Url.Authorize}?oauth_token=mock-request-token`)
 })
