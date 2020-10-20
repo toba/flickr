@@ -4,7 +4,7 @@ export const Url = {
    RequestToken: 'https://www.flickr.com/services/oauth/request_token',
    Authorize: 'https://www.flickr.com/services/oauth/authorize',
    AccessToken: 'https://www.flickr.com/services/oauth/access_token',
-   PhotoSet: 'https://www.flickr.com/photos/trailimage/sets/'
+   PhotoSet: 'https://www.flickr.com/photos/trailimage/sets/',
 }
 
 const PhotoMethods = {
@@ -13,17 +13,17 @@ const PhotoMethods = {
    Search: 'photos.search',
    Sets: 'photos.getAllContexts',
    Sizes: 'photos.getSizes',
-   Tags: 'tags.getListUserRaw'
+   Tags: 'tags.getListUserRaw',
 }
 
 const SetMethods = {
    Info: 'photosets.getInfo',
-   Photos: 'photosets.getPhotos'
+   Photos: 'photosets.getPhotos',
 }
 
 export const Method = {
    Prefix: 'flickr.',
    Collections: 'collections.getTree',
    Photo: PhotoMethods,
-   Set: SetMethods
+   Set: SetMethods,
 }

@@ -1,7 +1,7 @@
 {
    "name": "@toba/flickr",
    "description": "Toba Flickr API",
-   "version": "3.1.3",
+   "version": "3.1.4",
    "private": false,
    "publishConfig": {
       "access": "public"
@@ -18,8 +18,8 @@
       "cjs"
    ],
    "scripts": {
-      "build:esm": "./node_modules/.bin/tsc --project ./node_modules/@toba/develop/tsconfig.esm.json",
-      "build:cjs": "./node_modules/.bin/tsc --project ./node_modules/@toba/develop/tsconfig.cjs-min.json",
+      "build:esm": "tsc --project ./node_modules/@toba/develop/tsconfig.esm.json",
+      "build:cjs": "tsc --project ./node_modules/@toba/develop/tsconfig.cjs-min.json",
       "prepublishOnly": "npm run build:esm & npm run build:cjs",
       "test": "jest --coverage"
    },
@@ -27,7 +27,7 @@
       "@toba/develop": "^6.8.1",
       "@toba/test": "^4.2.1",
       "@types/node-fetch": "^2.5.5",
-      "typescript": "^3.8.3"
+      "typescript": "^4.0.0"
    },
    "repository": {
       "type": "git",

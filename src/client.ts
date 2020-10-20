@@ -44,12 +44,12 @@ export class FlickrClient {
 
    private setID = (id: string): Identity => ({
       type: Flickr.TypeName.Set,
-      value: id
+      value: id,
    })
 
    private photoID = (id: string | number): Identity => ({
       type: Flickr.TypeName.Photo,
-      value: id.toString()
+      value: id.toString(),
    })
 
    private apiCall<T>(
@@ -71,7 +71,7 @@ export class FlickrClient {
          cache.remove(Method.Collections, this.userID.value)
       }
 
-      changes.sets.forEach(id => {
+      changes.sets.forEach((id) => {
          cache.remove(Method.Set.Info, id)
          cache.remove(Method.Set.Photos, id)
       })
@@ -93,9 +93,9 @@ export class FlickrClient {
          Method.Collections,
          this.userID,
          {
-            select: r =>
+            select: (r) =>
                r.collections !== undefined ? r.collections.collection : [],
-            allowCache
+            allowCache,
          }
       )
       if (collections !== null) {
@@ -115,8 +115,8 @@ export class FlickrClient {
          Method.Set.Info,
          this.setID(id),
          {
-            select: r => r.photoset as Flickr.SetInfo,
-            allowCache
+            select: (r) => r.photoset as Flickr.SetInfo,
+            allowCache,
          }
       )
       if (info !== null) {
@@ -143,7 +143,7 @@ export class FlickrClient {
                  Flickr.Extra.DateTaken,
                  Flickr.Extra.DateUpdated,
                  Flickr.Extra.Location,
-                 Flickr.Extra.PathAlias
+                 Flickr.Extra.PathAlias,
               ].join() +
               ',' +
               this.config.setPhotoSizes.join()
@@ -153,10 +153,10 @@ export class FlickrClient {
          this.setID(id),
          {
             params: {
-               extras: extrasList
+               extras: extrasList,
             },
-            select: r => r.photoset as Flickr.SetPhotos,
-            allowCache
+            select: (r) => r.photoset as Flickr.SetPhotos,
+            allowCache,
          }
       )
       if (photos !== null) {
@@ -170,8 +170,8 @@ export class FlickrClient {
     */
    getPhotoInfo = (id: string) =>
       this.apiCall<Flickr.PhotoInfo>(Method.Photo.Info, this.photoID(id), {
-         select: r => r.photo as Flickr.PhotoInfo,
-         allowCache: true
+         select: (r) => r.photo as Flickr.PhotoInfo,
+         allowCache: true,
       })
 
    /**
@@ -179,7 +179,7 @@ export class FlickrClient {
     */
    getPhotoSizes = (id: string) =>
       this.apiCall<Flickr.Size[]>(Method.Photo.Sizes, this.photoID(id), {
-         select: r => (r.sizes !== undefined ? r.sizes.size : [])
+         select: (r) => (r.sizes !== undefined ? r.sizes.size : []),
       })
 
    /**
@@ -188,7 +188,7 @@ export class FlickrClient {
     */
    getPhotoContext = (id: string) =>
       this.apiCall<Flickr.MemberSet[]>(Method.Photo.Sets, this.photoID(id), {
-         select: r => (r.set !== undefined ? r.set : [])
+         select: (r) => (r.set !== undefined ? r.set : []),
       })
 
    /**
@@ -196,7 +196,7 @@ export class FlickrClient {
     */
    getExif = (id: string) =>
       this.apiCall<Flickr.Exif[]>(Method.Photo.EXIF, this.photoID(id), {
-         select: r => {
+         select: (r) => {
             if (r.photo === undefined) return []
             if (r.photo.exif !== undefined) return r.photo.exif
             // Flickr changed the field name
@@ -204,7 +204,7 @@ export class FlickrClient {
 
             return []
          },
-         allowCache: true
+         allowCache: true,
       })
 
    /**
@@ -219,13 +219,13 @@ export class FlickrClient {
             extras: this.config.searchPhotoSizes.join(),
             tags: is.array(tags) ? tags.join() : tags,
             sort: Flickr.Sort.Relevance,
-            per_page: 500 // maximum
+            per_page: 500, // maximum
          },
-         select: r =>
+         select: (r) =>
             r.photos !== undefined
                ? (r.photos.photo as Flickr.PhotoSummary[])
                : [],
-         sign: true
+         sign: true,
       })
 
    /**
@@ -234,9 +234,9 @@ export class FlickrClient {
     */
    getAllPhotoTags = () =>
       this.apiCall<Flickr.Tag[]>(Method.Photo.Tags, this.userID, {
-         select: r => (r.who !== undefined ? r.who.tags.tag : []),
+         select: (r) => (r.who !== undefined ? r.who.tags.tag : []),
          sign: true,
-         allowCache: true
+         allowCache: true,
       })
 
    getRequestToken = (): Promise<string> =>
@@ -273,7 +273,7 @@ export class FlickrClient {
 
                resolve({
                   access: accessToken,
-                  secret: secret
+                  secret: secret,
                } as Token)
             }
          )

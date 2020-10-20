@@ -4,7 +4,7 @@ import {
    is,
    addUnique,
    durationString,
-   listDifference
+   listDifference,
 } from '@toba/node-tools'
 import { Flickr, FlickrClient } from './'
 
@@ -25,7 +25,7 @@ export enum EventType {
    /** Polling found no data change -- useful for testing. */
    NoChange,
    /** A new watcher has subscribed to changes. */
-   NewWatcher
+   NewWatcher,
 }
 
 /**
@@ -68,7 +68,7 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
 
    let changed = false
 
-   oldKeys.forEach(key => {
+   oldKeys.forEach((key) => {
       if (!is.defined(newer, key)) {
          changed = true
          // note this returns from the loop method, not the main function
@@ -93,7 +93,7 @@ export function hasChanged(older: WatchMap, newer: WatchMap): boolean {
 export const mapSetPhotos = (photos: Flickr.PhotoSummary[]): WatchMap =>
    photos.reduce((hash, p) => {
       hash[p.id] = {
-         lastUpdate: parseInt(p.lastupdate)
+         lastUpdate: parseInt(p.lastupdate),
       }
       return hash
    }, {} as WatchMap)
@@ -109,9 +109,9 @@ export function mapSetCollections(
    sets: SetCollections = {},
    ...parentIDs: string[]
 ): SetCollections {
-   collections.forEach(c => {
+   collections.forEach((c) => {
       if (is.array(c.set)) {
-         c.set.forEach(s => {
+         c.set.forEach((s) => {
             if (!is.defined(sets, s.id)) sets[s.id] = []
             addUnique(sets[s.id], c.id, ...parentIDs)
          })
@@ -143,7 +143,7 @@ export function mapSetCollections(
  */
 export class ChangeSubscription extends EventEmitter<EventType, any> {
    client: FlickrClient
-   changeTimer: NodeJS.Timer
+   changeTimer: NodeJS.Timer | number
    /** Changes accumulated but not yet emitted. */
    changes: Changes
    /** Frequency at which to query for changes. */
@@ -168,7 +168,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          this.watched[id] = {
             lastUpdate: 0,
             collections: [],
-            photos: {}
+            photos: {},
          }
       }
       return this.watched[id]
@@ -189,7 +189,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       const compare = Object.keys(this.watched).length > 0
       const setIDs = Object.keys(sets)
 
-      setIDs.forEach(id => {
+      setIDs.forEach((id) => {
          const watchedSet = this.watchedSet(id)
 
          if (compare) {
@@ -210,7 +210,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
       if (compare) {
          // Find watched sets that were in a collection but are now in none, so
          // aren't listed in the current collections list considered above.
-         Object.keys(this.watched).forEach(id => {
+         Object.keys(this.watched).forEach((id) => {
             const watchedSet = this.watched[id]
             if (setIDs.indexOf(id) == -1 && watchedSet.collections.length > 0) {
                changedSets.push(id)
@@ -235,9 +235,9 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
          if (this.active) {
             changed = set.lastUpdate != 0 && p2 > set.lastUpdate
          }
-         set.lastUpdate = p2
+         set.lastUpdate = p2 as number
       } else {
-         const photos = mapSetPhotos(p2.photo)
+         const photos = mapSetPhotos((p2 as Flickr.SetPhotos).photo)
          if (this.active) {
             changed =
                Object.keys(set.photos).length > 0 &&
@@ -258,21 +258,19 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
     * disabled.
     */
    private queryChange() {
-      if (this.changeTimer) {
-         clearTimeout(this.changeTimer)
-      }
+      if (this.changeTimer) clearTimeout(this.changeTimer as number)
 
       /**
        * IDs of sets with an update timestamp. Those without a timestamp are
        * placeholders that haven't been loaded yet.
        */
       const setIDs = Object.keys(this.watched).filter(
-         id => this.watched[id].lastUpdate > 0
+         (id) => this.watched[id].lastUpdate > 0
       )
-      const photos: Promise<any>[] = setIDs.map(id =>
+      const photos: Promise<any>[] = setIDs.map((id) =>
          this.client.getSetPhotos(id, [Flickr.Extra.DateUpdated], false)
       )
-      const info: Promise<any>[] = setIDs.map(id =>
+      const info: Promise<any>[] = setIDs.map((id) =>
          this.client.getSetInfo(id, false)
       )
       const collections = this.client.getCollections(false)
@@ -287,7 +285,7 @@ export class ChangeSubscription extends EventEmitter<EventType, any> {
    }
 
    /**
-    * Emit change and reset accumulated changes.
+    * Emit change and reset accumulated changes
     */
    private emitChange() {
       if (this.changes.sets.length > 0 || this.changes.collections.length > 0) {
